@@ -1,6 +1,6 @@
 Package: FastRet
 Title: Retention time prediction and subset selection with a GUI
-Version: 0.99.7
+Version: 1.0.0
 Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cre"), email = "christian.amesoeder@stud.uni-regensburg.de"),
     person(given = "Marian", family = "Schön", role = c("aut"), email = "marian.schoen@klinik.uni-regensburg.de"),
@@ -11,20 +11,45 @@ License: GPL-3
 biocViews: Retention, Time, Chromotography, LC-MS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
-Suggests:
-    knitr,
-    rmarkdown
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
 Depends: R (>= 4.1.0)
 Imports:
+    bslib,
     caret,
+    cluster,
+    digest,
+    DT,
+    future,
     ggplot2,
     glmnet,
-    pdist,
+    htmltools,
+    promises,
     rcdk,
     readxl,
-    shiny,
+    shiny (>= 1.8.1),
     shinybusy,
     shinyhelper,
+    shinyjs,
+    xgboost,
     xlsx
+Suggests:
+    cli,
+    devtools,
+    doParallel,
+    httpgd,
+    knitr,
+    languageserver,
+    lintr,
+    pkgbuild,
+    pkgload,
+    rlang,
+    rmarkdown,
+    tibble,
+    testthat (>= 3.0.0),
+    toscutil,
+    usethis,
+    withr
+Config/testthat/edition: 3
+Config/testthat/parallel: true
+LazyData: true

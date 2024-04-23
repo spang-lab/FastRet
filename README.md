@@ -4,7 +4,11 @@
 
 # FastRet
 
-The goal of FastRet is to provide easy retention time prediction for Liquid Chromatography especially with small datasets and adapt this prediction for new experiment setups. By providing a GUI to navigate through the steps we removed all barriers to entry this domain of science. The package utilizes rcdk to get predictor variables from SMILES and training regression model (Lasso/XGBoost) on this data.
+FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI). The package's key features include the ability to
+
+1. Train new predictive models specific for your own chromatography column
+2. Use pre-trained models to predict retention times of molecules
+3. Adjust pre-trained models to accommodate modifications in chromatography columns
 
 ## Installation
 
@@ -17,13 +21,30 @@ devtools::install_github("toscm/FastRet", build_vignettes = TRUE)
 
 ## Usage
 
-You can start the GUI with one function call.
+The easiest way to use FastRet is through its GUI. To start the GUI, [install the package](#installation) and then run the following command in an interactive R terminal:
 
 ```R
 FastRet::FastRet()
 ```
-A more in-depth tutorial on how to use this package is available as a vignette at 
 
-``` r
-vignette("fastret", package="FastRet")
+After running the above code, you should see an output like
+
 ```
+Listening on http://localhost:8080
+```
+
+in your R console. This means that the GUI is now running and you can access it via the URL <http://localhost:8080> in your browser. If your terminal supports it, you can also just click on the displayed link.
+
+<img src="vignettes/Getting-Started/start-page.png" width="45%">
+<img src="vignettes/Getting-Started/mode-help.png" width="45%">
+
+By default, the GUI opens in Mode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or have a look at the documentation page for [GUI Usage](https://toscm.github.io/FastRet/articles/gui-usage.html).
+
+## Documentation
+
+FastRet's documentation is available at [toscm.github.io/FastRet](https://toscm.github.io/FastRet/). It includes pages about
+
+- [GUI Usage](https://toscm.github.io/FastRet/articles/gui-usage.html)
+- [CLI Usage](https://toscm.github.io/FastRet/articles/cli-usage.html)
+- [Package Internals](https://toscm.github.io/FastRet/articles/fastret-internals.html)
+- [Function Reference](https://toscm.github.io/FastRet/reference/index.html)

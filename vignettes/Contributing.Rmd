@@ -1,0 +1,49 @@
+---
+title: "Contributing"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Contributing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+To contribute to this package, you should follow the below steps:
+
+1. Create a issue at [github.com/toscm/FastRet/issues](https://github.com/toscm/FastRet/issues) describing the problem or feature you want to work on.
+2. Wait until the issue is approved by a package maintainer.
+3. Create a fork of the repository at [github.com/toscm/FastRet](https://github.com/toscm/FastRet)
+4. Make your edits as described in section [Making Edits](#making-edits)
+5. Create a pull request at [github.com/toscm/FastRet/pulls]
+
+## Making Edits
+
+Things you can update, are:
+
+1. Function code in folder [R](R)
+2. Function documentation in folder [R](R)
+3. Package documentation in folder `vignettes`
+4. Test cases in folder [tests](tests)
+5. Dependencies in file [DESCRIPTION](DESCRIPTION)
+6. Authors in file [DESCRIPTION](DESCRIPTION)
+
+Whenever you update any of those things, you should run the below commands to check that everything is still working as expected
+
+```R
+devtools::test() # Execute tests from tests folder
+devtools::check() # Check package formalities
+devtools::document() # Build files in man folder
+devtools::install() # Install as required by next command
+pkgdown::build_site() # Build website in docs folder
+```
+
+After doing these steps, you can push your changes to Github and then use the following commands to release the package to CRAN:
+
+```R
+rcmdcheck::rcmdcheck() # Slower, but more realistic test than devtools::check()
+devtools::spell_check() # Check spelling. Add false positives to inst/WORDLIST
+devtools::submit_cran() # Submits the package to CRAN
+revdepcheck::revdep_check(num_workers = 8) # Reverse dependency check
+# See https://r-pkgs.org/release.html#sec-release-revdep-checks for details
+```
+
+Above steps are based on: <https://r-pkgs.org/release.html>

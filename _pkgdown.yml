@@ -1,4 +1,22 @@
 url: ~
 template:
   bootstrap: 5
-
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - GUI-Usage
+      - CLI-Usage
+      - FastRet-Internals
+      - Contributing
+      - Old-Intro
+reference:
+- title: Public API
+  desc: FastRet's Public User Interface
+  contents: [has_keyword("public")]
+- title: Internal
+  desc: "Internal helper functions. Although exported, they are not intended for direct use by users. They are exported to speed up cluster creation for parallel computing, as this process would require explicit function exporting of every required private function. Additionally, exporting these functions allows them to be referenced in the documentation of public API functions."
+  contents: [has_keyword("internal")]
+- title: Datasets
+  desc: "Datasets used in FastRet's examples and vignettes."
+  contents: [has_keyword("dataset")]

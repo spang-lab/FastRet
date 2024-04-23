@@ -1,9 +1,12 @@
 ^_pkgdown\.yml$
-^.lintr$
-^.vscode$
 ^\.github$
+^\.lintr$
+^\.Rplots\.pdf$
 ^\.Rproj\.user$
+^\.vscode$
+^app\.R$
 ^Dockerfile$
 ^docs$
 ^FastRet\.Rproj$
 ^pkgdown$
+^misc$

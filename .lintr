@@ -1,5 +1,16 @@
 linters: linters_with_defaults(
-    line_length_linter = NULL,
+    line_length_linter(9999),
+    object_length_linter(9998),
     commented_code_linter = NULL,
-    object_name_linter = NULL
+    object_name_linter = NULL,
+    indentation_linter = NULL,
+    cyclocomp_linter = NULL,
+    spaces_inside_linter = NULL,
+    semicolon_linter = NULL,
+    object_usage_linter = NULL,
+    assignment_linter = NULL,
+    brace_linter = NULL
+  )
+exclusions: list(
+    "R/MetaboDecon1D.R"
   )

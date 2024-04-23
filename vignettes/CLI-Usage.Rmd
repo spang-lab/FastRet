@@ -1,0 +1,31 @@
+---
+title: "CLI Usage"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CLI Usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+FastRet comes with a GUI for easy and intuitive use. However, sometimes it's preferable to use FastRet programmatically. This vignette will show you how to use FastRet from the R command line.
+
+# Train new Model
+
+FastRet supports the fitting of two different types of models: regularized linear models (LASSO) and boosted regression trees. To train a LASSO model, you can use the following code:
+
+```R
+# TODO
+```
+
+To train a boosted regression tree model, you can use:
+
+```R
+# TODO
+```
