@@ -59,6 +59,7 @@ getCDsCache <- as.environment(list())
 #' @keywords internal
 #' @export
 getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1) {
+  if (verbose <- 0) catf <- function(...) invisible() # disable catf prints
   if (cache) {
     cache_dir <- get_cache_dir("getCDsFor1Molecule")
     cache_file <- paste0(digest::digest(smi), ".rds")
@@ -112,10 +113,10 @@ analyzeCDNames <- function() {
 
 #' @title Chemical Descriptors Names
 #' @description This object contains the names of various chemical descriptors.
-#' @details One descriptor can be associated with multiple features, e.g. the BCUT descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h, BCUTc.1l, BCUTc.1h, BCUTp.1l, BCUTp.1h. Some descriptors produce warnings for certain molecules., e.g. "The AtomType null could not be found" or "Molecule must have 3D coordinates" and return NA in such cases. Descriptors that produce only NAs in our test datasets will be excluded. To see which descriptors produce only NAs, run `analyzeCDNames`.
+#' @details One descriptor can be associated with multiple features, e.g. the BCUT descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h, BCUTc.1l, BCUTc.1h, BCUTp.1l, BCUTp.1h. Some descriptors produce warnings for certain molecules., e.g. "The AtomType null could not be found" or "Molecule must have 3D coordinates" and return NA in such cases. Descriptors that produce only NAs in our test datasets will be excluded. To see which descriptors produce only NAs, run `analyzeCDNames`. The "LongestAliphaticChain" descriptors sometimes even produces `Error: segfault from C stack overflow` error`, e.g. for SMILES `c1ccccc1C(Cl)(Cl)Cl` (== `rcdk::bpdata$SMILES[200]`) when using `OpenJDK Runtime Environment (build 11.0.23+9-post-Ubuntu-1ubuntu122.04.1)`.
 #' @examples \dontrun{
 #' CDNames <- rcdk::get.desc.names(type = "all")
-#' skipPattern <- "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|GravitationalIndex|CPSA|TaeAminoAcid)"
+#' skipPattern <- "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|GravitationalIndex|CPSA|TaeAminoAcid|LongestAliphaticChain)"
 #' CDNames <- CDNames[!grepl(skipPattern, CDNames)]
 #' }
 #' @seealso [analyzeCDNames()], [CDs]
@@ -138,7 +139,6 @@ CDNames <- c(
   "org.openscience.cdk.qsar.descriptors.molecular.PetitjeanNumberDescriptor",
   "org.openscience.cdk.qsar.descriptors.molecular.MDEDescriptor",
   "org.openscience.cdk.qsar.descriptors.molecular.MannholdLogPDescriptor",
-  "org.openscience.cdk.qsar.descriptors.molecular.LongestAliphaticChainDescriptor",
   "org.openscience.cdk.qsar.descriptors.molecular.LargestPiSystemDescriptor",
   "org.openscience.cdk.qsar.descriptors.molecular.LargestChainDescriptor",
   "org.openscience.cdk.qsar.descriptors.molecular.KierHallSmartsDescriptor",

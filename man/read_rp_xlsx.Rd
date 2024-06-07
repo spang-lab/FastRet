@@ -18,4 +18,4 @@ Read retention time data from a reverse phase liquid chromatography measured wit
 \seealso{
 RP
 }
-\keyword{datasets}
+\keyword{dataset}

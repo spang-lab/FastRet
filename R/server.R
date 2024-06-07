@@ -66,13 +66,13 @@ init_extended_task_handlers <- function(SE) {
             RT_PREDICTED_CV <- round(frm$cv$preds, 2)
             SE$RV$trainedFRM <- frm
             SE$RV$tblTrainResults <- cbind(RT, RT_PREDICTED, RT_PREDICTED_CV, NAME, SMILES, cds)
-            catf("Showing buttons: dbSaveModel, dbSavePredictors")
+            catf("Showing buttons: dbSaveModel, dbSavePredictorSet")
             shinyjs::show("dbSaveModel")
-            shinyjs::show("dbSavePredictors")
+            shinyjs::show("dbSavePredictorSet")
         },
         onRunning = function(SE) {
-            catf("Hiding: dbSavePredictors, dbSaveModel")
-            shinyjs::hide("dbSavePredictors")
+            catf("Hiding: dbSavePredictorSet, dbSaveModel")
+            shinyjs::hide("dbSavePredictorSet")
             shinyjs::hide("dbSaveModel")
             # catf("Showing: abShowLogs") # TODO: enable logging output
             # shinyjs::show("abShowLogs")
@@ -250,7 +250,7 @@ init_download_handlers <- function(SE) {
         filename = function() {
             frm <- SE$ET$btnAdj$result()
             mtype <- if (inherits(frm$model, "xgb.Booster")) "xgboost" else "lasso"
-            sprintf("fastret-%s-model-adusted-%s.rds", mtype, Sys.Date())
+            sprintf("fastret-%s-model-adjusted-%s.rds", mtype, Sys.Date())
         },
         content = function(file) {
             saveRDS(SE$ET$btnAdj$result(), file)
@@ -500,10 +500,10 @@ init_outputs <- function(SE) {
     SE$output$ui_predict_results <- renderUI(ui_predict_results(SE))
     SE$output$ui_adjust_results  <- renderUI(ui_adjust_results(SE))
     # Plot Outputs
-    SE$output$poTrainPerfCV <- renderPlot(SE$POH$poTrainPerfCV(SE))
-    SE$output$poTrainPerf   <- renderPlot(SE$POH$poTrainPerf(SE))
-    SE$output$poAdjPerfCV   <- renderPlot(SE$POH$poAdjPerfCV(SE))
-    SE$output$poAdjPerf     <- renderPlot(SE$POH$poAdjPerf(SE))
+    SE$output$poTrainPerfCV <- renderPlot(SE$POH$poTrainPerfCV(SE), execOnResize = TRUE)
+    SE$output$poTrainPerf   <- renderPlot(SE$POH$poTrainPerf(SE), execOnResize = TRUE)
+    SE$output$poAdjPerfCV   <- renderPlot(SE$POH$poAdjPerfCV(SE), execOnResize = TRUE)
+    SE$output$poAdjPerf     <- renderPlot(SE$POH$poAdjPerf(SE), execOnResize = TRUE)
     # Table Outputs
     observe(SE$TBH$tblPredResults(SE))
     observe(SE$TBH$tblTrainResults(SE))
@@ -583,7 +583,7 @@ showError <- function(msg = NULL, expr = NULL, duration = 10) {
 #' })
 #' }
 #' @noRd
-extendedTask <- function(func, logfile, timeout = 120) {
+extendedTask <- function(func, logfile, timeout = 300) {
     logfile <- logfile
     func <- as.symbol(func)
     langobj <- substitute(

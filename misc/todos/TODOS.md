@@ -3,21 +3,24 @@
 - [x] Remove boxplots (RS)
 - [x] Hide sections `Method`, `Preprocessing Options` and `Seed` behind `Show advanved Settings` button (RS)
 - [x] Label "XGboost" as "XGBoost (recommended)" (RS)
+- [x] Merge into main
+- [x] Nach github/spang-lab umziehen
+- [x] Fix missing j in "adusted"
+- [ ] Make "minutes" as RT-unit mandatory. (RS)
 
+- [ ] Fix download of trained dataset
 - [ ] Show RT_ADJ ~ RT_ORIG in adjust_model plot
+- [ ] Enable rerender on resize
 - [ ] Show model coefficients
-- [ ] Fix Download of trained dataset
-- [ ] Fix missing j in "adusted"
-- [ ] Finalize rcdk dependency analysis
-- [ ] Merge into main
-- [ ] Nach github/spang-lab umziehen
-- [ ] Finalize docs
+
 - [ ] Add question mark with help texts to plots. (RS)
 - [ ] Move formulas from legend to help texts and use simple words in legend. (RS)
 - [ ] Add unit (minutes) to MSE and MAE. (RS)
-- [ ] Make "minutes" as RT-unit mandatory. (RS)
 - [ ] Show unit in axis labels. (RS)
 - [ ] Rename mode "Selective Measuring" to "Design Reference Molecule Panel" (RS)
+
+- [ ] Finalize rcdk dependency analysis
+- [ ] Finalize docs
 
 - [ ] LATER: Offer "quantile normalization" as preprocessing step (RS)
 - [ ] LATER: Implement RAM caching for `getCD`

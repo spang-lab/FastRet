@@ -1,4 +1,4 @@
-# Usage: Rscript install_rcdk.R [--verbose]
+# Usage: Rscript install-rcdk.R [--verbose]
 
 args <- commandArgs(trailingOnly = TRUE)
 verbose <- "--verbose" %in% args
@@ -23,8 +23,10 @@ with_sink <- function(expr) {
 }
 
 cat('Removing rJava, rcdklibs and rcdk ... ')
-with_sink(remove.packages(pkgs[installed]))
-importable <- suppressWarnings(sapply(pkgs, library, character.only = TRUE, logical.return = TRUE))
+for (lib in .libPaths()) {
+    with_sink(try(remove.packages(pkgs[installed], lib = .libPaths())))
+}
+importable <- with_sink(suppressWarnings(sapply(pkgs, library, character.only = TRUE, logical.return = TRUE, quietly = TRUE)))
 if (any(importable)) {
     cat(failed)
     exitcode <- 1

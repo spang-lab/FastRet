@@ -23,16 +23,59 @@ start_gui <- function(port = 8080,
     runApp(app)
 }
 
-start_gui_in_devmode <- function() {
+mocklist <- c("inpFRM", "inpDf", "adjDf", "btnTrain", "cluster_calc", "tiPredSmiles", "getCDs", "preprocess_data", "train_frm", "selective_measuring")
+strategies <- c("sequential", "multicore", "multisession")
+startModes <- c("Train new Model", "Predict Retention Times", "Selective Measuring", "Adjust existing Model")
+
+#' @title Start the FastRet GUI in development mode
+#' @description Starts the FastRet GUI in development mode
+#' @param strategy The strategy to use for parallel processing. Can be one of "sequential", "multicore", "multisession"
+#' @param mocks A character vector of mocks to be used. The following mocks are available:
+#' * Shiny mocks
+#'   * `inpFRM`: inits `RV$ubInpFRM`
+#'   * `inpDf`: inits `RV$inpDf`
+#'   * `adjDf`: inits `RV$adjDf`
+#'   * `btnTrain`: triggers `SE$ABH$btnTrain`
+#'   * `cluster_calc`: TODO
+#'   * `tiPredSmiles`: TODO
+#' * Functions mocks
+#'   * `getCDs`: mocks [getCDs()]
+#'   * `preprocess_data`: mocks [preprocess_data()]
+#'   * `train_frm`: mocks [train_frm()]
+#'   * `selective_measuring`: mocks [selective_measuring()]
+#' @param startMode The start mode to use. Can be one of "Train new Model", "Predict Retention Times", "Selective Measuring", "Adjust existing Model"
+#' @return NULL. Called for side effects.
+#' @keywords internal
+#' @noRd
+#' @details By using no subworkers and multicore or sequential, we can ensure that all processes are forked from the current R session and therefore use the functions loaded via devtools. If we use multisession and or subworkers, these processes will use the installed version of FastRet instead.
+#' ==> If we work on the UI part, we can use multisession and/or subworkers, because the UI part is handled by the main process, BUT, If we develop train/predict/plot functions, we must use multicore or sequential and NO subworkers! In particular, to use `browser()` in these functions, we must use sequential.
+start_gui_in_devmode <- function(strategy = "sequential",
+                                 mocks = mocklist,
+                                 startMode = "Train new Model") {
+
+    catf("Checking args")
+    startMode <- match.arg(startMode, startModes)
+    strategy <- match.arg(strategy, strategies)
+    if (!all(mocks %in% mocklist)) stop("mocks must be a subset of: ", paste(mocklist, collapse = ", "))
+
+    catf("Patching shiny and pkgload")
     patch_shiny()
     patch_pkgload()
+
+    catf("Reloading FastRet")
     devtools::load_all() # needs to be called once with updated function
+
+    catf("Setting development options")
+    opts <- options(shiny.autoreload = TRUE, FastRet.mocks = mocks, FastRet.UI.startMode = startMode, warn = 1)
+    on.exit(expr = {catf("Resetting development options"); options(opts)}, add = TRUE)
+
+    catf("Initializing cluster")
+    oldplan <- future::plan(strategy)
+    on.exit(expr = {catf("Deleting cluster"); future::plan(oldplan)}, add = TRUE, after = FALSE)
+
+    catf("Starting FastRet GUI in development mode")
     pkg_root <- dirname(system.file("DESCRIPTION", package = "FastRet"))
-    opts <- options()
-    on.exit(options(opts), add = TRUE) # reset all options set within `pkg_root/app.R`
-    oldplan <- future::plan("sequential") # we can set a multicore future inside `pkg_root/app.R`, this way the cores will be forked again after each reload, which is better for development
     shiny::with_devmode(TRUE, shiny::runApp(pkg_root), verbose = TRUE)
-    on.exit(future::plan(oldplan), add = TRUE)
 }
 
 #' @title The FastRet GUI
@@ -67,3 +110,4 @@ check_cdk_version <- function() {
         stop(msgf, call. = FALSE)
     }
 }
+

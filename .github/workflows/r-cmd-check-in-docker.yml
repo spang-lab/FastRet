@@ -1,0 +1,16 @@
+name: r-cmd-check-in-docker
+on: {
+  push: {branches: [main, master]},
+  pull_request: {branches: [main, master]}
+}
+
+jobs:
+  r-cmd-check-in-docker:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run R CMD check in Docker
+      run: docker run --rm -v "$(pwd):/workspace" -w /workspace "toscm/fastret-base:0.1.1" /usr/bin/Rscript -e 'devtools::install_deps(dependencies = TRUE, upgrade = "never"); rcmdcheck::rcmdcheck()'
