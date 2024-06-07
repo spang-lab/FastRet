@@ -61,7 +61,7 @@ jobs:
         run: sudo Rscript misc/scripts/test-rcdk.R --progress --descriptors 'c(1:19, 21:53)'
 
       - name: Install FastRet
-        run: sudo Rscript install-fastret.R --branch fix-actions --verbose
+        run: sudo Rscript misc/scripts/install-fastret.R --branch fix-actions --verbose
 
       - name: Test FastRet
         uses: r-lib/actions/check-r-package@v2

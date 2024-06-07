@@ -583,7 +583,7 @@ showError <- function(msg = NULL, expr = NULL, duration = 10) {
 #' })
 #' }
 #' @noRd
-extendedTask <- function(func, logfile, timeout = 120) {
+extendedTask <- function(func, logfile, timeout = 300) {
     logfile <- logfile
     func <- as.symbol(func)
     langobj <- substitute(

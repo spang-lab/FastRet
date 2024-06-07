@@ -42,7 +42,7 @@ jobs:
         run: sudo Rscript misc/scripts/install-rjava.R
 
       - name: Install FastRet
-        run: sudo Rscript install-fastret.R --branch fix-actions --verbose
+        run: sudo Rscript misc/scrpts/install-fastret.R --branch fix-actions --verbose
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
