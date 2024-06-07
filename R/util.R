@@ -94,7 +94,7 @@ update_RP <- function() {
 #' @title Read retention times (RT) measured on a reverse phase (RP) column
 #' @description Read retention time data from a reverse phase liquid chromatography measured with a temperature of 35 degree and a flowrate of 0.3ml/min. The data also exists as dataframe in the package. To use it directly in R just enter `RP`.
 #' @return A dataframe of 442 metabolites with columns `RT`, `SMILES` and `NAME`.
-#' @keywords datasets
+#' @keywords dataset
 #' @source Measured by functional genomics lab at the University of Regensburg.
 #' @seealso RP
 #' @export
@@ -105,7 +105,7 @@ read_rp_xlsx <- function() {
 #' @title Hypothetical retention times (RT) measured on a reverse phase (RP) column
 #' @description Subset of the data from [read_rp_xlsx()] with some slight modifications to simulate changes in temperature and/or flowrate.
 #' @format A dataframe of 25 metabolites and columns `RT`, `SMILES` and `NAME`.
-#' @keywords datasets
+#' @keywords dataset
 #' @export
 read_rpadj_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP_adj.xlsx"), 1)

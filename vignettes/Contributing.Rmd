@@ -9,11 +9,11 @@ vignette: >
 
 To contribute to this package, you should follow the below steps:
 
-1. Create a issue at [github.com/toscm/FastRet/issues](https://github.com/toscm/FastRet/issues) describing the problem or feature you want to work on.
+1. Create a issue at [github.com/spang-lab/FastRet/issues](https://github.com/spang-lab/FastRet/issues) describing the problem or feature you want to work on.
 2. Wait until the issue is approved by a package maintainer.
-3. Create a fork of the repository at [github.com/toscm/FastRet](https://github.com/toscm/FastRet)
+3. Create a fork of the repository at [github.com/spang-lab/FastRet](https://github.com/spang-lab/FastRet)
 4. Make your edits as described in section [Making Edits](#making-edits)
-5. Create a pull request at [github.com/toscm/FastRet/pulls]
+5. Create a pull request at [github.com/spang-lab/FastRet/pulls]
 
 ## Making Edits
 

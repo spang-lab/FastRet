@@ -1,10 +1,10 @@
 # Usage:
 #   cd "$(git rev-parse --show-toplevel)/misc"
-#   docker build -t toscm/rcdk-test:0.1.0 -f rcdk-testttt.dockerfile .
-#   docker run -it --rm toscm/rcdk-test:0.1.0
-#   docker run -it --rm toscm/rcdk-test:0.1.0 /bin/bash
-#   docker run -it --rm toscm/rcdk-test:0.1.0 /bin/bash test-rcdk.sh --verbose
-#   docker push toscm/r-dev:1.2.0
+#   docker build -t spang-lab/rcdk-test:0.1.0 -f rcdk-testttt.dockerfile .
+#   docker run -it --rm spang-lab/rcdk-test:0.1.0
+#   docker run -it --rm spang-lab/rcdk-test:0.1.0 /bin/bash
+#   docker run -it --rm spang-lab/rcdk-test:0.1.0 /bin/bash test-rcdk.sh --verbose
+#   docker push spang-lab/r-dev:1.2.0
 FROM ubuntu:22.04
 
 # Set environment variables

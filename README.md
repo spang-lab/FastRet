@@ -1,5 +1,5 @@
 <!-- badges: start -->
-[![R CMD check](https://github.com/toscm/FastRet/workflows/R-CMD-check/badge.svg)](https://github.com/toscm/FastRet/actions)
+[![R CMD check](https://github.com/spang-lab/FastRet/workflows/r-cmd-check/badge.svg)](https://github.com/spang-lab/FastRet/actions)
 <!-- badges: end -->
 
 # FastRet
@@ -16,7 +16,7 @@ You can install the development version of FastRet from [GitHub](https://github.
 
 ```R
 install.packages("devtools")
-devtools::install_github("toscm/FastRet", build_vignettes = TRUE)
+devtools::install_github("spang-lab/FastRet", build_vignettes = TRUE)
 ```
 
 ## Usage
@@ -35,16 +35,16 @@ Listening on http://localhost:8080
 
 in your R console. This means that the GUI is now running and you can access it via the URL <http://localhost:8080> in your browser. If your terminal supports it, you can also just click on the displayed link.
 
-<img src="vignettes/Getting-Started/start-page.png" width="45%">
-<img src="vignettes/Getting-Started/mode-help.png" width="45%">
+<img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/start-page.png" width="45%">
+<img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/mode-help.png" width="45%">
 
-By default, the GUI opens in Mode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or have a look at the documentation page for [GUI Usage](https://toscm.github.io/FastRet/articles/gui-usage.html).
+By default, the GUI opens in Mode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or have a look at the documentation page for [GUI Usage](https://spang-lab.github.io/FastRet/articles/gui-usage.html).
 
 ## Documentation
 
-FastRet's documentation is available at [toscm.github.io/FastRet](https://toscm.github.io/FastRet/). It includes pages about
+FastRet's documentation is available at [spang-lab.github.io/FastRet](https://spang-lab.github.io/FastRet/). It includes pages about
 
-- [GUI Usage](https://toscm.github.io/FastRet/articles/gui-usage.html)
-- [CLI Usage](https://toscm.github.io/FastRet/articles/cli-usage.html)
-- [Package Internals](https://toscm.github.io/FastRet/articles/fastret-internals.html)
-- [Function Reference](https://toscm.github.io/FastRet/reference/index.html)
+- [GUI Usage](https://spang-lab.github.io/FastRet/articles/gui-usage.html)
+- [CLI Usage](https://spang-lab.github.io/FastRet/articles/cli-usage.html)
+- [Package Internals](https://spang-lab.github.io/FastRet/articles/fastret-internals.html)
+- [Function Reference](https://spang-lab.github.io/FastRet/reference/index.html)
