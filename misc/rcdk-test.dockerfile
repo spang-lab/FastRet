@@ -1,7 +1,9 @@
 # Usage:
-#   docker build -t toscm/rcdk-test:0.1.0 .
-#   docker run -it --rm -v "$(pwd):/workspace" -w /workspace toscm/rcdk-test:0.1.0 /bin/bash
-#   docker run -it --rm -v "$(pwd):/workspace" -w /workspace toscm/rcdk-test:0.1.0 /bin/bash -c misc/rcdktest/test_rcdk.sh
+#   cd "$(git rev-parse --show-toplevel)/misc"
+#   docker build -t toscm/rcdk-test:0.1.0 -f rcdktest.dockerfile .
+#   docker run -it --rm toscm/rcdk-test:0.1.0
+#   docker run -it --rm toscm/rcdk-test:0.1.0 /bin/bash
+#   docker run -it --rm toscm/rcdk-test:0.1.0 /bin/bash test-rcdk.sh --verbose
 #   docker push toscm/r-dev:1.2.0
 FROM ubuntu:22.04
 
@@ -17,5 +19,9 @@ RUN apt-get install --no-install-recommends -y gpg-agent
 RUN add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
 RUN add-apt-repository "ppa:c2d4u.team/c2d4u4.0+"
 RUN apt-get update
-RUN apt-get install --no-install-recommends -y r-base r-base-dev
-RUN apt-get install --no-install-recommends -y libbz2-dev libdeflate-dev
+RUN apt-get install --no-install-recommends -y libbz2-dev libdeflate-dev r-base r-base-dev
+
+COPY scripts /workspace
+WORKDIR /workspace
+
+CMD ["/bin/bash", "test-rcdk.sh"]

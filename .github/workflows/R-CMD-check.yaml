@@ -3,11 +3,10 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 
 name: R-CMD-check
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+on: {
+  push: {branches: [main, master]},
+  pull_request: {branches: [main, master]}
+}
 
 jobs:
   R-CMD-check:
@@ -40,9 +39,9 @@ jobs:
       #     needs: check
       - name: Test rCDK installation
         run: |
-          sudo bash misc/rcdktest/install_jdk.sh openjdk-8-jdk --verbose
-          sudo Rscript misc/rcdktest/install_rcdk.R --verbose
-          sudo Rscript misc/rcdktest/test_rcdk.R --verbose
+          sudo bash misc/rcdktest/install-jdk.sh openjdk-8-jdk --verbose
+          sudo Rscript misc/rcdktest/install-rcdk.R --verbose
+          sudo Rscript misc/rcdktest/test-rcdk.R --verbose
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true

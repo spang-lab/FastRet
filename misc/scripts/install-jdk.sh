@@ -32,7 +32,7 @@ else
 fi
 
 echo -n "Removing old java installations ... $LINEEND"
-apt-get update
+apt-get update 1>$OUTLOG 2>$ERRLOG
 apt-get remove -y '*j[rd]k*' 1>$OUTLOG 2>$ERRLOG
 command -v java 1>$OUTLOG 2>$ERRLOG
 if [ $? -ne 0 ]; then echo -e $ok; else echo -e $failed; exitcode=1; fi
@@ -42,8 +42,8 @@ apt-get install --no-install-recommends -y "$1" 1>$OUTLOG 2>$ERRLOG
 command -v java 1>$OUTLOG 2>$ERRLOG
 if [ $? -eq 0 ]; then echo -e $ok; else echo -e $failed; exitcode=1; fi
 
-echo -n "Calling 'R CMD javareconf -e' ... $LINEEND"
-R CMD javareconf -e 1>$OUTLOG 2>$ERRLOG
+echo -n "Calling 'R CMD javareconf' ... $LINEEND"
+R CMD javareconf 1>$OUTLOG 2>$ERRLOG
 if [ $? -eq 0 ]; then echo -e $ok; else echo -e $failed; exitcode=1; fi
 
 exit $exitcode

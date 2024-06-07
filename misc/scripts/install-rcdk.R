@@ -1,4 +1,4 @@
-# Usage: Rscript install_rcdk.R [--verbose]
+# Usage: Rscript install-rcdk.R [--verbose]
 
 args <- commandArgs(trailingOnly = TRUE)
 verbose <- "--verbose" %in% args

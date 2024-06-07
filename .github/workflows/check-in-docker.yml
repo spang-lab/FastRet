@@ -1,6 +1,8 @@
 name: R CMD check (inside Docker)
-on: [push, pull_request]
-# on: { push: { tags: ['THIS_JOB_IS_DISABLED'] } }
+on: {
+  push: {branches: [main, master]},
+  pull_request: {branches: [main, master]}
+}
 
 jobs:
   build:
