@@ -28,6 +28,6 @@ COPY scripts/install-rjava.R .
 RUN Rscript install-rjava.R
 
 COPY scripts/install-fastret.R .
-# RUN Rscript install-fastret.R
+RUN Rscript install-fastret.R --branch fix-actions --verbose
 
 CMD ["Rscript", "-e", "FastRet::start_gui()"]

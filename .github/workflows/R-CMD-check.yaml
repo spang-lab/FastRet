@@ -26,26 +26,42 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       # - uses: r-lib/actions/setup-pandoc@v2
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+      # - uses: r-lib/actions/setup-r@v2
+      #   with:
+      #     r-version: ${{ matrix.config.r }}
+      #     http-user-agent: ${{ matrix.config.http-user-agent }}
+      #     use-public-rspm: true
       # - uses: r-lib/actions/setup-r-dependencies@v2
       #   with:
       #     extra-packages: any::rcmdcheck
       #     needs: check
-      - name: Test rCDK installation
-        run: |
-          apt list --installed
-          java -version
-          sudo bash misc/scripts/install-jdk.sh openjdk-8-jdk --verbose
-          apt list --installed
-          java -version
-          sudo Rscript misc/scripts/install-rcdk.R --verbose
-          sudo Rscript misc/scripts/test-rcdk.R --verbose
-      - uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
+
+      - name: Install system packages
+        run: sudo bash misc/scripts/install-sys-pkgs.sh
+
+      - name: Install R
+        run: sudo bash misc/scripts/install-r.sh
+
+      - name: Install R dev packages
+        run: sudo Rscript misc/scripts/install-r-dev-pkgs.R
+
+      - name: Run R CMD javareconf
+        run: sudo R CMD javareconf
+
+      - name: Install R Java
+        run: sudo Rscript misc/scripts/install-rjava.R
+
+      - name: Install rCDK
+        run: sudo Rscript misc/scripts/install-rcdk.R --verbose
+
+      - name: Test rCDK
+        run: sudo Rscript misc/scripts/test-rcdk.R --verbose
+
+      - name: Install FastRet
+        run: sudo Rscript install-fastret.R --branch fix-actions --verbose
+
+      - name: Test FastRet
+        uses: r-lib/actions/check-r-package@v2
