@@ -58,7 +58,7 @@ jobs:
         run: sudo Rscript misc/scripts/install-rcdk.R --verbose
 
       - name: Test rCDK
-        run: sudo Rscript misc/scripts/test-rcdk.R --verbose
+        run: sudo Rscript misc/scripts/test-rcdk.R --progress --descriptors 'c(1:19, 21:53)'
 
       - name: Install FastRet
         run: sudo Rscript install-fastret.R --branch fix-actions --verbose

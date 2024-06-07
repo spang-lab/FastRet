@@ -28,6 +28,9 @@ RUN R CMD javareconf
 COPY scripts/install-rjava.R .
 RUN Rscript install-rjava.R
 
+COPY scripts/install-radian.sh .
+RUN bash install-radian.sh
+
 COPY scripts/install-fastret.R .
 RUN Rscript install-fastret.R --branch fix-actions --verbose
 
