@@ -1,11 +1,11 @@
-name: R CMD check (inside Docker)
+name: r-cmd-check-in-docker
 on: {
   push: {branches: [main, master]},
   pull_request: {branches: [main, master]}
 }
 
 jobs:
-  build:
+  r-cmd-check-in-docker:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code

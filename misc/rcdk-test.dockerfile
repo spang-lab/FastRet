@@ -1,6 +1,6 @@
 # Usage:
 #   cd "$(git rev-parse --show-toplevel)/misc"
-#   docker build -t toscm/rcdk-test:0.1.0 -f rcdktest.dockerfile .
+#   docker build -t toscm/rcdk-test:0.1.0 -f rcdk-testttt.dockerfile .
 #   docker run -it --rm toscm/rcdk-test:0.1.0
 #   docker run -it --rm toscm/rcdk-test:0.1.0 /bin/bash
 #   docker run -it --rm toscm/rcdk-test:0.1.0 /bin/bash test-rcdk.sh --verbose

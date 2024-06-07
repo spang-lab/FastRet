@@ -2,14 +2,14 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 
-name: R-CMD-check
+name: r-cmd-check
 on: {
   push: {branches: [main, master]},
   pull_request: {branches: [main, master]}
 }
 
 jobs:
-  R-CMD-check:
+  r-cmd-check:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     strategy:
@@ -39,9 +39,13 @@ jobs:
       #     needs: check
       - name: Test rCDK installation
         run: |
-          sudo bash misc/rcdktest/install-jdk.sh openjdk-8-jdk --verbose
-          sudo Rscript misc/rcdktest/install-rcdk.R --verbose
-          sudo Rscript misc/rcdktest/test-rcdk.R --verbose
+          apt list --installed
+          java -version
+          sudo bash misc/scripts/install-jdk.sh openjdk-8-jdk --verbose
+          apt list --installed
+          java -version
+          sudo Rscript misc/scripts/install-rcdk.R --verbose
+          sudo Rscript misc/scripts/test-rcdk.R --verbose
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
