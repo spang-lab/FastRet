@@ -314,7 +314,7 @@ ui_train_controls <- function() {
             style = "display: none;"
         ),
         downloadButton(
-            outputId = "dbSavePredictors",
+            outputId = "dbSavePredictorSet",
             label = "Save Predictor Set",
             style = "display: none;"
         ),

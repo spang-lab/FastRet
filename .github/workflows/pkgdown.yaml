@@ -19,6 +19,7 @@ jobs:
     permissions:
       contents: write
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -32,17 +33,17 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with: { extra-packages: "any::pkgdown, local::.", needs: website }
 
-      - name: Install R dev packages
-        run: sudo Rscript misc/scripts/install-r-dev-pkgs.R
+      # - name: Install R dev packages
+      #   run: sudo Rscript misc/scripts/install-r-dev-pkgs.R
 
-      - name: Run R CMD javareconf
-        run: sudo R CMD javareconf
+      # - name: Run R CMD javareconf
+      #   run: sudo R CMD javareconf
 
-      - name: Install R Java
-        run: sudo Rscript misc/scripts/install-rjava.R
+      # - name: Install R Java
+      #   run: sudo Rscript misc/scripts/install-rjava.R
 
-      - name: Install FastRet
-        run: sudo Rscript misc/scrpts/install-fastret.R --branch fix-actions --verbose
+      # - name: Install FastRet
+      #   run: sudo Rscript misc/scripts/install-fastret.R --branch fix-actions --verbose
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

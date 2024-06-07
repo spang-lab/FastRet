@@ -16,52 +16,57 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          # - {os: macos-latest,    r: 'release'}
-          # - {os: windows-latest,  r: 'release'}
+          - {os: macos-latest,    r: 'release'}
+          - {os: windows-latest,  r: 'release'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          # - {os: ubuntu-latest,   r: 'release'}
-          # - {os: ubuntu-latest,   r: 'oldrel-1'}
-          # - {os: ubuntu-latest,   r: '4.1'}
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,   r: '4.1'}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
-      # - uses: r-lib/actions/setup-pandoc@v2
-      # - uses: r-lib/actions/setup-r@v2
-      #   with:
-      #     r-version: ${{ matrix.config.r }}
-      #     http-user-agent: ${{ matrix.config.http-user-agent }}
-      #     use-public-rspm: true
-      # - uses: r-lib/actions/setup-r-dependencies@v2
-      #   with:
-      #     extra-packages: any::rcmdcheck
-      #     needs: check
 
-      - name: Install system packages
-        run: sudo bash misc/scripts/install-sys-pkgs.sh
+      # - name: Set up Pandoc
+      #   uses: r-lib/actions/setup-pandoc@v2
 
-      - name: Install R
-        run: sudo bash misc/scripts/install-r.sh
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
 
-      - name: Install R dev packages
-        run: sudo Rscript misc/scripts/install-r-dev-pkgs.R
+      # - name: Install R
+      #   run: sudo bash misc/scripts/install-r.sh
 
-      - name: Run R CMD javareconf
-        run: sudo R CMD javareconf
+      - name: Set up R dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with: { extra-packages: any::rcmdcheck, needs: check }
 
-      - name: Install R Java
-        run: sudo Rscript misc/scripts/install-rjava.R
+      # - name: Install system packages
+      #   run: sudo bash misc/scripts/install-sys-pkgs.sh
 
-      - name: Install rCDK
-        run: sudo Rscript misc/scripts/install-rcdk.R --verbose
+      # - name: Install R dev packages
+      #   run: sudo Rscript misc/scripts/install-r-dev-pkgs.R
 
-      - name: Test rCDK
-        run: sudo Rscript misc/scripts/test-rcdk.R --progress --descriptors 'c(1:19, 21:53)'
+      # - name: Run R CMD javareconf
+      #   run: sudo R CMD javareconf
 
-      - name: Install FastRet
-        run: sudo Rscript misc/scripts/install-fastret.R --branch fix-actions --verbose
+      # - name: Install R Java
+      #   run: sudo Rscript misc/scripts/install-rjava.R
+
+      # - name: Install rCDK
+      #   run: sudo Rscript misc/scripts/install-rcdk.R --verbose
+
+      # - name: Test rCDK
+      #   run: sudo Rscript misc/scripts/test-rcdk.R --progress --descriptors 'c(1:19, 21:53)'
+
+      # - name: Install FastRet
+      #   run: sudo Rscript misc/scripts/install-fastret.R --branch fix-actions --verbose
 
       - name: Test FastRet
         uses: r-lib/actions/check-r-package@v2
