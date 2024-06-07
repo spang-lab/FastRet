@@ -3,7 +3,7 @@ Title: Retention time prediction and subset selection with a GUI
 Version: 1.0.0
 Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cre"), email = "christian.amesoeder@stud.uni-regensburg.de"),
-    person(given = "Marian", family = "Schön", role = c("aut"), email = "marian.schoen@klinik.uni-regensburg.de"),
+    person(given = "Marian", family = "Schoen", role = c("aut"), email = "marian.schoen@klinik.uni-regensburg.de"),
     person(given = "Tobias", family = "Schmidt", role = c("aut"), email = "tobias.schmidt331@gmail.com")
     )
 Description: FastRet provides a workflow for retention time prediciton. This is mainly but not exclusively done with a GUI.
