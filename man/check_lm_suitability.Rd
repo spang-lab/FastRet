@@ -4,7 +4,7 @@
 \alias{check_lm_suitability}
 \title{Checks which chemical descriptors are suitable for linear models}
 \usage{
-check_lm_suitability(verbose = FALSE, nw = parallel::detectCores()/2)
+check_lm_suitability(verbose = FALSE, nw = 2)
 }
 \arguments{
 \item{verbose}{A logical value indicating whether to print verbose output. Default is FALSE.}

@@ -90,7 +90,7 @@ preprocess_data <- function(data = read_rp_xlsx(),
 #' x <- check_lm_suitability(verbose = TRUE)
 #' }
 #' @export
-check_lm_suitability <- function(verbose = FALSE, nw = parallel::detectCores() / 2) {
+check_lm_suitability <- function(verbose = FALSE, nw = 2) {
     url <- "https://github.com/oloBion/Retip/raw/master/data/HILIC.RData"
     destfile <- tempfile("HILIC", fileext = ".RData")
     download.file(url, destfile, mode = "wb", quiet = !verbose)

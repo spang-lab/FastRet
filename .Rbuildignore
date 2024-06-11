@@ -11,3 +11,4 @@
 ^pkgdown$
 ^misc$
 ^cran-comments\.md$
+vignettes/

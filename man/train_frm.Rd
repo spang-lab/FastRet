@@ -53,7 +53,7 @@ Setting \code{rm_near_zero_var} and/or \code{rm_na} to TRUE can cause the CV res
 \examples{
 \donttest{
 lasso_model <- train_frm(method = "lasso")
-gbtree <- train_frm(method = "gbtree", nw = 5, seed = 1234)
+gbtree <- train_frm(method = "gbtree", nw = 2, seed = 1234)
 }
 }
 \keyword{public}

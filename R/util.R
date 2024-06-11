@@ -189,6 +189,7 @@ make_docs <- function(reload = TRUE) {
         pkgdown::build_site(lazy = TRUE)
     }
 }
+
 update_mockdata <- function(getCD = FALSE,
                             preprocess_data = FALSE,
                             train_frm = FALSE,

@@ -18,7 +18,7 @@
 #' @keywords public
 #' @examples \donttest{
 #' lasso_model <- train_frm(method = "lasso")
-#' gbtree <- train_frm(method = "gbtree", nw = 5, seed = 1234)
+#' gbtree <- train_frm(method = "gbtree", nw = 2, seed = 1234)
 #' }
 #' @export
 train_frm <- function(df = read_rp_xlsx(),
@@ -422,8 +422,8 @@ fit_gbtree_grid <- function(df = preprocess_data(),
 #' @param print Print the plots to the console?
 #' @param pdfpath Path to save the plots as PDF
 #' @examples \donttest{
-#' df <- preprocess_data(nw = 4)
-#' x <- fit_gbtree_grid(df, nw = 64)
+#' df <- preprocess_data(nw = 2)
+#' x <- fit_gbtree_grid(df, nw = 2)
 #' plot_gbtree_performance(x, pdfpath = "misc/cvgbtree.pdf")
 #' plot_gbtree_performance(x, pdfpath = "misc/cvgbtree_box.pdf", type = "box")
 #' }
