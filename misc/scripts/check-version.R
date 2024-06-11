@@ -1,7 +1,7 @@
-if (!require(httr)) install.packages("httr")
-if (!require(desc)) install.packages("desc")
-library(httr)
-library(desc)
+if (!("httr" %in% rownames(installed.packages()))) install.packages("httr")
+if (!("desc" %in% rownames(installed.packages()))) install.packages("desc")
+library(httr, quietly = TRUE)
+library(desc, quietly = TRUE)
 url <- "https://raw.githubusercontent.com/spang-lab/FastRet/main/DESCRIPTION"
 local_file <- "./DESCRIPTION"
 response <- GET(url)

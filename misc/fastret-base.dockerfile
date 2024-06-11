@@ -1,40 +1,46 @@
 # Usage:
 #   $env:DOCKER_BUILDKIT=1
-#   cd "$(git rev-parse --show-toplevel)/misc"
-#   docker build -t "toscm/fastret-base:0.1.1" -t "toscm/fastret-base:latest" -f fastret-base.dockerfile .
-#   docker run -it --rm -p 8080:8080 "toscm/fastret-base:latest"
-#   docker run -it --rm -p 8080:8080 -v "$(pwd)/..:/workspace/FastRet" "toscm/fastret-base:latest" /bin/bash
-#   docker push "toscm/fastret-base:0.1.1" && docker push "toscm/fastret-base:latest"
+#   cd "$(git rev-parse --show-toplevel)"
+#   docker build -t "toscm/fastret-base:1.0.2" -t "toscm/fastret-base:latest" -f misc/fastret-base.dockerfile .
+#   docker run -it --rm -p 8080:8080 "toscm/fastret-base:1.0.2"
+#   docker run -it --rm -p 8080:8080 -v "$(pwd)/..:/workspace/FastRet" "toscm/fastret-base:1.0.2" /bin/bash
+#   docker push "toscm/fastret-base:1.0.2" && docker push "toscm/fastret-base:latest"
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
 
 USER root
-WORKDIR /workspace
+WORKDIR /workspace/FastRet/misc/scripts
 
 # Copy all files individually so early steps can be cached even if later steps change.
-COPY scripts/install-sys-pkgs.sh .
+COPY ./misc/scripts/install-sys-pkgs.sh /workspace/FastRet/misc/scripts
 RUN bash install-sys-pkgs.sh
 
-COPY scripts/install-r.sh .
+COPY ./misc/scripts/install-r.sh /workspace/FastRet/misc/scripts
 RUN bash install-r.sh
 
-COPY scripts/install-r-dev-pkgs.R .
+COPY ./misc/scripts/install-r-dev-pkgs.R /workspace/FastRet/misc/scripts
 RUN Rscript install-r-dev-pkgs.R
 
 RUN R CMD javareconf
 
-COPY scripts/install-rjava.R .
+COPY ./misc/scripts/install-rjava.R /workspace/FastRet/misc/scripts
 RUN Rscript install-rjava.R
 
-COPY scripts/install-radian.sh .
+COPY ./misc/scripts/install-radian.sh /workspace/FastRet/misc/scripts
 RUN bash install-radian.sh
 
-COPY scripts/install-fastret.R .
-RUN Rscript install-fastret.R --branch fix-actions --verbose
-
-COPY scripts/install-en-us-locales.sh .
+COPY ./misc/scripts/install-en-us-locales.sh /workspace/FastRet/misc/scripts
 RUN bash install-en-us-locales.sh
+
+COPY ./misc/scripts/configure-users.sh /workspace/FastRet/misc/scripts
+RUN bash configure-users.sh
+
+COPY . /workspace/FastRet
+RUN Rscript install-fastret.R --local --verbose
+
+USER shiny
+WORKDIR /home/shiny
 
 CMD ["Rscript", "-e", "FastRet::start_gui()"]

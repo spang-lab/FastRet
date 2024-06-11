@@ -39,7 +39,7 @@ plot_frm <- function(frm = train_frm(verbose = 1),
                      ) {
     # Check args
     type <- match.arg(type, c("scatter.cv", "scatter.cv.adj", "scatter.train", "scatter.train.adj"))
-    if (grepl("adj", type) && is.null(frm$adj)) stop(sprintf("type is `%s`, but the model has not been adjusted yet.\nSee `?adjust_model` for information on how to adjust existing models.", type))
+    if (grepl("adj", type) && is.null(frm$adj)) stop(sprintf("type is `%s`, but the model has not been adjusted yet.\nSee `?adjust_model` for information on how to Adjust existing Models.", type))
     trafo <- match.arg(trafo, c("identity", "log2"))
     dotrafo <- switch(trafo, "identity" = identity, "log2" = log2)
 
