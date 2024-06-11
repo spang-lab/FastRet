@@ -1,6 +1,6 @@
 Package: FastRet
 Title: Retention time prediction and subset selection with a GUI
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cre"), email = "christian.amesoeder@stud.uni-regensburg.de"),
     person(given = "Marian", family = "Schoen", role = c("aut"), email = "marian.schoen@klinik.uni-regensburg.de"),
@@ -8,6 +8,8 @@ Authors@R: c(
     )
 Description: FastRet provides a workflow for retention time prediciton. This is mainly but not exclusively done with a GUI.
 License: GPL-3
+URL: https://github.com/spang-lab, https://github.com/spang-lab/FastRet
+BugReports: https://github.com/spang-lab/FastRet/issues
 biocViews: Retention, Time, Chromotography, LC-MS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -45,6 +47,7 @@ Suggests:
     pkgload,
     rlang,
     rmarkdown,
+    servr,
     tibble,
     testthat (>= 3.0.0),
     toscutil,
