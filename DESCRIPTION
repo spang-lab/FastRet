@@ -2,9 +2,9 @@ Package: FastRet
 Title: Retention Time Prediction in Liquid Chromatography
 Version: 1.0.3
 Authors@R: c(
-    person(given = "Christian", family = "Amesoeder", role = c("aut"), email = "christian.amesoeder@stud.uni-regensburg.de"),
-    person(given = "Marian", family = "Schoen", role = c("aut"), email = "marian.schoen@klinik.uni-regensburg.de"),
-    person(given = "Tobias", family = "Schmidt", role = c("aut", "cre"), email = "tobias.schmidt331@gmail.com")
+    person(given = "Christian", family = "Amesoeder", role = c("aut", "cph"), email = "christian.amesoeder@stud.uni-regensburg.de"),
+    person(given = "Marian", family = "Schoen", role = c("aut", "cph"), email = "marian.schoen@klinik.uni-regensburg.de"),
+    person(given = "Tobias", family = "Schmidt", role = c("aut", "cre", "cph"), email = "tobias.schmidt331@gmail.com")
     )
 Description: A framework for liquid chromatography retention time prediction.
     It offers functionalities to train custom models for specific chromatography

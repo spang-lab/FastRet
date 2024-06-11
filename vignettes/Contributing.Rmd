@@ -36,15 +36,16 @@ devtools::install() # Install as required by next command
 pkgdown::build_site() # Build website in docs folder
 ```
 
-After doing these steps, you can push your changes to Github and then use the following commands to release the package to CRAN:
+After doing these steps, you can
+
+1. Push your changes to Github
+2. Check whether the [release requirements](https://r-pkgs.org/release.html#sec-release-initial) are fulfilled
+3. Use the following commands to release the package to CRAN
 
 ```R
 rcmdcheck::rcmdcheck() # Slower, but more realistic test than devtools::check()
 devtools::spell_check() # Check spelling. Add false positives to inst/WORDLIST
-# Check whether the following requirements are fulfilled: https://r-pkgs.org/release.html#sec-release-initial
 devtools::submit_cran() # Submits the package to CRAN
 revdepcheck::revdep_check(num_workers = 8) # Reverse dependency check
 # See https://r-pkgs.org/release.html#sec-release-revdep-checks for details
 ```
-
-Above steps are based on: <https://r-pkgs.org/release.html>
