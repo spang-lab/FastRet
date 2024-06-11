@@ -112,7 +112,7 @@ ui_about <- function() {
                     tags$li("Use pre-trained models to predict retention times of molecules"),
                     tags$li("Adjust pre-trained models to accommodate modifications in chromatography columns")
                 ),
-                p("For further details see FastRets ", a(href = "https://spang-lab.github.io/fastret/", "documentation site"))
+                p("For further details see FastRets ", a(href = "https://spang-lab.github.io/FastRet/", "documentation site"))
             ),
             div(
                 h3("Version Info"),

@@ -32,7 +32,7 @@ in your R console. This means that the GUI is now running and you can access it 
 <a href="GUI-Usage/start-page.png"><img src="GUI-Usage/start-page.png" width="45%" /></a>
 <a href="GUI-Usage/mode-help.png"><img src="GUI-Usage/mode-help.png" width="45%" /></a>
 
-By default, the GUI opens in muode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing Model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or read the following sections.
+By default, the GUI opens in mode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing Model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or read the following sections.
 
 # Train new Model
 

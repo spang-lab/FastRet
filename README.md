@@ -40,14 +40,14 @@ in your R console. This means that the GUI is now running and you can access it 
 <img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/mode-help.png" alt="mode-help.png" width="45%">
 </div>
 
-By default, the GUI opens in Mode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing Model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or have a look at the documentation page for [GUI Usage](https://spang-lab.github.io/FastRet/articles/gui-usage.html).
+By default, the GUI opens in Mode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing Model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or have a look at the documentation page for [GUI Usage](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html).
 
 ## Documentation
 
 FastRet's documentation is available at [spang-lab.github.io/FastRet](https://spang-lab.github.io/FastRet/). It includes pages about
 
-- [GUI Usage](https://spang-lab.github.io/FastRet/articles/gui-usage.html)
-- [CLI Usage](https://spang-lab.github.io/FastRet/articles/cli-usage.html)
+- [GUI Usage](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html)
+- [CLI Usage](https://spang-lab.github.io/FastRet/articles/CLI-Usage.html)
 - [Package Internals](https://spang-lab.github.io/FastRet/articles/Package-Internals.html)
 - [Contribution Guidelines](https://spang-lab.github.io/FastRet/articles/Contributing.html)
 - [Function Reference](https://spang-lab.github.io/FastRet/reference/index.html)

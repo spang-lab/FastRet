@@ -10,11 +10,15 @@
 - [x] Deploy `fastret-base` to `fastret.spang-lab.de`
 - [x] LATER: Move cache to `pvc`
 - [x] Finalize docs incl. link to Github in pkdown site
+- [x] Merge PR into main
+- [x] Tag main with v1.0.2
+- [x] Create `toscm/fastret-dev:1.0.2` with `nv=3` and `nsw=5`
+- [x] Redeploy `fastret-dev` and `fastret` to Kubernetes with max cores = 20
+- [x] Fix all links
+- [x] Change toscm to maintainer
+- [x] Fix `mode`
 
-- [ ] Merge PR into main
-- [ ] Tag main with v1.0.2
-- [ ] Create `toscm/fastret-dev:1.0.2` with `nv=3` and `nsw=5`
-- [ ] Redeploy `fastret-dev` and `fastret` to Kubernetes with max cores = 20
+- [ ] Run submission tests
 - [ ] Submit `fastret` to CRAN
 - [ ] Inform Fadi and Katja
 
