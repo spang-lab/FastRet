@@ -5,7 +5,7 @@
 \alias{CDNames}
 \title{Chemical Descriptors Names}
 \format{
-An object of class \code{character} of length 46.
+An object of class \code{character} of length 45.
 }
 \usage{
 CDNames
@@ -14,12 +14,12 @@ CDNames
 This object contains the names of various chemical descriptors.
 }
 \details{
-One descriptor can be associated with multiple features, e.g. the BCUT descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h, BCUTc.1l, BCUTc.1h, BCUTp.1l, BCUTp.1h. Some descriptors produce warnings for certain molecules., e.g. "The AtomType null could not be found" or "Molecule must have 3D coordinates" and return NA in such cases. Descriptors that produce only NAs in our test datasets will be excluded. To see which descriptors produce only NAs, run \code{analyzeCDNames}.
+One descriptor can be associated with multiple features, e.g. the BCUT descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h, BCUTc.1l, BCUTc.1h, BCUTp.1l, BCUTp.1h. Some descriptors produce warnings for certain molecules., e.g. "The AtomType null could not be found" or "Molecule must have 3D coordinates" and return NA in such cases. Descriptors that produce only NAs in our test datasets will be excluded. To see which descriptors produce only NAs, run \code{analyzeCDNames}. The "LongestAliphaticChain" descriptors sometimes even produces \verb{Error: segfault from C stack overflow} error\verb{, e.g. for SMILES }c1ccccc1C(Cl)(Cl)Cl\verb{(==}rcdk::bpdata$SMILES\link{200}\verb{) when using }OpenJDK Runtime Environment (build 11.0.23+9-post-Ubuntu-1ubuntu122.04.1)`.
 }
 \examples{
 \dontrun{
 CDNames <- rcdk::get.desc.names(type = "all")
-skipPattern <- "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|GravitationalIndex|CPSA|TaeAminoAcid)"
+skipPattern <- "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|GravitationalIndex|CPSA|TaeAminoAcid|LongestAliphaticChain)"
 CDNames <- CDNames[!grepl(skipPattern, CDNames)]
 }
 }

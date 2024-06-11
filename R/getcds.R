@@ -1,7 +1,7 @@
 # Main #####
 
 #' @title Get Chemical Descriptors for a list of molecules
-#' @description Calculate Chemical Descriptors for a list of molcules. Molecules can appear multiple times in the list.
+#' @description Calculate Chemical Descriptors for a list of molecules. Molecules can appear multiple times in the list.
 #' @param df dataframe with two mandatory columns: "NAME" and "SMILES"
 #' @param verbose 0: no output, 1: progress, 2: more progress and warnings
 #' @param nw number of workers for parallel processing

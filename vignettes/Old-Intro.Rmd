@@ -62,7 +62,7 @@ In this mode your previously saved model can be used to predict on new data. Thi
 
 ### Adjusting measurements using a linear model
 
-If you have measured some metabolites on your new experiment setup that were also measured on the original setup, you can use this method to adjust the models prediction with a linear model. Simply check "Use measured metabolites to adjust Prediction" and upload an exel file with the corresponding SMILES/retention time data. After you click on "Analyze Linear Model" a scatter plot will be shown, displaying the old vs the new retention times of your measured metabolites. This plot helps you decide which components of the linear model to select.
+If you have measured some metabolites on your new experiment setup that were also measured on the original setup, you can use this method to adjust the models prediction with a linear model. Simply check "Use measured metabolites to adjust Prediction" and upload an Excel file with the corresponding SMILES/retention time data. After you click on "Analyze Linear Model" a scatter plot will be shown, displaying the old vs the new retention times of your measured metabolites. This plot helps you decide which components of the linear model to select.
 
 ![](Old-Intro/05.png){width=49%}
 

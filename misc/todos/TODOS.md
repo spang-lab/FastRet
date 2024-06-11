@@ -16,7 +16,7 @@
 - [x] Redeploy `fastret-dev` and `fastret` to Kubernetes with max cores = 20
 - [x] Fix all links
 - [x] Change toscm to maintainer
-- [x] Fix `mode`
+- [x] Fix typo in `muode` (should be `mode`)
 
 - [ ] Run submission tests
 - [ ] Submit `fastret` to CRAN
@@ -43,5 +43,6 @@
 - [ ] LATER: Make plots interactive (hovering over points should show molecule name)
 - [ ] LATER: Show PCA embedding of new points into training data after prediction
 - [ ] LATER: Enable auto-build of fastret-dev:x.x.x-jdkyy containers
+- [ ] LATER: Add a logo to the package
 
 RS = Suggestions by Rainer Spang

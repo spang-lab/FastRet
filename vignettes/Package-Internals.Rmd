@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 # Model Training
 
-Model training is implemented in the `train_model` function. It first tries out several different parameter values in cross validation, remembers the best parameter value and then uses this value to train a final model on the full dataset. For further details see the function documention of [train_model](https://spang-lab.github.io/FastRet/reference/train_frm.html).
+Model training is implemented in the `train_model` function. It first tries out several different parameter values in cross validation, remembers the best parameter value and then uses this value to train a final model on the full dataset. For further details see the function documentation of [train_model](https://spang-lab.github.io/FastRet/reference/train_frm.html).
 
 # Reactive Graph
 

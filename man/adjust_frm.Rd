@@ -17,7 +17,7 @@ adjust_frm(
 
 \item{new_data}{Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of chemical descriptors.}
 
-\item{predictors}{Numeric vector specifying which predictors to include in the model in addition to RT. Avaible options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT), 6=sqrt(RT).}
+\item{predictors}{Numeric vector specifying which predictors to include in the model in addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT), 6=sqrt(RT).}
 
 \item{nfolds}{An integer representing the number of folds for cross validation.}
 

@@ -4,13 +4,13 @@
 #' @param k_cluster The number of clusters for PAM clustering. Default is 25.
 #' @param verbose The level of verbosity. Default is 1.
 #' @return A list containing the following elements:
-#' * clustering: a data frame with raw data, cluster assignments, and medoid indicators
-#' * clobj: the PAM clustering object
-#' * coefs: the coefficients from the Ridge Regression model
-#' * model: the Ridge Regression model
-#' * df: the preprocessed data
-#' * dfz: the standardized features
-#' * dfzb: the features scaled by coefficients of the Ridge Regression model
+#' * `clustering`: a data frame with raw data, cluster assignments, and medoid indicators
+#' * `clobj`: the PAM clustering object
+#' * `coefs`: the coefficients from the Ridge Regression model
+#' * `model`: the Ridge Regression model
+#' * `df`: the preprocessed data
+#' * `dfz`: the standardized features
+#' * `dfzb`: the features scaled by coefficients of the Ridge Regression model
 #' @keywords public
 #' @export
 selective_measuring <- function(raw_data = read_rp_xlsx(), k_cluster = 25, verbose = 1) {

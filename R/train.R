@@ -12,7 +12,7 @@
 #' @param rm_near_zero_var A logical value indicating whether to remove near zero variance predictors. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @param rm_na A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @param rm_ns A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on an analysis of the `Retip::HILIC` dataset. See [check_lm_suitability()] for details on the analysis.
-#' @param seed An integer value to set the seed for random number generation to allow for reproducibile results.
+#' @param seed An integer value to set the seed for random number generation to allow for reproducible results.
 #' @details Setting `rm_near_zero_var` and/or `rm_na` to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @return A trained FastRet model.
 #' @keywords public
@@ -89,7 +89,7 @@ train_frm <- function(df = read_rp_xlsx(),
 #' @description The goal of this function is to train a model that predicts RT_ADJ (retention time measured on a new, adjusted column) from RT (retention time measured on the original column) and to attach this "adjustmodel" to an existing FastRet model.
 #' @param frm An object of class `frm` as returned by [train_frm()].
 #' @param new_data Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of chemical descriptors.
-#' @param predictors Numeric vector specifying which predictors to include in the model in addition to RT. Avaible options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT), 6=sqrt(RT).
+#' @param predictors Numeric vector specifying which predictors to include in the model in addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT), 6=sqrt(RT).
 #' @param nfolds An integer representing the number of folds for cross validation.
 #' @param verbose A logical value indicating whether to print progress messages.
 #' @keywords public
