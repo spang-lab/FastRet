@@ -46,6 +46,7 @@ After doing these steps, you can
 rcmdcheck::rcmdcheck() # Slower, but more realistic test than devtools::check()
 devtools::check(remote = TRUE, manual = TRUE) # Slower, but more realistic test than devtools::check()
 devtools::spell_check() # Check spelling. Add false positives to inst/WORDLIST
+urlchecker::url_check() # Check URLs
 devtools::check_win_devel() # Sends your package off to be checked with CRAN's win-builder service. You should receive an e-mail within about 30 minutes with a link to the check results. Checking with r-devel is required by CRAN policy and will (also) be done as part of CRAN's incoming checks.
 devtools::submit_cran() # Submits the package to CRAN
 revdepcheck::revdep_check(num_workers = 8) # Reverse dependency check

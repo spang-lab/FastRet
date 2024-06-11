@@ -33,7 +33,7 @@ After running the above code, you should see an output like
 Listening on http://localhost:8080
 ```
 
-in your R console. This means that the GUI is now running and you can access it via the URL <http://localhost:8080> in your browser. If your terminal supports it, you can also just click on the displayed link.
+in your R console. This means that the GUI is now running and you can access it via the URL `http://localhost:8080` in your browser. If your terminal supports it, you can also just click on the displayed link.
 
 <div style="display: inline-block;">
 <img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/start-page.png" alt="start-page.png" width="45%">
