@@ -12,6 +12,10 @@
 #' * `dfz`: the standardized features
 #' * `dfzb`: the features scaled by coefficients of the Ridge Regression model
 #' @keywords public
+#' @examples \donttest{
+#' raw_data = read_rp_xlsx()
+#' selective_measuring(raw_data, k = 5)
+#' }
 #' @export
 selective_measuring <- function(raw_data = read_rp_xlsx(), k_cluster = 25, verbose = 1) {
 

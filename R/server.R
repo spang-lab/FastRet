@@ -670,6 +670,10 @@ renderTbl <- function(expr,
 #' @param timeout The timeout in seconds. Default is 2.
 #' @return The result of the expression
 #' @keywords internal
+#' @examples \donttest{
+#' withTimeout({Sys.sleep(1); cat("This works\n")}, timeout = 2)
+#' withTimeout({Sys.sleep(3); cat("This will fail\n")}, timeout = 2)
+#' }
 #' @export
 withTimeout <- function(expr, timeout = 2) {
     setTimeLimit(cpu = timeout, elapsed = timeout, transient = TRUE)
@@ -682,8 +686,14 @@ withTimeout <- function(expr, timeout = 2) {
 #' @param logfile The file to redirect output to. Default is "tmp.txt".
 #' @return The result of the expression
 #' @keywords internal
+#' @examples
+#' logfile <- tempfile(fileext = ".txt")
+#' withSink(logfile = logfile, expr = {
+#'   cat("Helloworld\n")
+#'   message("Goodbye")
+#' })
 #' @export
-withSink <- function(expr, logfile = "tmp.txt") {
+withSink <- function(expr, logfile = tempfile(fileext = ".txt")) {
     zz <- file(logfile, open = "wt")
     on.exit(close(zz), add = TRUE, after = FALSE)
     sink(zz)
@@ -698,6 +708,9 @@ withSink <- function(expr, logfile = "tmp.txt") {
 #' @param expr The expression to execute
 #' @return The result of the expression
 #' @keywords internal
+#' @examples \dontrun{
+#' withStopMessage({stop("This is an error")})
+#' }
 #' @export
 withStopMessage <- function(expr) {
     tryCatch(expr, error = function(e) {
@@ -711,6 +724,10 @@ withStopMessage <- function(expr) {
 #' @param SE A list containing session information.
 #' @return Updates the logdir element in the SE list with the path to the log directory.
 #' @keywords internal
+#' @examples \dontrun{
+#' SE <- list(session = list(token = "asdf"))
+#' init_log_dir(SE) # will create "TEMPDIR/FastRet/asdf"
+#' }
 #' @export
 init_log_dir <- function(SE) {
     catf("Start: init_log_dir")
@@ -726,6 +743,7 @@ init_log_dir <- function(SE) {
 #' @param x A string.
 #' @return The input string with a newline character at the end if it was not already present.
 #' @keywords internal
+#' @examples cat(withLineEnd("Hello"))
 #' @export
 withLineEnd <- function(x) {
     if (!grepl("\n$", x)) paste0(x, "\n") else x

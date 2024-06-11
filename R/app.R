@@ -8,6 +8,9 @@
 #' @return A shiny app. This function returns a shiny app that can be run to interact with the model.
 #' @details If you set `nw = 3` and `nsw = 4`, you should have at least 16 cores, one core for the shiny main process. Three cores for the three worker processes. And 12 cores (3 * 4) for the subworkers. For the default case, `nworkers = 1` and `nsw = 2`, you should have at least 4 cores.
 #' @keywords public
+#' @examples \donttest{
+#' start_gui()
+#' }
 #' @export
 start_gui <- function(port = 8080,
                       host = "0.0.0.0",
@@ -85,6 +88,9 @@ start_gui_in_devmode <- function(strategy = "sequential",
 #' @param reload Whether to reload the application when the source code changes
 #' @param nsw The number of subworkers each worker is allowed to start. The higher this number, the faster individual tasks like model fitting can be processed.
 #' @return A shiny app. This function returns a shiny app that can be run to interact with the model.
+#' @examples \donttest{
+#' fastret_app()
+#' }
 #' @keywords public
 #' @export
 fastret_app <- function(port = 8080,

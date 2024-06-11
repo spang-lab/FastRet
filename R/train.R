@@ -16,6 +16,10 @@
 #' @details Setting `rm_near_zero_var` and/or `rm_na` to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @return A trained FastRet model.
 #' @keywords public
+#' @examples \donttest{
+#' lasso_model <- train_frm(method = "lasso")
+#' gbtree <- train_frm(method = "gbtree", nw = 5, seed = 1234)
+#' }
 #' @export
 train_frm <- function(df = read_rp_xlsx(),
                       method = "lasso",
@@ -93,6 +97,11 @@ train_frm <- function(df = read_rp_xlsx(),
 #' @param nfolds An integer representing the number of folds for cross validation.
 #' @param verbose A logical value indicating whether to print progress messages.
 #' @keywords public
+#' @examples \donttest{
+#' frm <- train_frm()
+#' new_data <- read_rpadj_xlsx()
+#' frmAdjusted <- adjust_frm(frm, new_data)
+#' }
 #' @export
 adjust_frm <- function(frm = train_frm(),
                        new_data = read_rpadj_xlsx(),
@@ -202,6 +211,10 @@ predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, ver
 #' @param frm An object of class 'frm' from which to extract the predictor names.
 #' @return A character vector with the predictor names.
 #' @keywords internal
+#' @examples \donttest{
+#' frm <- train_frm()
+#' get_predictors(frm)
+#' }
 #' @export
 get_predictors <- function(frm = train_frm()) {
     m <- frm$model

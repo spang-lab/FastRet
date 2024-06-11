@@ -1,12 +1,16 @@
 Package: FastRet
-Title: Retention time prediction and subset selection with a GUI
+Title: Retention Time Prediction in Liquid Chromatography
 Version: 1.0.3
 Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut"), email = "christian.amesoeder@stud.uni-regensburg.de"),
     person(given = "Marian", family = "Schoen", role = c("aut"), email = "marian.schoen@klinik.uni-regensburg.de"),
     person(given = "Tobias", family = "Schmidt", role = c("aut", "cre"), email = "tobias.schmidt331@gmail.com")
     )
-Description: FastRet provides a workflow for retention time prediction. This is mainly but not exclusively done with a GUI.
+Description: A framework for liquid chromatography retention time prediction.
+    It offers functionalities to train custom models for specific chromatography
+    columns, predict retention times using pre-existing models, and adjust
+    models to accommodate altered chromatographic conditions. FastRet can be
+    accessed via the R console or its intuitive graphical user interface.
 License: GPL-3
 URL: https://github.com/spang-lab/FastRet, https://spang-lab.github.io/FastRet
 BugReports: https://github.com/spang-lab/FastRet/issues

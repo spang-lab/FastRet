@@ -33,6 +33,7 @@ RESET <- "\033[0m"
 #' @param format A string representing the desired time format. Default is "%Y-%m-%d %H:%M:%OS2".
 #' @return A string representing the current system time in the specified format.
 #' @keywords internal
+#' @examples now()
 #' @export
 now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
     format(Sys.time(), format)
@@ -45,6 +46,9 @@ now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
 #' @param end A string to be used as the end of the message. Default is a newline character.
 #' @return No return value. This function is called for its side effect of printing a message.
 #' @keywords internal
+#' @examples
+#' catf("Hello, %s!", "world")
+#' catf("Goodbye", prefix = NULL, end = "!\n")
 #' @export
 catf <- function(..., prefix = .Options$FastRet.catf.prefix, end = .Options$FastRet.catf.end) {
     prefixstr <- if (is.null(prefix)) sprintf("%s%s%s ", GREY, now(), RESET) else prefix()
@@ -97,6 +101,7 @@ update_RP <- function() {
 #' @keywords dataset
 #' @source Measured by functional genomics lab at the University of Regensburg.
 #' @seealso RP
+#' @examples x <- read_rp_xlsx()
 #' @export
 read_rp_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP.xlsx"), 1)
@@ -106,6 +111,7 @@ read_rp_xlsx <- function() {
 #' @description Subset of the data from [read_rp_xlsx()] with some slight modifications to simulate changes in temperature and/or flowrate.
 #' @format A dataframe of 25 metabolites and columns `RT`, `SMILES` and `NAME`.
 #' @keywords dataset
+#' @examples x <- read_rpadj_xlsx()
 #' @export
 read_rpadj_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP_adj.xlsx"), 1)
@@ -118,6 +124,7 @@ read_rpadj_xlsx <- function() {
 #' @param subdir Optional subdirectory within the cache directory.
 #' @return The path to the cache directory or subdirectory.
 #' @keywords internal
+#' @examples get_cache_dir()
 #' @export
 get_cache_dir <- function(subdir = NULL) {
     cache_dir <- tools::R_user_dir("FastRet", which = "cache")
@@ -135,6 +142,8 @@ get_cache_dir <- function(subdir = NULL) {
 #' @param mustWork If TRUE, an error is thrown if the file does not exist.
 #' @return The path to the file.
 #' @keywords internal
+#' @examples
+#' pkg_file("extdata/RP.xlsx")
 #' @export
 pkg_file <- function(path, mustWork = FALSE) {
     system.file(path, package = "FastRet", mustWork = mustWork)
@@ -147,10 +156,8 @@ pkg_file <- function(path, mustWork = FALSE) {
 #' @param xx A list of lists where each inner list has the same names.
 #' @return A list where each element corresponds to a name of the inner list that is extracted from each inner list.
 #' @examples
-#' \dontrun{
 #' xx <- lapply(1:3, function(i) list(a = i, b = i^2, c = i^3))
 #' ret <- collect(xx)
-#' }
 #' @keywords internal
 #' @export
 collect <- function(xx) {

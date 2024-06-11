@@ -10,3 +10,4 @@
 ^FastRet\.Rproj$
 ^pkgdown$
 ^misc$
+^cran-comments\.md$

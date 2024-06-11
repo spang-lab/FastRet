@@ -6,6 +6,10 @@
 #' @param verbose 0: no output, 1: progress, 2: more progress and warnings
 #' @param nw number of workers for parallel processing
 #' @keywords public
+#' @examples \donttest{
+#' df <- read_rp_xlsx()
+#' cds <- getCDs(df, verbose = 0, nw = 1)
+#' }
 #' @export
 getCDs <- function(df = read_rp_xlsx(), verbose = 1, nw = 1) {
 
@@ -34,12 +38,12 @@ getCDs <- function(df = read_rp_xlsx(), verbose = 1, nw = 1) {
     clusterExport(cl, c("getCDsFor1Molecule", "get_cache_dir", "CDNames"))
     on.exit(stopCluster(cl), add = TRUE)
     catf("Calculating chemical descriptors using %d workers", nw)
-    cds <- parLapply(cl, df$SMILES, getCDsFor1Molecule, verbose = verbose - 1)
+    cds <- parLapply(cl, df$SMILES, getCDsFor1Molecule, verbose = if (verbose == 0) 0 else 1)
     catf("Collecting results")
     cds <- do.call(rbind, cds)
   } else {
     catf("Calculating chemical descriptors")
-    cds <- lapply(df$SMILES, getCDsFor1Molecule, verbose = verbose - 1)
+    cds <- lapply(df$SMILES, getCDsFor1Molecule, verbose = if (verbose == 0) 0 else 1)
     cds <- do.call(rbind, cds)
   }
   retdf <- cbind(df, cds)
@@ -57,9 +61,10 @@ getCDsCache <- as.environment(list())
 #' @param cache if TRUE, the results are cached in a directory `~/.cache/FastRet/getCDsFor1Molecule/` to speed up subsequent calls
 #' @param verbose 0: no output, 1: show progress
 #' @keywords internal
+#' @example cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = FALSE, verbose = 0)
 #' @export
 getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1) {
-  if (verbose <- 0) catf <- function(...) invisible() # disable catf prints
+  if (verbose == 0) catf <- function(...) invisible() # disable catf prints
   if (cache) {
     cache_dir <- get_cache_dir("getCDsFor1Molecule")
     cache_file <- paste0(digest::digest(smi), ".rds")
@@ -90,6 +95,9 @@ getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose =
 #' @description Analyze the chemical descriptors names and return a dataframe with the names and a boolean column indicating if all values are NA.
 #' @details This function is used to analyze the chemical descriptors names and to identify which descriptors produce only NAs in the test datasets. The function is used to generate the CDNames object.
 #' @keywords internal
+#' @examples \dontrun{
+#' analyzeCDNames()
+#' }
 #' @export
 analyzeCDNames <- function() {
   df <- read_rp_xlsx()
