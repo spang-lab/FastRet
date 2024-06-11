@@ -6,27 +6,38 @@
 - [x] Merge into main
 - [x] Nach github/spang-lab umziehen
 - [x] Fix missing j in "adusted"
-- [ ] Make "minutes" as RT-unit mandatory. (RS)
+- [x] Fix download of trained dataset
+- [x] Deploy `fastret-base` to `fastret.spang-lab.de`
+- [x] LATER: Move cache to `pvc`
+- [x] Finalize docs incl. link to Github in pkdown site
 
-- [ ] Fix download of trained dataset
-- [ ] Show RT_ADJ ~ RT_ORIG in adjust_model plot
-- [ ] Enable rerender on resize
-- [ ] Show model coefficients
+- [ ] Merge PR into main
+- [ ] Tag main with v1.0.2
+- [ ] Create `toscm/fastret-dev:1.0.2` with `nv=3` and `nsw=5`
+- [ ] Redeploy `fastret-dev` and `fastret` to Kubernetes with max cores = 20
+- [ ] Submit `fastret` to CRAN
+- [ ] Inform Fadi and Katja
 
-- [ ] Add question mark with help texts to plots. (RS)
-- [ ] Move formulas from legend to help texts and use simple words in legend. (RS)
-- [ ] Add unit (minutes) to MSE and MAE. (RS)
-- [ ] Show unit in axis labels. (RS)
-- [ ] Rename mode "Selective Measuring" to "Design Reference Molecule Panel" (RS)
-
-- [ ] Finalize rcdk dependency analysis
-- [ ] Finalize docs
-
+- [ ] LATER: Move `toscm/fastret-dev` to the [spang-lab container registry](https://gitlab.spang-lab.de/k8s/ha-config/container_registry)
+- [ ] LATER: Move `fastret-dev` and `fastret` Kubernetes deployments into HA-Config repo
+- [ ] LATER: Enable auto-build of `toscm/fastret-base:x.x.x` container
+- [ ] LATER: Show RT_ADJ ~ RT_ORIG in adjust_model plot
+- [ ] LATER: Enable rerender on resize
+- [ ] LATER: Show model coefficients
+- [ ] LATER: Add question mark with help texts to plots. (RS)
+- [ ] LATER: Move formulas from legend to help texts and use simple words in legend. (RS)
+- [ ] LATER: Add unit (minutes) to MSE and MAE. (RS)
+- [ ] LATER: Show unit in axis labels. (RS)
+- [ ] LATER: Rename mode "Selective Measuring" to "Design Reference Molecule Panel" (RS)
+- [ ] LATER: Make "minutes" as RT-unit mandatory. (RS)
+- [ ] LATER: Press of button "Save predictor set" currently takes multiple seconds. This should be much faster and also run asynchronous, i.e. in an "extended task".
+- [ ] LATER: Enable auto-build of `toscm/fastret:x.x.x-jdkyy` containers for all major jdk versions
+- [ ] LATER: Finalize rcdk dependency analysis
 - [ ] LATER: Offer "quantile normalization" as preprocessing step (RS)
 - [ ] LATER: Implement RAM caching for `getCD`
-- [ ] LATER: Move cache to `pvc`
 - [ ] LATER: Implement "remove not suitable descriptors" (Suggestion from Katja: use data from HMDB for prefiltering)
 - [ ] LATER: Make plots interactive (hovering over points should show molecule name)
 - [ ] LATER: Show PCA embedding of new points into training data after prediction
+- [ ] LATER: Enable auto-build of fastret-dev:x.x.x-jdkyy containers
 
 RS = Suggestions by Rainer Spang

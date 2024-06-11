@@ -161,6 +161,27 @@ collect <- function(xx) {
 
 # Test Helpers #####
 
+serve_docs <- function() {
+    servr::httd("docs")
+}
+
+make_docs <- function(reload = TRUE) {
+    if (reload) {
+        pkgdown::build_site(lazy = TRUE)
+        vignette_files <- dir(pkg_file("vignettes"), recursive = TRUE, full.names = TRUE)
+        timestamps_old <- file.mtime(vignette_files)
+        while (TRUE) {
+            Sys.sleep(0.1)
+            timestamps_new <- file.mtime(vignette_files)
+            if (!identical(timestamps_old, timestamps_new)) {
+                pkgdown::build_site(lazy = TRUE)
+                timestamps_old <- timestamps_new
+            }
+        }
+    } else {
+        pkgdown::build_site(lazy = TRUE)
+    }
+}
 update_mockdata <- function(getCD = FALSE,
                             preprocess_data = FALSE,
                             train_frm = FALSE,

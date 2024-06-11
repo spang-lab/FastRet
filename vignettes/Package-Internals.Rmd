@@ -1,0 +1,59 @@
+---
+title: "Package Internals"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Package Internals}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Model Training
+
+Model training is implemented in the `train_model` function. It first tries out several different parameter values in cross validation, remembers the best parameter value and then uses this value to train a final model on the full dataset. For further details see the function documention of [train_model](https://spang-lab.github.io/FastRet/reference/train_frm.html).
+
+# Reactive Graph
+
+FastRet is a reactive web app, that means most of its calculations are triggered as reaction to user inputs.
+The reactive graphs for FastRet's four modes are shown below, with
+
+- Action buttons shown as red rectangles
+- Upload buttons shown as orange rectangles
+- Other inputs shown as green rectangles
+- Intermediate calculations shown as violet rectangles
+- Outputs shown as blue rectangles
+- Synchronous functions shown as white rectangles with two lines on the left and right side
+- Asynchronous functions shown as hexagons
+- Red arrows from one node to another indicating that the first node triggers the second node
+- Green arrows from one node to another indicating that the first node holds an input value for the second node
+- Blue arrows from one node to another indicating that the first node writes an output value to the second node
+
+## Train new Model
+
+<a href="Package-Internals/train_new_model.svg">
+  <img src="Package-Internals/train_new_model.svg" alt="train_new_model.svg" style = "margin-top: 20px;">
+</a>
+
+## Predict Retention Times
+
+<a href="Package-Internals/predict_retention_times.svg">
+  <img src="Package-Internals/predict_retention_times.svg" alt="predict_retention_times.svg" style = "margin-top: 20px;">
+</a>
+
+## Selective Measuring
+
+<a href="Package-Internals/selective_measuring.svg">
+  <img src="Package-Internals/selective_measuring.svg" alt="selective_measuring.svg" style = "margin-top: 20px;">
+</a>
+
+## Adjust Existing Model
+
+<a href="Package-Internals/adjust_existing_model.svg">
+  <img src="Package-Internals/adjust_existing_model.svg" alt="adjust_existing_model.svg" style = "margin-top: 20px;">
+</a>

@@ -6,3 +6,4 @@ docs
 FastRet.Rproj
 inst/doc
 tests/testthat/Rplots.pdf
+*.bkp

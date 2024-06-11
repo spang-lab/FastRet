@@ -717,7 +717,7 @@ init_log_dir <- function(SE) {
     token <- SE$session$token
     logdir <- file.path(tempdir(), "FastRet", token)
     if (!dir.exists(logdir)) dir.create(logdir, recursive = TRUE)
-    catf("Logdir: %s", paste0(YELLOW, logdir, RESET))
+    catf("Logdir: %s", logdir)
     SE$logdir <- logdir
 }
 
