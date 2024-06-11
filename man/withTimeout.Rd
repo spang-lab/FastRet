@@ -17,4 +17,10 @@ The result of the expression
 \description{
 Execute an expression with a timeout
 }
+\examples{
+\donttest{
+withTimeout({Sys.sleep(1); cat("This works\n")}, timeout = 2)
+withTimeout({Sys.sleep(3); cat("This will fail\n")}, timeout = 2)
+}
+}
 \keyword{internal}

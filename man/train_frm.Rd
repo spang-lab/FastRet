@@ -50,4 +50,10 @@ Trains a new model from molecule SMILES to predict retention times (RT) using th
 \details{
 Setting \code{rm_near_zero_var} and/or \code{rm_na} to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 }
+\examples{
+\donttest{
+lasso_model <- train_frm(method = "lasso")
+gbtree <- train_frm(method = "gbtree", nw = 5, seed = 1234)
+}
+}
 \keyword{public}

@@ -19,4 +19,7 @@ Helper function for \code{\link[=getCDs]{getCDs()}}. Calculates chemical descrip
 \details{
 Chemical descriptors in \code{\link[=getCDs]{getCDs()}} are calculated individually for each molecule. This is due to the inconsistent ordering of output dataframes when a list of IAtomContainers is provided to \code{rcdk::eval.desc}. Although the input SMILES are set as rownames, they don't match the original input SMILES due to an unclear transformation, making mapping non-trivial. Calculating descriptors molecule by molecule also enables parallelization in \code{\link[=getCDs]{getCDs()}}.
 }
+\examples{
+cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = FALSE, verbose = 0)
+}
 \keyword{internal}

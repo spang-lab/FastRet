@@ -4,7 +4,7 @@
 \alias{withSink}
 \title{Execute an expression while redirecting output to a file}
 \usage{
-withSink(expr, logfile = "tmp.txt")
+withSink(expr, logfile = tempfile(fileext = ".txt"))
 }
 \arguments{
 \item{expr}{The expression to execute}
@@ -16,5 +16,12 @@ The result of the expression
 }
 \description{
 Execute an expression while redirecting output to a file
+}
+\examples{
+logfile <- tempfile(fileext = ".txt")
+withSink(logfile = logfile, expr = {
+  cat("Helloworld\n")
+  message("Goodbye")
+})
 }
 \keyword{internal}

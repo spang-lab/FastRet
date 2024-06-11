@@ -15,4 +15,9 @@ The result of the expression
 \description{
 Execute an expression and print an error message if it fails
 }
+\examples{
+\dontrun{
+withStopMessage({stop("This is an error")})
+}
+}
 \keyword{internal}

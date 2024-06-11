@@ -4,16 +4,23 @@
 \alias{check_lm_suitability}
 \title{Checks which chemical descriptors are suitable for linear models}
 \usage{
-check_lm_suitability(verbose = FALSE)
+check_lm_suitability(verbose = FALSE, nw = parallel::detectCores()/2)
 }
 \arguments{
 \item{verbose}{A logical value indicating whether to print verbose output. Default is FALSE.}
+
+\item{nw}{The number of workers to use for parallel processing. Default is half the number of available cores.}
 }
 \value{
 A data frame with the predictors and their suitability status.
 }
 \description{
 This function checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable. The analysis is performed using the HILIC dataset from the \href{https://www.retip.app/}{Retip} package.
+}
+\examples{
+\donttest{
+x <- check_lm_suitability(verbose = TRUE)
+}
 }
 \seealso{
 \code{\link[=plot_lm_suitability]{plot_lm_suitability()}}

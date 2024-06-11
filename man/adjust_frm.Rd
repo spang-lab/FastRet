@@ -26,4 +26,11 @@ adjust_frm(
 \description{
 The goal of this function is to train a model that predicts RT_ADJ (retention time measured on a new, adjusted column) from RT (retention time measured on the original column) and to attach this "adjustmodel" to an existing FastRet model.
 }
+\examples{
+\donttest{
+frm <- train_frm()
+new_data <- read_rpadj_xlsx()
+frmAdjusted <- adjust_frm(frm, new_data)
+}
+}
 \keyword{public}

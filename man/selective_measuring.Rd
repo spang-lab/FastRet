@@ -28,4 +28,10 @@ A list containing the following elements:
 \description{
 This function performs selective measuring on the provided raw data. It includes preprocessing, standardizing features, training a Ridge Regression model, scaling features by coefficients of the Ridge Regression model, applying PAM clustering, and returning clustering results.
 }
+\examples{
+\donttest{
+raw_data = read_rp_xlsx()
+selective_measuring(raw_data, k = 5)
+}
+}
 \keyword{public}

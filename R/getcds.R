@@ -61,7 +61,7 @@ getCDsCache <- as.environment(list())
 #' @param cache if TRUE, the results are cached in a directory `~/.cache/FastRet/getCDsFor1Molecule/` to speed up subsequent calls
 #' @param verbose 0: no output, 1: show progress
 #' @keywords internal
-#' @example cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = FALSE, verbose = 0)
+#' @examples cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = FALSE, verbose = 0)
 #' @export
 getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1) {
   if (verbose == 0) catf <- function(...) invisible() # disable catf prints
@@ -124,7 +124,10 @@ analyzeCDNames <- function() {
 #' @details One descriptor can be associated with multiple features, e.g. the BCUT descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h, BCUTc.1l, BCUTc.1h, BCUTp.1l, BCUTp.1h. Some descriptors produce warnings for certain molecules., e.g. "The AtomType null could not be found" or "Molecule must have 3D coordinates" and return NA in such cases. Descriptors that produce only NAs in our test datasets will be excluded. To see which descriptors produce only NAs, run `analyzeCDNames`. The "LongestAliphaticChain" descriptors sometimes even produces `Error: segfault from C stack overflow` error, e.g. for SMILES `c1ccccc1C(Cl)(Cl)Cl` (== `rcdk::bpdata$SMILES[200]`) when using `OpenJDK Runtime Environment (build 11.0.23+9-post-Ubuntu-1ubuntu122.04.1)`.
 #' @examples \dontrun{
 #' CDNames <- rcdk::get.desc.names(type = "all")
-#' skipPattern <- "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|GravitationalIndex|CPSA|TaeAminoAcid|LongestAliphaticChain)"
+#' skipPattern <- paste0(
+#'    "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|",
+#'    "GravitationalIndex|CPSA|TaeAminoAcid|LongestAliphaticChain)"
+#' )
 #' CDNames <- CDNames[!grepl(skipPattern, CDNames)]
 #' }
 #' @seealso [analyzeCDNames()], [CDs]

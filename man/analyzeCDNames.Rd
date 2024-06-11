@@ -12,4 +12,9 @@ Analyze the chemical descriptors names and return a dataframe with the names and
 \details{
 This function is used to analyze the chemical descriptors names and to identify which descriptors produce only NAs in the test datasets. The function is used to generate the CDNames object.
 }
+\examples{
+\dontrun{
+analyzeCDNames()
+}
+}
 \keyword{internal}

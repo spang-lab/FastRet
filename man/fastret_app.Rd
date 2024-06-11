@@ -21,4 +21,9 @@ A shiny app. This function returns a shiny app that can be run to interact with 
 \description{
 This function creates the FastRet GUI
 }
+\examples{
+\donttest{
+fastret_app()
+}
+}
 \keyword{public}

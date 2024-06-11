@@ -12,4 +12,7 @@ read_rpadj_xlsx()
 \description{
 Subset of the data from \code{\link[=read_rp_xlsx]{read_rp_xlsx()}} with some slight modifications to simulate changes in temperature and/or flowrate.
 }
+\examples{
+x <- read_rpadj_xlsx()
+}
 \keyword{dataset}

@@ -15,4 +15,10 @@ A character vector with the predictor names.
 \description{
 This function extracts the predictor names from an 'frm' object.
 }
+\examples{
+\donttest{
+frm <- train_frm()
+get_predictors(frm)
+}
+}
 \keyword{internal}

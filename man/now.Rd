@@ -15,4 +15,7 @@ A string representing the current system time in the specified format.
 \description{
 This function returns the current system time formatted according to the provided format string.
 }
+\examples{
+now()
+}
 \keyword{internal}

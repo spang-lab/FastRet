@@ -15,4 +15,10 @@ Updates the logdir element in the SE list with the path to the log directory.
 \description{
 This function initializes the log directory for the session. It creates a new directory if it does not exist.
 }
+\examples{
+\dontrun{
+SE <- list(session = list(token = "asdf"))
+init_log_dir(SE) # will create "TEMPDIR/FastRet/asdf"
+}
+}
 \keyword{internal}

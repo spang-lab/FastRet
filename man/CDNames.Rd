@@ -19,7 +19,10 @@ One descriptor can be associated with multiple features, e.g. the BCUT descripto
 \examples{
 \dontrun{
 CDNames <- rcdk::get.desc.names(type = "all")
-skipPattern <- "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|GravitationalIndex|CPSA|TaeAminoAcid|LongestAliphaticChain)"
+skipPattern <- paste0(
+   "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|",
+   "GravitationalIndex|CPSA|TaeAminoAcid|LongestAliphaticChain)"
+)
 CDNames <- CDNames[!grepl(skipPattern, CDNames)]
 }
 }

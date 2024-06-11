@@ -6,7 +6,7 @@
 \usage{
 plot_lm_suitability(
   slist = check_lm_suitability(),
-  pdfpath = "misc/lm_suitability.pdf"
+  pdfpath = tempfile("lm_suitability", fileext = ".pdf")
 )
 }
 \arguments{
@@ -24,6 +24,12 @@ This function creates one pdf page for every predictor inside \code{slist$X}. Th
 \item Density plot
 \item Scatterplot against \code{slist$df$RT}
 The name of the predictor, its suitability, and the status of the checks for missing values, near-zero variance, and outliers are shown in the title of each plot.
+}
+}
+\examples{
+\donttest{
+slist <- check_lm_suitability()
+plot_lm_suitability(slist)
 }
 }
 \seealso{
