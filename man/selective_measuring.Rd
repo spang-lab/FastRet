@@ -16,13 +16,13 @@ selective_measuring(raw_data = read_rp_xlsx(), k_cluster = 25, verbose = 1)
 \value{
 A list containing the following elements:
 \itemize{
-\item clustering: a data frame with raw data, cluster assignments, and medoid indicators
-\item clobj: the PAM clustering object
-\item coefs: the coefficients from the Ridge Regression model
-\item model: the Ridge Regression model
-\item df: the preprocessed data
-\item dfz: the standardized features
-\item dfzb: the features scaled by coefficients of the Ridge Regression model
+\item \code{clustering}: a data frame with raw data, cluster assignments, and medoid indicators
+\item \code{clobj}: the PAM clustering object
+\item \code{coefs}: the coefficients from the Ridge Regression model
+\item \code{model}: the Ridge Regression model
+\item \code{df}: the preprocessed data
+\item \code{dfz}: the standardized features
+\item \code{dfzb}: the features scaled by coefficients of the Ridge Regression model
 }
 }
 \description{
