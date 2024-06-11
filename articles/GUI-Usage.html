@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/GUI-Usage.html">GUI Usage</a>
     <a class="dropdown-item" href="../articles/CLI-Usage.html">CLI Usage</a>
-    <a class="dropdown-item" href="../articles/FastRet-Internals.html">FastRet Internals</a>
+    <a class="dropdown-item" href="../articles/Package-Internals.html">Package Internals</a>
     <a class="dropdown-item" href="../articles/Contributing.html">Contributing</a>
     <a class="dropdown-item" href="../articles/Old-Intro.html">Old Introduction</a>
   </div>
@@ -53,7 +53,14 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
 </form>
 
-      <ul class="navbar-nav"></ul>
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/spang-lab/FastRet/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 
     
@@ -68,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>GUI Usage</h1>
             
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/HEAD/vignettes/GUI-Usage.Rmd" class="external-link"><code>vignettes/GUI-Usage.Rmd</code></a></small>
       <div class="d-none name"><code>GUI-Usage.Rmd</code></div>
     </div>
 
@@ -82,17 +89,17 @@ the features it provides.</p>
 <p>To start the GUI, <a href="#installation">install the package</a> and
 then run the following command in an interactive R terminal:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">FastRet</span><span class="fu">::</span><span class="fu">FastRet</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">FastRet</span><span class="fu">::</span><span class="fu"><a href="../reference/start_gui.html">start_gui</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>After running the above code, you should see an output like</p>
 <pre><code>Listening on http://localhost:8080</code></pre>
 <p>in your R console. This means that the GUI is now running and you can
 access it via the URL <a href="http://localhost:8080" class="external-link uri">http://localhost:8080</a> in your browser. If your terminal
-supports it, you can also just click on the displayed link.</p>
+supports it, you can also click on the displayed link.</p>
 <p><a href="GUI-Usage/start-page.png"><img src="GUI-Usage/start-page.png" width="45%"></a>
 <a href="GUI-Usage/mode-help.png"><img src="GUI-Usage/mode-help.png" width="45%"></a></p>
 <p>By default, the GUI opens in muode <em>Train new Model</em>. To apply
 or adjust pretrained models, select mode <em>Predict Retention Time</em>
-or <em>Adjust existing model</em> instead. For more information about
+or <em>Adjust existing Model</em> instead. For more information about
 the individual modes and the various input fields, click on the little
 question mark symbols next to the different input fields or read the
 following sections.</p>
@@ -106,8 +113,9 @@ on your specific chromatogrpahy column and use this data to train a
 predictive model. FastRet includes an example Excel file with retention
 times for 442 metabolites measured on a reverse phase liquid
 chromatography column at a temperature of 35 degree celsius and a
-flowrate of 0.3ml/min. To print the example file path and a preview of
-its contents, enter the following lines an interactive R session:</p>
+flowrate of 0.3ml/min. To print the file path of this excel file and a
+preview of its contents, enter the following lines an interactive R
+session:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"RP.xlsx"</span>, package <span class="op">=</span> <span class="st">"FastRet"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">path</span>, <span class="st">"\n"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
@@ -131,20 +139,18 @@ its contents, enter the following lines an interactive R session:</p>
 <span><span class="co">#&gt; 6          ADENOSINE 3',5'-DIPHOSPHATE</span></span></code></pre></div>
 <p>To start model training, upload your Excel file and click the
 <em>Train Model</em> button. Training the model might take some time,
-depending on the size of the training set. On the top right you can see
-a loading symbol while the process is running. Upon completion,
-performance measures and a scatterplot of predicted vs actual retention
-times are shown. All performance measures are obtained in cross
-validation. For further details about the training process and the
-performance measures, see section <a href="https://spang-lab.github.io/FastRet/articles/fastret-internals.html#model-training" class="external-link">Model-Training</a>
-of article <a href="https://spang-lab.github.io/FastRet/articles/fastret-internals.html" class="external-link">FastRet-Internals</a>.
-(TODO)</p>
+depending on the size of the training set. When you click on
+<code>Show console logs</code> you can see the progress of the training
+process. Upon completion, performance measures and a table of training
+dataset is shown. For further details about the training process and the
+performance measures, see section <a href="https://spang-lab.github.io/FastRet/articles/Package-Internals.html#model-training">Model-Training</a>
+of article <a href="https://spang-lab.github.io/FastRet/articles/Package-Internals.html">Package-Internals</a>.</p>
 <p><a href="GUI-Usage/model-training.png"><img src="GUI-Usage/model-training.png" width="45%"></a>
 <a href="GUI-Usage/model-performance.png"><img src="GUI-Usage/model-performance.png" width="45%"></a></p>
 <p>To use the trained model to predict retention times for new
 molecules, you have to:</p>
 <ol style="list-style-type: decimal">
-<li>Save the model by clicking the <em>save Model</em> button</li>
+<li>Save the model by clicking the <em>Save Model</em> button</li>
 <li>Switch to model <em><a href="#predict-retention-times">Predict
 Retention Times</a></em>
 </li>
@@ -166,41 +172,30 @@ Retention Times</a>.</p>
 <p>In this mode, previously saved models can be used to make predictions
 for new data. To do so</p>
 <ol style="list-style-type: decimal">
-<li>Click the <em>Browse</em> button from section <em>Data as .xlsx
-file</em> and select the file you saved in the previous step</li>
-<li>In case you want to obtain prediction for a single molecule, you
-can:
-<ol style="list-style-type: decimal">
-<li>Enter the SMILES of the molecule in the <em>Input SMILES</em> text
-field and</li>
-<li>Click the <em>Calculate single input</em> button</li>
-</ol>
-</li>
-<li>In case you want to obtain predictions for multiple molecules, you
-can:
-<ol style="list-style-type: decimal">
-<li>Click <em>Browse</em> in the <em>New data to predict as .xlsx</em>
-section</li>
-<li>Select the file containing the SMILES of the molecules you want to
-predict retention times for</li>
-<li>Clik <em>Calculate predictions for input file</em>
-</li>
-</ol>
-</li>
+<li>Click the <em>Browse</em> button from section <em>Upload a
+pretrained Model</em> and select the model you saved in the previous
+step</li>
+<li>Either enter the SMILES of your molecule of interest in the
+<em>Input SMILES</em> text field or</li>
+<li>Click the <em>Browse</em> button from section <em>Upload SMILES as
+xlsx</em> and select an Excel file containing columns NAME and
+SMILES</li>
+<li>Click button <em>Predict</em> at the bottom of the side bar</li>
 </ol>
 <p><img src="Old-Intro/04.png" style="width:45.0%"></p>
 </div>
 <div class="section level2">
-<h2 id="adjusting-measurements-using-a-linear-model">Adjusting measurements using a linear model<a class="anchor" aria-label="anchor" href="#adjusting-measurements-using-a-linear-model"></a>
+<h2 id="adjusting-existing-model">Adjusting existing model<a class="anchor" aria-label="anchor" href="#adjusting-existing-model"></a>
 </h2>
 <p>If you have measured some metabolites on your new experiment setup
 that were also measured on the original setup, you can use this method
-to adjust the models prediction with a linear model. Simply check “Use
-measured metabolites to adjust Prediction” and upload an exel file with
-the corresponding SMILES/retention time data. After you click on
-“Analyze Linear Model” a scatter plot will be shown, displaying the old
-vs the new retention times of your measured metabolites. This plot helps
-you decide which components of the linear model to select.</p>
+to adjust your model for your new column. To do so, switch to mode
+<em>Adjust existing Model</em> and upload the model you want to adjust.
+Then upload an Excel file containing the retention times of the
+metabolites measured on your new column. The Excel file should contain
+columns NAME, SMILES and RT. After clicking the <em>Adjust Model</em>
+button, the model will be adjusted and you can use it to predict
+retention times for new molecules measured on your new column.</p>
 <p><img src="Old-Intro/05.png" style="width:45.0%"></p>
 </div>
 <div class="section level2">
@@ -214,9 +209,6 @@ corresponding clusters can be downloaded afterwards as an excel file.
 This step should be used once you have a predictive model and/or data
 set and want to adjust it to work for a new column with adjusted
 chromotagrphic properties such as gradient, temperature, etc.</p>
-<p>By providing an excel file with SMILES, NAME and RT and a custom k
-you can simply start the process and export another excel file which
-will show your clusters as well as your metabolites.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

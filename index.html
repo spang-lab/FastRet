@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="articles/GUI-Usage.html">GUI Usage</a>
     <a class="dropdown-item" href="articles/CLI-Usage.html">CLI Usage</a>
-    <a class="dropdown-item" href="articles/FastRet-Internals.html">FastRet Internals</a>
+    <a class="dropdown-item" href="articles/Package-Internals.html">Package Internals</a>
     <a class="dropdown-item" href="articles/Contributing.html">Contributing</a>
     <a class="dropdown-item" href="articles/Old-Intro.html">Old Introduction</a>
   </div>
@@ -53,7 +53,14 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
 </form>
 
-      <ul class="navbar-nav"></ul>
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/spang-lab/FastRet/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 
     
@@ -83,27 +90,38 @@
 </h2>
 <p>The easiest way to use FastRet is through its GUI. To start the GUI, <a href="#installation">install the package</a> and then run the following command in an interactive R terminal:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">FastRet</span><span class="fu">::</span><span class="fu">FastRet</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">FastRet</span><span class="fu">::</span><span class="fu"><a href="reference/start_gui.html">start_gui</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>After running the above code, you should see an output like</p>
 <pre><code>Listening on http://localhost:8080</code></pre>
 <p>in your R console. This means that the GUI is now running and you can access it via the URL <a href="http://localhost:8080" class="external-link uri">http://localhost:8080</a> in your browser. If your terminal supports it, you can also just click on the displayed link.</p>
-<p><img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/start-page.png" width="45%"><img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/mode-help.png" width="45%"></p>
-<p>By default, the GUI opens in Mode <em>Train new Model</em>. To apply or adjust pretrained models, select mode <em>Predict Retention Time</em> or <em>Adjust existing model</em> instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or have a look at the documentation page for <a href="https://spang-lab.github.io/FastRet/articles/gui-usage.html" class="external-link">GUI Usage</a>.</p>
+<div style="display: inline-block;">
+<p><img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/start-page.png" alt="start-page.png" width="45%"><img src="https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/mode-help.png" alt="mode-help.png" width="45%"></p>
+</div>
+<p>By default, the GUI opens in Mode <em>Train new Model</em>. To apply or adjust pretrained models, select mode <em>Predict Retention Time</em> or <em>Adjust existing Model</em> instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or have a look at the documentation page for <a href="https://spang-lab.github.io/FastRet/articles/gui-usage.html">GUI Usage</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
-<p>FastRet’s documentation is available at <a href="https://spang-lab.github.io/FastRet/" class="external-link">spang-lab.github.io/FastRet</a>. It includes pages about</p>
+<p>FastRet’s documentation is available at <a href="https://spang-lab.github.io/FastRet/">spang-lab.github.io/FastRet</a>. It includes pages about</p>
 <ul>
-<li><a href="https://spang-lab.github.io/FastRet/articles/gui-usage.html" class="external-link">GUI Usage</a></li>
-<li><a href="https://spang-lab.github.io/FastRet/articles/cli-usage.html" class="external-link">CLI Usage</a></li>
-<li><a href="https://spang-lab.github.io/FastRet/articles/fastret-internals.html" class="external-link">Package Internals</a></li>
-<li><a href="https://spang-lab.github.io/FastRet/reference/index.html" class="external-link">Function Reference</a></li>
+<li><a href="https://spang-lab.github.io/FastRet/articles/gui-usage.html">GUI Usage</a></li>
+<li><a href="https://spang-lab.github.io/FastRet/articles/cli-usage.html">CLI Usage</a></li>
+<li><a href="https://spang-lab.github.io/FastRet/articles/Package-Internals.html">Package Internals</a></li>
+<li><a href="https://spang-lab.github.io/FastRet/articles/Contributing.html">Contribution Guidelines</a></li>
+<li><a href="https://spang-lab.github.io/FastRet/reference/index.html">Function Reference</a></li>
 </ul>
 </div>
 </div>
 
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/spang-lab/FastRet/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/spang-lab/FastRet/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>

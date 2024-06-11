@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/GUI-Usage.html">GUI Usage</a>
     <a class="dropdown-item" href="../articles/CLI-Usage.html">CLI Usage</a>
-    <a class="dropdown-item" href="../articles/FastRet-Internals.html">FastRet Internals</a>
+    <a class="dropdown-item" href="../articles/Package-Internals.html">Package Internals</a>
     <a class="dropdown-item" href="../articles/Contributing.html">Contributing</a>
     <a class="dropdown-item" href="../articles/Old-Intro.html">Old Introduction</a>
   </div>
@@ -53,7 +53,14 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
 </form>
 
-      <ul class="navbar-nav"></ul>
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/spang-lab/FastRet/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 
     
@@ -68,7 +75,7 @@
       <img src="" class="logo" alt=""><h1>CLI Usage</h1>
             
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/HEAD/vignettes/CLI-Usage.Rmd" class="external-link"><code>vignettes/CLI-Usage.Rmd</code></a></small>
       <div class="d-none name"><code>CLI-Usage.Rmd</code></div>
     </div>
 
@@ -77,18 +84,44 @@
 <p>FastRet comes with a GUI for easy and intuitive use. However,
 sometimes it’s preferable to use FastRet programmatically. This vignette
 will show you how to use FastRet from the R command line.</p>
-<div class="section level2">
-<h2 id="train-new-model">Train new Model<a class="anchor" aria-label="anchor" href="#train-new-model"></a>
-</h2>
-<p>FastRet supports the fitting of two different types of models:
-regularized linear models (LASSO) and boosted regression trees. To train
-a LASSO model, you can use the following code:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># TODO</span></span></code></pre></div>
-<p>To train a boosted regression tree model, you can use:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># TODO</span></span></code></pre></div>
-</div>
+<p>The four modes that are available via the FastRet GUI are <a href="https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#train-new-model">Train
+new Model</a>, <a href="https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#predict-retention-times">Predict
+Retention Times</a>, <a href="https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#selective-measuring">Selective
+Measuring</a> and <a href="https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#adjusting-measurements-using-a-linear-model">Adjust
+existing Model</a>. Each of these modes has a corresponding function,
+which can be called from the command line. The mode-function mapping is
+as follows:</p>
+<table class="table">
+<colgroup>
+<col width="19%">
+<col width="80%">
+</colgroup>
+<thead><tr class="header">
+<th>Mode</th>
+<th>Function</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Train new Model</td>
+<td><a href="https://spang-lab.github.io/FastRet/reference/train_frm.html">train_frm</a></td>
+</tr>
+<tr class="even">
+<td>Predict Retention Times</td>
+<td><a href="https://spang-lab.github.io/FastRet/reference/predict.frm.html">predict.frm</a></td>
+</tr>
+<tr class="odd">
+<td>Selective Measuring</td>
+<td><a href="https://spang-lab.github.io/FastRet/reference/selective_measuring.html">selective_measuring</a></td>
+</tr>
+<tr class="even">
+<td>Adjust existing Model</td>
+<td><a href="https://spang-lab.github.io/FastRet/reference/adjust_frm.html">adjust_frm</a></td>
+</tr>
+</tbody>
+</table>
+<p>For details about each function, like parameter descriptions, usage
+examples and return values, click on the function name to open the
+corresponding help page.</p>
   </main>
 </div>
 

@@ -1,117 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/404.html</loc>
   </url>
   <url>
-    <loc>/articles/CLI-Usage.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/articles/CLI-Usage.html</loc>
   </url>
   <url>
-    <loc>/articles/Contributing.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/articles/Contributing.html</loc>
   </url>
   <url>
-    <loc>/articles/FastRet-Internals.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/articles/GUI-Usage.html</loc>
   </url>
   <url>
-    <loc>/articles/GUI-Usage.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/articles/Old-Intro.html</loc>
   </url>
   <url>
-    <loc>/articles/Old-Intro.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/articles/Package-Internals.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/articles/index.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/index.html</loc>
   </url>
   <url>
-    <loc>/reference/CDNames.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/CDNames.html</loc>
   </url>
   <url>
-    <loc>/reference/CDs.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/CDs.html</loc>
   </url>
   <url>
-    <loc>/reference/RP.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/RP.html</loc>
   </url>
   <url>
-    <loc>/reference/adjust_frm.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/adjust_frm.html</loc>
   </url>
   <url>
-    <loc>/reference/analyzeCDNames.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/analyzeCDNames.html</loc>
   </url>
   <url>
-    <loc>/reference/catf.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/catf.html</loc>
   </url>
   <url>
-    <loc>/reference/check_lm_suitability.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/check_lm_suitability.html</loc>
   </url>
   <url>
-    <loc>/reference/collect.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/collect.html</loc>
   </url>
   <url>
-    <loc>/reference/fastret_app.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/fastret_app.html</loc>
   </url>
   <url>
-    <loc>/reference/getCDs.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/getCDs.html</loc>
   </url>
   <url>
-    <loc>/reference/getCDsFor1Molecule.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/getCDsFor1Molecule.html</loc>
   </url>
   <url>
-    <loc>/reference/get_cache_dir.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/get_cache_dir.html</loc>
   </url>
   <url>
-    <loc>/reference/get_predictors.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/get_predictors.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/init_log_dir.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/init_log_dir.html</loc>
   </url>
   <url>
-    <loc>/reference/now.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/now.html</loc>
   </url>
   <url>
-    <loc>/reference/pkg_file.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/pkg_file.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_lm_suitability.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/plot_lm_suitability.html</loc>
   </url>
   <url>
-    <loc>/reference/predict.frm.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/predict.frm.html</loc>
   </url>
   <url>
-    <loc>/reference/preprocess_data.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/preprocess_data.html</loc>
   </url>
   <url>
-    <loc>/reference/read_rp_xlsx.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/read_rp_xlsx.html</loc>
   </url>
   <url>
-    <loc>/reference/read_rpadj_xlsx.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/read_rpadj_xlsx.html</loc>
   </url>
   <url>
-    <loc>/reference/selective_measuring.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/selective_measuring.html</loc>
   </url>
   <url>
-    <loc>/reference/start_gui.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/start_gui.html</loc>
   </url>
   <url>
-    <loc>/reference/train_frm.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/train_frm.html</loc>
   </url>
   <url>
-    <loc>/reference/withLineEnd.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/withLineEnd.html</loc>
   </url>
   <url>
-    <loc>/reference/withSink.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/withSink.html</loc>
   </url>
   <url>
-    <loc>/reference/withStopMessage.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/withStopMessage.html</loc>
   </url>
   <url>
-    <loc>/reference/withTimeout.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/withTimeout.html</loc>
   </url>
 </urlset>
