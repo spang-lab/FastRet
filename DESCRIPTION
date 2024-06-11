@@ -43,6 +43,7 @@ Suggests:
     knitr,
     languageserver,
     lintr,
+    pkgdown,
     pkgbuild,
     pkgload,
     rlang,

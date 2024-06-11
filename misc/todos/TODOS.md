@@ -11,10 +11,15 @@
 - [x] LATER: Move cache to `pvc`
 - [x] Finalize docs incl. link to Github in pkdown site
 
-- [ ] Set nv=3, nsw=5 in `fastret-dev`. Set maximium cores to 20 in `fastret-dev`.
-- [ ] Inform Fadi
+- [ ] Merge PR into main
+- [ ] Tag main with v1.0.2
+- [ ] Create `toscm/fastret-dev:1.0.2` with `nv=3` and `nsw=5`
+- [ ] Redeploy `fastret-dev` and `fastret` to Kubernetes with max cores = 20
+- [ ] Submit `fastret` to CRAN
+- [ ] Inform Fadi and Katja
 
-- [ ] LATER: Move `fastret-dev` to the [spang-lab container registry](https://gitlab.spang-lab.de/k8s/ha-config/container_registry)
+- [ ] LATER: Move `toscm/fastret-dev` to the [spang-lab container registry](https://gitlab.spang-lab.de/k8s/ha-config/container_registry)
+- [ ] LATER: Move `fastret-dev` and `fastret` Kubernetes deployments into HA-Config repo
 - [ ] LATER: Enable auto-build of `toscm/fastret-base:x.x.x` container
 - [ ] LATER: Show RT_ADJ ~ RT_ORIG in adjust_model plot
 - [ ] LATER: Enable rerender on resize
@@ -25,7 +30,7 @@
 - [ ] LATER: Show unit in axis labels. (RS)
 - [ ] LATER: Rename mode "Selective Measuring" to "Design Reference Molecule Panel" (RS)
 - [ ] LATER: Make "minutes" as RT-unit mandatory. (RS)
-- [ ] LATER: "Save predictor set" currently takes multiple seconds. This should be much faster and also run asynchronous, i.e. in an "extended task".
+- [ ] LATER: Press of button "Save predictor set" currently takes multiple seconds. This should be much faster and also run asynchronous, i.e. in an "extended task".
 - [ ] LATER: Enable auto-build of `toscm/fastret:x.x.x-jdkyy` containers for all major jdk versions
 - [ ] LATER: Finalize rcdk dependency analysis
 - [ ] LATER: Offer "quantile normalization" as preprocessing step (RS)
