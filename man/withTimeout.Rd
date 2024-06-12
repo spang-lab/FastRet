@@ -18,9 +18,7 @@ The result of the expression
 Execute an expression with a timeout
 }
 \examples{
-\donttest{
-withTimeout({Sys.sleep(1); cat("This works\n")}, timeout = 2)
-withTimeout({Sys.sleep(3); cat("This will fail\n")}, timeout = 2)
-}
+withTimeout(cat("This works\n"), timeout = 0.2)
+try(withTimeout({Sys.sleep(0.2); cat("This will fail\n")}, timeout = 0.1))
 }
 \keyword{internal}

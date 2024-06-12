@@ -8,9 +8,8 @@
 #' @return A shiny app. This function returns a shiny app that can be run to interact with the model.
 #' @details If you set `nw = 3` and `nsw = 4`, you should have at least 16 cores, one core for the shiny main process. Three cores for the three worker processes. And 12 cores (3 * 4) for the subworkers. For the default case, `nworkers = 1` and `nsw = 2`, you should have at least 4 cores.
 #' @keywords public
-#' @examples \donttest{
-#' start_gui()
-#' }
+#' @examples
+#' if (interactive()) start_gui()
 #' @export
 start_gui <- function(port = 8080,
                       host = "0.0.0.0",
@@ -49,9 +48,9 @@ startModes <- c("Train new Model", "Predict Retention Times", "Selective Measuri
 #' @param startMode The start mode to use. Can be one of "Train new Model", "Predict Retention Times", "Selective Measuring", "Adjust existing Model"
 #' @return NULL. Called for side effects.
 #' @keywords internal
-#' @noRd
 #' @details By using no subworkers and multicore or sequential, we can ensure that all processes are forked from the current R session and therefore use the functions loaded via devtools. If we use multisession and or subworkers, these processes will use the installed version of FastRet instead.
 #' ==> If we work on the UI part, we can use multisession and/or subworkers, because the UI part is handled by the main process, BUT, If we develop train/predict/plot functions, we must use multicore or sequential and NO subworkers! In particular, to use `browser()` in these functions, we must use sequential.
+#' @noRd
 start_gui_in_devmode <- function(strategy = "sequential",
                                  mocks = mocklist,
                                  startMode = "Train new Model") {
@@ -88,9 +87,9 @@ start_gui_in_devmode <- function(strategy = "sequential",
 #' @param reload Whether to reload the application when the source code changes
 #' @param nsw The number of subworkers each worker is allowed to start. The higher this number, the faster individual tasks like model fitting can be processed.
 #' @return A shiny app. This function returns a shiny app that can be run to interact with the model.
-#' @examples \donttest{
-#' fastret_app()
-#' }
+#' @examples
+#' x <- fastret_app()
+#' if (interactive()) shiny::runApp(x)
 #' @keywords public
 #' @export
 fastret_app <- function(port = 8080,

@@ -13,8 +13,7 @@
 #' * `dfzb`: the features scaled by coefficients of the Ridge Regression model
 #' @keywords public
 #' @examples \donttest{
-#' raw_data = read_rp_xlsx()
-#' selective_measuring(raw_data, k = 5)
+#' x <- selective_measuring(RP, k = 5, verbose = 0)
 #' }
 #' @export
 selective_measuring <- function(raw_data = read_rp_xlsx(), k_cluster = 25, verbose = 1) {
@@ -31,14 +30,14 @@ selective_measuring <- function(raw_data = read_rp_xlsx(), k_cluster = 25, verbo
 
     catf("Preprocessing input data")
     validate_inputdata(raw_data, min_cds = 0)
-    df <- preprocess_data(raw_data)
+    df <- preprocess_data(raw_data, verbose = verbose)
 
     catf("Standardizing features")
     dfz <- scale(df[, -which(colnames(df) %in% c("NAME", "SMILES"))])
     dfz_noRT <- dfz[, -which(colnames(df) == "RT")]
 
     catf("Training Ridge Regression model")
-    model <- fit_ridge(dfz)
+    model <- fit_ridge(dfz, verbose = verbose)
     coefs <- glmnet::coef.glmnet(model)@x[-1] # remove intercept
 
     catf("Scaling features by coefficients of Ridge Regression model")

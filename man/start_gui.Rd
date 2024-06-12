@@ -27,8 +27,6 @@ Starts the FastRet GUI
 If you set \code{nw = 3} and \code{nsw = 4}, you should have at least 16 cores, one core for the shiny main process. Three cores for the three worker processes. And 12 cores (3 * 4) for the subworkers. For the default case, \code{nworkers = 1} and \code{nsw = 2}, you should have at least 4 cores.
 }
 \examples{
-\donttest{
-start_gui()
-}
+if (interactive()) start_gui()
 }
 \keyword{public}

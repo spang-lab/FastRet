@@ -30,9 +30,7 @@ A dataframe with the preprocessed data
 Preprocess data so they can be used as input for \code{\link[=train_frm]{train_frm()}}.
 }
 \examples{
-\donttest{
-data <- read_rp_xlsx()
-preprocess_data(data, verbose = 0)
-}
+data <- head(read_rp_xlsx(), 3)
+pre <- preprocess_data(data, verbose = 0)
 }
 \keyword{public}

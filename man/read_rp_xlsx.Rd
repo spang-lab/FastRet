@@ -17,6 +17,7 @@ Read retention time data from a reverse phase liquid chromatography measured wit
 }
 \examples{
 x <- read_rp_xlsx()
+all.equal(x, RP)
 }
 \seealso{
 RP

@@ -23,5 +23,6 @@ withSink(logfile = logfile, expr = {
   cat("Helloworld\n")
   message("Goodbye")
 })
+readLines(logfile) == c("Helloworld", "Goodbye")
 }
 \keyword{internal}

@@ -16,8 +16,13 @@ The result of the expression
 Execute an expression and print an error message if it fails
 }
 \examples{
-\dontrun{
-withStopMessage({stop("This is an error")})
+f <- function(expr) {
+  val <- try(expr, silent = TRUE)
+  err <- if (inherits(val, "try-error")) attr(val, "condition") else NULL
+  if (!is.null(err)) value <- NULL
+  list(value = val, error = err)
 }
+ret <- f(log("a")) # this error will not show up in the console
+ret <- f(withStopMessage(log("a"))) # this error will show up in the console
 }
 \keyword{internal}

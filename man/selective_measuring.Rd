@@ -30,8 +30,7 @@ This function performs selective measuring on the provided raw data. It includes
 }
 \examples{
 \donttest{
-raw_data = read_rp_xlsx()
-selective_measuring(raw_data, k = 5)
+x <- selective_measuring(RP, k = 5, verbose = 0)
 }
 }
 \keyword{public}

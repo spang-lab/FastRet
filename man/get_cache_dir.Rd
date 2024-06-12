@@ -16,6 +16,6 @@ The path to the cache directory or subdirectory.
 Creates and returns the cache directory for the FastRet package.
 }
 \examples{
-get_cache_dir()
+path <- get_cache_dir()
 }
 \keyword{internal}

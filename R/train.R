@@ -17,8 +17,7 @@
 #' @return A trained FastRet model.
 #' @keywords public
 #' @examples \donttest{
-#' lasso_model <- train_frm(method = "lasso")
-#' gbtree <- train_frm(method = "gbtree", nw = 2, seed = 1234)
+#' m <- train_frm(RP, method = "lasso", nfolds = 2, nw = 2, verbose = 0)
 #' }
 #' @export
 train_frm <- function(df = read_rp_xlsx(),
@@ -97,11 +96,10 @@ train_frm <- function(df = read_rp_xlsx(),
 #' @param nfolds An integer representing the number of folds for cross validation.
 #' @param verbose A logical value indicating whether to print progress messages.
 #' @keywords public
-#' @examples \donttest{
-#' frm <- train_frm()
+#' @examples
+#' frm <- read_rp_lasso_model_rds()
 #' new_data <- read_rpadj_xlsx()
-#' frmAdjusted <- adjust_frm(frm, new_data)
-#' }
+#' frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
 #' @export
 adjust_frm <- function(frm = train_frm(),
                        new_data = read_rpadj_xlsx(),
@@ -166,13 +164,10 @@ adjust_frm <- function(frm = train_frm(),
 #' @return A numeric vector with the predicted retention times.
 #' @keywords public
 #' @seealso [train_frm()], [adjust_frm()]
-#' @examples \donttest{
-#' # Train a new model
-#' frm <- train_frm(verbose = 0)
-#' # Predict retention times
-#' newdata <- read_rp_xlsx()
+#' @examples
+#' frm <- read_rp_lasso_model_rds()
+#' newdata <- head(RP)
 #' yhat <- predict(frm, newdata)
-#' }
 #' @export
 predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, verbose = 0, ...) {
     if (verbose == 0) catf <- function(...) {}
@@ -211,10 +206,9 @@ predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, ver
 #' @param frm An object of class 'frm' from which to extract the predictor names.
 #' @return A character vector with the predictor names.
 #' @keywords internal
-#' @examples \donttest{
-#' frm <- train_frm()
+#' @examples
+#' frm <- read_rp_lasso_model_rds()
 #' get_predictors(frm)
-#' }
 #' @export
 get_predictors <- function(frm = train_frm()) {
     m <- frm$model
@@ -421,9 +415,10 @@ fit_gbtree_grid <- function(df = preprocess_data(),
 #' @param x Object as returned by [fit_gbtree_grid()]
 #' @param print Print the plots to the console?
 #' @param pdfpath Path to save the plots as PDF
-#' @examples \donttest{
+#' @examples
+#' \dontrun{
 #' df <- preprocess_data(nw = 2)
-#' x <- fit_gbtree_grid(df, nw = 2)
+#' x <- fit_gbtree_grid(df, nw = 64)
 #' plot_gbtree_performance(x, pdfpath = "misc/cvgbtree.pdf")
 #' plot_gbtree_performance(x, pdfpath = "misc/cvgbtree_box.pdf", type = "box")
 #' }

@@ -18,6 +18,6 @@ The path to the file.
 Returns the path to a file within the FastRet package.
 }
 \examples{
-pkg_file("extdata/RP.xlsx")
+path <- pkg_file("extdata/RP.xlsx")
 }
 \keyword{internal}

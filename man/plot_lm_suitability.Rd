@@ -6,13 +6,16 @@
 \usage{
 plot_lm_suitability(
   slist = check_lm_suitability(),
-  pdfpath = tempfile("lm_suitability", fileext = ".pdf")
+  pdfpath = tempfile("lm_suitability", fileext = ".pdf"),
+  descs = NULL
 )
 }
 \arguments{
 \item{slist}{A list containing the data frame \code{df}, the matrix \code{X}, and the data frame \code{V} from \code{check_lm_suitability()}.}
 
 \item{pdfpath}{The path to the pdf file to save the plots.}
+
+\item{descs}{Index of chemical descriptors to plot. Leave at NULL to plot all chemical descriptors.}
 }
 \value{
 No return value. The function is used for its side effect of creating a pdf file with the plots.
@@ -27,10 +30,9 @@ The name of the predictor, its suitability, and the status of the checks for mis
 }
 }
 \examples{
-\donttest{
-slist <- check_lm_suitability()
-plot_lm_suitability(slist)
-}
+df <- head(read_retip_hilic_data())
+slist <- check_lm_suitability(df, verbose = FALSE, nw = 1)
+plot_lm_suitability(slist, descs = 1:5)
 }
 \seealso{
 \code{\link[=check_lm_suitability]{check_lm_suitability()}}
