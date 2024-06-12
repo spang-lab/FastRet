@@ -5,7 +5,7 @@ Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut"), email = "christian.amesoeder@stud.uni-regensburg.de"),
     person(given = "Marian", family = "Schoen", role = c("aut"), email = "marian.schoen@klinik.uni-regensburg.de"),
     person(given = "Tobias", family = "Schmidt", role = c("aut", "cre"), email = "tobias.schmidt331@gmail.com"),
-    person(given = "Katja", family = "Dettmer", role = c("ths"), email = "Katja.Dettmer@klinik.uni-regensburg.de")
+    person(given = "Katja", family = "Dettmer", role = c("ths"), email = "Katja.Dettmer@klinik.uni-regensburg.de"),
     person(given = "Peter", family = "Oefner", role = c("ths", "cph"), email = "Peter.Oefner@klinik.uni-regensburg.de")
     )
 Description: A framework for predicting retention times in liquid

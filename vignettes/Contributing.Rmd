@@ -47,12 +47,8 @@ Whenever a package maintainer wants to release a new version of the package to C
 
 ```R
 # Slower, but more realistic tests than devtools::check()
-rcmdcheck::rcmdcheck(
-  args = (c("--no-manual", "--as-cran")),
-  build_args = ("--no-manual"),
-  error_on = ("warning")
-)
 devtools::check(remote = TRUE, manual = TRUE, run_dont_test = TRUE)
+rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), build_args = ("--no-manual"), error_on = ("warning"))
 
 # Check spelling, URLs, and reverse dependencies.
 # False positives findings of spell check should be added to inst/WORDLIST.
