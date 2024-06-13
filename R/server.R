@@ -568,22 +568,47 @@ showError <- function(msg = NULL, expr = NULL, duration = 10) {
 }
 
 #' @title Create an ExtendedTask Object
-#' @description This function wraps a given function in a [promises::future_promise()] and the result into a [shiny::ExtendedTask()] object. When the ExtendedTask Object is invoked, the function is executed asynchronously.
+#' @description This function wraps a given function in a [promises::future_promise()] and the result into a [shiny::ExtendedTask()] object.
+#' When the ExtendedTask Object is invoked, the function is executed asynchronously in a seperate process (assuming [future::plan()] has been called with strategy unequal "sequential").
+#' Normal output, messages, warnings and errors from that process get redirected to `logfile`.
+#' The status of the task can be checked via the `status()` method.
+#' As soon as `status()` returns `"success"`, the result can be retrieved via the `result()` method.
+#' If an error has occured, `status()` will return `"error"`.
+#' In this case, calling `result()` will reraise the error that occured while executing the task.
+#' Querying the status or value of the task requires a reactive context, e.g. via [shiny::reactive()], [shiny::observe()] or [shiny::reactiveConsole].
 #' @param func A function that accepts any number of arguments and returns a value.
 #' @return An ExtendedTask object that wraps the provided function. For further details see: [shiny::ExtendedTask()].
 #' @examples
-#' \dontrun{
-#' f <- function(x, y) { Sys.sleep(2); print(x + y); x + y }
-#' local({
-#'      shiny::reactiveConsole(enabled = TRUE)
-#'      on.exit(shiny::reactiveConsole(enabled = FALSE), add = TRUE)
-#'      ET <- extendedTask(f)
-#'      ET$invoke(x=1, y=3)
-#'      ET$result()
-#' })
-#' }
+#' shiny::reactiveConsole(enabled = TRUE)
+#' on.exit(shiny::reactiveConsole(enabled = FALSE), add = TRUE)
+#'
+#' f <- function(x) log(x)
+#' logfile <- tempfile(fileext = ".log")
+#' et <- extendedTask("f", logfile)
+#'
+#' et$status() == "initial"
+#' et$invoke(x = 1)
+#' et$status() == "success"
+#' et$result() == log(1)
+#'
+#' et$invoke(x = -1)
+#' et$status() == "success"
+#' is.na(et$result()) == TRUE
+#'
+#' et$invoke(x = "a")
+#' et$status() == "error"
+#' x <- try(et$result(), silent = TRUE)
+#' attr(x, "condition")$message == "non-numeric argument to mathematical function"
+#'
+#' g <- function(x) Sys.sleep(0.02)
+#' logfile <- tempfile(fileext = ".log")
+#' et <- extendedTask("g", logfile)
+#' et$invoke()
+#' et$status() == "running"
+#' Sys.sleep(0.04)
+#' et$status() == "success"
 #' @noRd
-extendedTask <- function(func, logfile, timeout = 300) {
+extendedTask <- function(func, logfile = tempfile(fileext = ".log"), timeout = 300) {
     logfile <- logfile
     func <- as.symbol(func)
     langobj <- substitute(
@@ -599,9 +624,17 @@ extendedTask <- function(func, logfile, timeout = 300) {
                     on.exit(options(opts), add = TRUE, after = FALSE)
                     withSink(logfile = logfile, withCallingHandlers(
                         withTimeout(timeout = timeout, func(...)),
-                        message = function(m) {cat("Message:", withLineEnd(m$message))},
-                        warning = function(w) {cat("Warning:", withLineEnd(w$message))},
-                        error = function(e)   {cat("Error:",   withLineEnd(e$message)); stop(e)}
+                        message = function(m) {
+                            cat("Message:", withLineEnd(m$message))
+                        },
+                        warning = function(w) {
+                            cat("Warning:", withLineEnd(w$message))
+                            invokeRestart("muffleWarning")
+                        },
+                        error = function(e)   {
+                            cat("Error:", withLineEnd(e$message))
+                            # stop(e)
+                        }
                     ))
                 }
             )
@@ -619,9 +652,13 @@ extendedTask <- function(func, logfile, timeout = 300) {
 #' @param onError A function that is executed when the task encounters an error. This function also accepts the session environment `SE` as an argument.
 #' @param displayError A boolean value that determines whether to display an error message to the user when the task encounters an error. The default value is TRUE.
 #' @return A function that checks the status of the ExtendedTask object and executes the appropriate function based on the status.
-#' @examples \dontrun{
-#' extendedTaskHandler(id = "task1", onSuccess = function(SE) { print("Task completed!") })
-#' }
+#' @examples
+#' logfile <- tempfile(fileext = ".log")
+#' f <- function(x) log(x)
+#' SE <- list(ET = list(task1 = extendedTask(f, logfile)))
+#' f <- function(SE) print("Task completed successfully!")
+#'
+#' extendedTaskHandler(id = "task1", onSuccess = f)
 #' @noRd
 extendedTaskHandler <- function(id,
                                 onSuccess = function(SE) {},
@@ -670,6 +707,9 @@ renderTbl <- function(expr,
 #' @param timeout The timeout in seconds. Default is 2.
 #' @return The result of the expression
 #' @keywords internal
+#' @examples
+#' withTimeout(cat("This works\n"), timeout = 0.2)
+#' try(withTimeout({Sys.sleep(0.2); cat("This will fail\n")}, timeout = 0.1))
 #' @export
 withTimeout <- function(expr, timeout = 2) {
     setTimeLimit(cpu = timeout, elapsed = timeout, transient = TRUE)
@@ -682,8 +722,15 @@ withTimeout <- function(expr, timeout = 2) {
 #' @param logfile The file to redirect output to. Default is "tmp.txt".
 #' @return The result of the expression
 #' @keywords internal
+#' @examples
+#' logfile <- tempfile(fileext = ".txt")
+#' withSink(logfile = logfile, expr = {
+#'   cat("Helloworld\n")
+#'   message("Goodbye")
+#' })
+#' readLines(logfile) == c("Helloworld", "Goodbye")
 #' @export
-withSink <- function(expr, logfile = "tmp.txt") {
+withSink <- function(expr, logfile = tempfile(fileext = ".txt")) {
     zz <- file(logfile, open = "wt")
     on.exit(close(zz), add = TRUE, after = FALSE)
     sink(zz)
@@ -698,6 +745,15 @@ withSink <- function(expr, logfile = "tmp.txt") {
 #' @param expr The expression to execute
 #' @return The result of the expression
 #' @keywords internal
+#' @examples
+#' f <- function(expr) {
+#'   val <- try(expr, silent = TRUE)
+#'   err <- if (inherits(val, "try-error")) attr(val, "condition") else NULL
+#'   if (!is.null(err)) value <- NULL
+#'   list(value = val, error = err)
+#' }
+#' ret <- f(log("a")) # this error will not show up in the console
+#' ret <- f(withStopMessage(log("a"))) # this error will show up in the console
 #' @export
 withStopMessage <- function(expr) {
     tryCatch(expr, error = function(e) {
@@ -711,6 +767,10 @@ withStopMessage <- function(expr) {
 #' @param SE A list containing session information.
 #' @return Updates the logdir element in the SE list with the path to the log directory.
 #' @keywords internal
+#' @examples
+#' SE <- as.environment(list(session = list(token = "asdf")))
+#' init_log_dir(SE)
+#' dir.exists(SE$logdir)
 #' @export
 init_log_dir <- function(SE) {
     catf("Start: init_log_dir")
@@ -726,6 +786,8 @@ init_log_dir <- function(SE) {
 #' @param x A string.
 #' @return The input string with a newline character at the end if it was not already present.
 #' @keywords internal
+#' @examples
+#' cat(withLineEnd("Hello"))
 #' @export
 withLineEnd <- function(x) {
     if (!grepl("\n$", x)) paste0(x, "\n") else x

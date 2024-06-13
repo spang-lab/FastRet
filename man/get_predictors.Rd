@@ -15,4 +15,8 @@ A character vector with the predictor names.
 \description{
 This function extracts the predictor names from an 'frm' object.
 }
+\examples{
+frm <- read_rp_lasso_model_rds()
+get_predictors(frm)
+}
 \keyword{internal}

@@ -5,8 +5,11 @@
 ^\.Rproj\.user$
 ^\.vscode$
 ^app\.R$
+^check/$
+^cran-comments\.md$
 ^Dockerfile$
 ^docs$
 ^FastRet\.Rproj$
-^pkgdown$
 ^misc$
+^pkgdown$
+^vignettes$

@@ -21,4 +21,8 @@ A shiny app. This function returns a shiny app that can be run to interact with 
 \description{
 This function creates the FastRet GUI
 }
+\examples{
+x <- fastret_app()
+if (interactive()) shiny::runApp(x)
+}
 \keyword{public}

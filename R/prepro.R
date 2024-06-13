@@ -7,6 +7,9 @@
 #' @param nw number of workers to use for parallel processing
 #' @return A dataframe with the preprocessed data
 #' @keywords public
+#' @examples
+#' data <- head(read_rp_xlsx(), 3)
+#' pre <- preprocess_data(data, verbose = 0)
 #' @export
 preprocess_data <- function(data = read_rp_xlsx(),
                             degree_polynomial = 1,
@@ -76,21 +79,22 @@ preprocess_data <- function(data = read_rp_xlsx(),
 }
 
 #' @title Checks which chemical descriptors are suitable for linear models
-#' @description This function checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable. The analysis is performed using the HILIC dataset from the [Retip](https://www.retip.app/) package.
-#' @param verbose A logical value indicating whether to print verbose output. Default is FALSE.
+#' @description This function checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable.
+#' @param df Input data for performing the analysis. Must be a data frame with columns NAME, RT and SMILES.
+#' @param verbose A logical value indicating whether to print verbose output.
+#' @param nw The number of workers to use for parallel processing.
 #' @return A data frame with the predictors and their suitability status.
 #' @seealso [plot_lm_suitability()]
 #' @keywords internal
+#' @examples
+#' df <- head(read_retip_hilic_data())
+#' x <- check_lm_suitability(df, verbose = FALSE, nw = 1)
 #' @export
-check_lm_suitability <- function(verbose = FALSE) {
-    # Check if Retip is installed. If not, throw a error message and exit.
-    if (!"Retip" %in% rownames(installed.packages())) {
-        stop("This function requires package 'Retip'. For installation instructions see https://www.retip.app/.")
-    }
-    df <- eval(parse(text = "Retip::HILIC")) # Use eval(parse()) to avoid R CMD check Warning: "import not declared from: Retip". This is necessary, because Retip is not available on CRAN, so we cannot list it as dependency in the DESCRIPTION file. The warning itself is a false positive, because this part of the code cannot be reached anyways, unless the user has Retip installed manually. This is checked at the beginning of the function.
+check_lm_suitability <- function(df = read_retip_hilic_data(),
+                                 verbose = FALSE,
+                                 nw = 2) {
     y <- df$RT
-    cdf <- pkg_file("retipdata/Retip_HILIC_CDs.rds")
-    cds <- if (file.exists(cdf)) readRDS(cdf) else getCDs(df, verbose = 1)
+    cds <- getCDs(df, verbose = verbose, nw = nw)
     X <- cds[5:ncol(cds)]
     predictors <- colnames(X)
     n <- ncol(X)
@@ -110,18 +114,26 @@ check_lm_suitability <- function(verbose = FALSE) {
 #' The name of the predictor, its suitability, and the status of the checks for missing values, near-zero variance, and outliers are shown in the title of each plot.
 #' @param slist A list containing the data frame `df`, the matrix `X`, and the data frame `V` from `check_lm_suitability()`.
 #' @param pdfpath The path to the pdf file to save the plots.
+#' @param descs Index of chemical descriptors to plot. Leave at NULL to plot all chemical descriptors.
 #' @return No return value. The function is used for its side effect of creating a pdf file with the plots.
 #' @seealso [check_lm_suitability()]
 #' @keywords internal
+#' @examples
+#' df <- head(read_retip_hilic_data())
+#' slist <- check_lm_suitability(df, verbose = FALSE, nw = 1)
+#' plot_lm_suitability(slist, descs = 1:5)
 #' @export
 plot_lm_suitability <- function(slist = check_lm_suitability(),
-                                pdfpath = "misc/lm_suitability.pdf") {
+                                pdfpath = tempfile("lm_suitability", fileext = ".pdf"),
+                                descs = NULL) {
+    catf("Plotting suitability of predictors for linear models to file '%s'", pdfpath)
     pdf(pdfpath, width = 9, height = 3)  # A4 size in inches
     on.exit(dev.off(), add = TRUE)
     opar <- par(mfrow = c(1, 3), oma = c(2, 0, 2, 0), mar = c(1, 4, 1, 2))
-    on.exit(par(opar), add = TRUE)
-    V <- slist$V
-    X <- slist$X
+    on.exit(par(opar), add = TRUE, after = FALSE)
+    if (is.null(descs)) descs <- seq_len(ncol(slist$X))
+    V <- slist$V[descs, ]
+    X <- slist$X[, descs]
     RT <- slist$df$RT
     for (i in seq_len(ncol(X))) {
         x <- X[, i]
@@ -143,10 +155,9 @@ plot_lm_suitability <- function(slist = check_lm_suitability(),
                 outer = TRUE
             )  # added single x-axis at the bottom
             title(main = title, outer = TRUE)
-            message(sprintf("[%d/%d] %s (PLOTTED SUCCESSFULLY)", i, ncol(X), name))
+            catf("[%d/%d] %s (PLOTTED SUCCESSFULLY)", i, ncol(X), name)
         }, error = function(e) {
-            message(sprintf("[%d/%d] %s (FAILED)", i, ncol(X), name))
+            catf("[%d/%d] %s (FAILED)", i, ncol(X), name)
         })
     }
-    dev.off()
 }

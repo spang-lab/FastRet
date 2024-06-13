@@ -1,11 +1,15 @@
 # Main #####
 
 #' @title Get Chemical Descriptors for a list of molecules
-#' @description Calculate Chemical Descriptors for a list of molcules. Molecules can appear multiple times in the list.
+#' @description Calculate Chemical Descriptors for a list of molecules. Molecules can appear multiple times in the list.
 #' @param df dataframe with two mandatory columns: "NAME" and "SMILES"
 #' @param verbose 0: no output, 1: progress, 2: more progress and warnings
 #' @param nw number of workers for parallel processing
 #' @keywords public
+#' @examples
+#' df <- read_rp_xlsx()
+#' df3 <- head(df, 3)
+#' cds <- getCDs(df3, verbose = 0, nw = 1)
 #' @export
 getCDs <- function(df = read_rp_xlsx(), verbose = 1, nw = 1) {
 
@@ -34,12 +38,12 @@ getCDs <- function(df = read_rp_xlsx(), verbose = 1, nw = 1) {
     clusterExport(cl, c("getCDsFor1Molecule", "get_cache_dir", "CDNames"))
     on.exit(stopCluster(cl), add = TRUE)
     catf("Calculating chemical descriptors using %d workers", nw)
-    cds <- parLapply(cl, df$SMILES, getCDsFor1Molecule, verbose = verbose - 1)
+    cds <- parLapply(cl, df$SMILES, getCDsFor1Molecule, verbose = if (verbose == 0) 0 else 1)
     catf("Collecting results")
     cds <- do.call(rbind, cds)
   } else {
     catf("Calculating chemical descriptors")
-    cds <- lapply(df$SMILES, getCDsFor1Molecule, verbose = verbose - 1)
+    cds <- lapply(df$SMILES, getCDsFor1Molecule, verbose = if (verbose == 0) 0 else 1)
     cds <- do.call(rbind, cds)
   }
   retdf <- cbind(df, cds)
@@ -57,9 +61,11 @@ getCDsCache <- as.environment(list())
 #' @param cache if TRUE, the results are cached in a directory `~/.cache/FastRet/getCDsFor1Molecule/` to speed up subsequent calls
 #' @param verbose 0: no output, 1: show progress
 #' @keywords internal
+#' @examples
+#' cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = FALSE, verbose = 0)
 #' @export
 getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1) {
-  if (verbose <- 0) catf <- function(...) invisible() # disable catf prints
+  if (verbose == 0) catf <- function(...) invisible() # disable catf prints
   if (cache) {
     cache_dir <- get_cache_dir("getCDsFor1Molecule")
     cache_file <- paste0(digest::digest(smi), ".rds")
@@ -87,14 +93,19 @@ getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose =
 # Constants #####
 
 #' @title Analyze Chemical Descriptors Names
-#' @description Analyze the chemical descriptors names and return a dataframe with the names and a boolean column indicating if all values are NA.
-#' @details This function is used to analyze the chemical descriptors names and to identify which descriptors produce only NAs in the test datasets. The function is used to generate the CDNames object.
+#' @description Analyze the chemical descriptor names and return a dataframe with their names and a boolean column indicating if all values are NA.
+#' @details This function is used to analyze the chemical descriptor names and to identify which descriptors produce only NAs in the test datasets. The function is used to generate the CDNames object.
+#' @param df dataframe with two mandatory columns: "NAME" and "SMILES"
+#' @param descriptors vector of chemical descriptor names
 #' @keywords internal
+#' @examples
+#' df <- head(read_rp_xlsx(), 3)
+#' descriptors <- head(rcdk::get.desc.names(type = "all"))
+#' X <- analyzeCDNames(df, descriptors)
 #' @export
-analyzeCDNames <- function() {
-  df <- read_rp_xlsx()
+analyzeCDNames <- function(df = read_rp_xlsx(),
+                           descriptors = rcdk::get.desc.names(type = "all")) {
   n <- nrow(df)
-  descriptors <- rcdk::get.desc.names(type = "all")
   k <- length(descriptors)
   dfs <- list()
   for (j in seq_along(descriptors)) {
@@ -113,12 +124,21 @@ analyzeCDNames <- function() {
 
 #' @title Chemical Descriptors Names
 #' @description This object contains the names of various chemical descriptors.
-#' @details One descriptor can be associated with multiple features, e.g. the BCUT descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h, BCUTc.1l, BCUTc.1h, BCUTp.1l, BCUTp.1h. Some descriptors produce warnings for certain molecules., e.g. "The AtomType null could not be found" or "Molecule must have 3D coordinates" and return NA in such cases. Descriptors that produce only NAs in our test datasets will be excluded. To see which descriptors produce only NAs, run `analyzeCDNames`. The "LongestAliphaticChain" descriptors sometimes even produces `Error: segfault from C stack overflow` error`, e.g. for SMILES `c1ccccc1C(Cl)(Cl)Cl` (== `rcdk::bpdata$SMILES[200]`) when using `OpenJDK Runtime Environment (build 11.0.23+9-post-Ubuntu-1ubuntu122.04.1)`.
-#' @examples \dontrun{
-#' CDNames <- rcdk::get.desc.names(type = "all")
-#' skipPattern <- "(WHIM|VABC|MomentOfInertia|LengthOverBreadth|GravitationalIndex|CPSA|TaeAminoAcid|LongestAliphaticChain)"
-#' CDNames <- CDNames[!grepl(skipPattern, CDNames)]
-#' }
+#' @details One descriptor can be associated with multiple features, e.g. the BCUT descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h, BCUTc.1l, BCUTc.1h, BCUTp.1l, BCUTp.1h. Some descriptors produce warnings for certain molecules., e.g. "The AtomType null could not be found" or "Molecule must have 3D coordinates" and return NA in such cases. Descriptors that produce only NAs in our test datasets will be excluded. To see which descriptors produce only NAs, run `analyzeCDNames`. The "LongestAliphaticChain" descriptors sometimes even produces `Error: segfault from C stack overflow` error, e.g. for SMILES `c1ccccc1C(Cl)(Cl)Cl` (== `rcdk::bpdata$SMILES[200]`) when using `OpenJDK Runtime Environment (build 11.0.23+9-post-Ubuntu-1ubuntu122.04.1)`.
+#' @examples
+#' X <- rcdk::get.desc.names(type = "all")
+#' skipPattern <- paste0(
+#'     "(WHIM",
+#'     "|VABC",
+#'     "|MomentOfInertia",
+#'     "|LengthOverBreadth",
+#'     "|GravitationalIndex",
+#'     "|CPSA",
+#'     "|TaeAminoAcid",
+#'     "|LongestAliphaticChain)"
+#' )
+#' X <- X[!grepl(skipPattern, X)]
+#' identical(X, CDNames)
 #' @seealso [analyzeCDNames()], [CDs]
 #' @keywords internal
 #' @export

@@ -15,4 +15,7 @@ The input string with a newline character at the end if it was not already prese
 \description{
 This function checks if a string ends with a newline character. If not, it adds one.
 }
+\examples{
+cat(withLineEnd("Hello"))
+}
 \keyword{internal}

@@ -33,6 +33,9 @@ RESET <- "\033[0m"
 #' @param format A string representing the desired time format. Default is "%Y-%m-%d %H:%M:%OS2".
 #' @return A string representing the current system time in the specified format.
 #' @keywords internal
+#' @examples
+#' now()            # e.g. "2024-06-12 16:09:32.41"
+#' now("%H:%M:%S")  # e.g. "16:09:32"
 #' @export
 now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
     format(Sys.time(), format)
@@ -45,6 +48,9 @@ now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
 #' @param end A string to be used as the end of the message. Default is a newline character.
 #' @return No return value. This function is called for its side effect of printing a message.
 #' @keywords internal
+#' @examples
+#' catf("Hello, %s!", "world")
+#' catf("Goodbye", prefix = NULL, end = "!\n")
 #' @export
 catf <- function(..., prefix = .Options$FastRet.catf.prefix, end = .Options$FastRet.catf.end) {
     prefixstr <- if (is.null(prefix)) sprintf("%s%s%s ", GREY, now(), RESET) else prefix()
@@ -61,9 +67,12 @@ catf <- function(..., prefix = .Options$FastRet.catf.prefix, end = .Options$Fast
 #' @param nmax The maximum number of workers allowed. Default is 16.
 #' @return The number of workers to be used for parallel processing.
 #' @examples
-#' get_n_workers()
-#' get_n_workers(2)
-#' get_n_workers(0.5, 10)
+#' get_n_workers(0.5)      # returns  2 on a  4-core machine
+#' get_n_workers(1.0)      # returns  4 on a  4-core machine
+#' get_n_workers(2.0)      # returns  8 on a  4-core machine
+#' get_n_workers(1.0,  4)  # returns  4 on a 32-core machine
+#' get_n_workers(1.0, 16)  # returns 16 on a 32-core machine
+#' get_n_workers(1.0, 64)  # returns 32 on a 32-core machine
 #' @noRd
 get_n_workers <- function(mult = 0.5, nmax = 16) {
     n <- parallel::detectCores()
@@ -97,6 +106,9 @@ update_RP <- function() {
 #' @keywords dataset
 #' @source Measured by functional genomics lab at the University of Regensburg.
 #' @seealso RP
+#' @examples
+#' x <- read_rp_xlsx()
+#' all.equal(x, RP)
 #' @export
 read_rp_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP.xlsx"), 1)
@@ -106,9 +118,41 @@ read_rp_xlsx <- function() {
 #' @description Subset of the data from [read_rp_xlsx()] with some slight modifications to simulate changes in temperature and/or flowrate.
 #' @format A dataframe of 25 metabolites and columns `RT`, `SMILES` and `NAME`.
 #' @keywords dataset
+#' @examples
+#' x <- read_rpadj_xlsx()
 #' @export
 read_rpadj_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP_adj.xlsx"), 1)
+}
+
+#' @title LASSO Model trained on RP dataset
+#' @description Read a LASSO model trained on the [RP] dataset using [train_frm()].
+#' @return A `frm` object.
+#' @keywords dataset
+#' @examples
+#' frm <- read_rp_lasso_model_rds()
+#' @export
+read_rp_lasso_model_rds <- function() {
+    readRDS(pkg_file("extdata/RP_lasso_model.rds"))
+}
+
+#' @title Download and read the HILIC dataset from Retip the package
+#' @description Downloads and reads the HILIC dataset from the [Retip](https://www.retip.app/) package. The dataset is downloaded from `https://github.com/oloBion/Retip/raw/master/data/HILIC.RData`, saved to a temporary file and then read and returned.
+#' @param verbose Verbosity level. 1 == print progress messages, 0 == no progress messages.
+#' @return df A data frame containing the HILIC dataset.
+#' @examples
+#' df <- read_retip_hilic_data(verbose = 0)
+#' @references
+#' Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
+#' @keywords dataset
+#' @export
+read_retip_hilic_data <- function(verbose = 1) {
+    url <- "https://github.com/oloBion/Retip/raw/master/data/HILIC.RData"
+    destfile <- tempfile("HILIC", fileext = ".RData")
+    download.file(url, destfile, mode = "wb", quiet = !verbose)
+    HILIC <- NULL # will be loaded in the next line
+    load(destfile)
+    df <- HILIC
 }
 
 # Caching #####
@@ -118,6 +162,8 @@ read_rpadj_xlsx <- function() {
 #' @param subdir Optional subdirectory within the cache directory.
 #' @return The path to the cache directory or subdirectory.
 #' @keywords internal
+#' @examples
+#' path <- get_cache_dir()
 #' @export
 get_cache_dir <- function(subdir = NULL) {
     cache_dir <- tools::R_user_dir("FastRet", which = "cache")
@@ -135,6 +181,8 @@ get_cache_dir <- function(subdir = NULL) {
 #' @param mustWork If TRUE, an error is thrown if the file does not exist.
 #' @return The path to the file.
 #' @keywords internal
+#' @examples
+#' path <- pkg_file("extdata/RP.xlsx")
 #' @export
 pkg_file <- function(path, mustWork = FALSE) {
     system.file(path, package = "FastRet", mustWork = mustWork)
@@ -147,10 +195,8 @@ pkg_file <- function(path, mustWork = FALSE) {
 #' @param xx A list of lists where each inner list has the same names.
 #' @return A list where each element corresponds to a name of the inner list that is extracted from each inner list.
 #' @examples
-#' \dontrun{
 #' xx <- lapply(1:3, function(i) list(a = i, b = i^2, c = i^3))
 #' ret <- collect(xx)
-#' }
 #' @keywords internal
 #' @export
 collect <- function(xx) {
@@ -182,6 +228,7 @@ make_docs <- function(reload = TRUE) {
         pkgdown::build_site(lazy = TRUE)
     }
 }
+
 update_mockdata <- function(getCD = FALSE,
                             preprocess_data = FALSE,
                             train_frm = FALSE,

@@ -17,4 +17,7 @@ The path to the file.
 \description{
 Returns the path to a file within the FastRet package.
 }
+\examples{
+path <- pkg_file("extdata/RP.xlsx")
+}
 \keyword{internal}

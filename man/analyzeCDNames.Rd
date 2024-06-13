@@ -4,12 +4,25 @@
 \alias{analyzeCDNames}
 \title{Analyze Chemical Descriptors Names}
 \usage{
-analyzeCDNames()
+analyzeCDNames(
+  df = read_rp_xlsx(),
+  descriptors = rcdk::get.desc.names(type = "all")
+)
+}
+\arguments{
+\item{df}{dataframe with two mandatory columns: "NAME" and "SMILES"}
+
+\item{descriptors}{vector of chemical descriptor names}
 }
 \description{
-Analyze the chemical descriptors names and return a dataframe with the names and a boolean column indicating if all values are NA.
+Analyze the chemical descriptor names and return a dataframe with their names and a boolean column indicating if all values are NA.
 }
 \details{
-This function is used to analyze the chemical descriptors names and to identify which descriptors produce only NAs in the test datasets. The function is used to generate the CDNames object.
+This function is used to analyze the chemical descriptor names and to identify which descriptors produce only NAs in the test datasets. The function is used to generate the CDNames object.
+}
+\examples{
+df <- head(read_rp_xlsx(), 3)
+descriptors <- head(rcdk::get.desc.names(type = "all"))
+X <- analyzeCDNames(df, descriptors)
 }
 \keyword{internal}

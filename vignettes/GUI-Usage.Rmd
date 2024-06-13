@@ -32,11 +32,11 @@ in your R console. This means that the GUI is now running and you can access it 
 <a href="GUI-Usage/start-page.png"><img src="GUI-Usage/start-page.png" width="45%" /></a>
 <a href="GUI-Usage/mode-help.png"><img src="GUI-Usage/mode-help.png" width="45%" /></a>
 
-By default, the GUI opens in muode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing Model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or read the following sections.
+By default, the GUI opens in mode *Train new Model*. To apply or adjust pretrained models, select mode *Predict Retention Time* or *Adjust existing Model* instead. For more information about the individual modes and the various input fields, click on the little question mark symbols next to the different input fields or read the following sections.
 
 # Train new Model
 
-In mode *Train new Model* you can upload excel files containing the names, SMILES and retention times of metabolites measured on your specific chromatogrpahy column and use this data to train a predictive model.
+In mode *Train new Model* you can upload excel files containing the names, SMILES and retention times of metabolites measured on your specific chromatography column and use this data to train a predictive model.
 FastRet includes an example Excel file  with retention times for 442 metabolites measured on a reverse phase liquid chromatography column at a temperature of 35 degree celsius and a flowrate of 0.3ml/min.
 To print the file path of this excel file and a preview of its contents, enter the following lines an interactive R session:
 
@@ -89,5 +89,5 @@ If you have measured some metabolites on your new experiment setup that were als
 This mode calculates, for a given data set, the best k molecules to be measured for a retention time prediction on a new experiment setup.
 It uses a combination of Ridge Regression and k-means to determine the best representatives of your dataset.
 Representatives as well as their corresponding clusters can be downloaded afterwards as an excel file.
-This step should be used once you have a predictive model and/or data set and want to adjust it to work for a new column with adjusted chromotagrphic properties such as gradient, temperature, etc.
+This step should be used once you have a predictive model and/or data set and want to adjust it to work for a new column with adjusted chromatographic properties such as gradient, temperature, etc.
 

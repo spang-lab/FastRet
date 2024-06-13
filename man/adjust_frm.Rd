@@ -17,7 +17,7 @@ adjust_frm(
 
 \item{new_data}{Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of chemical descriptors.}
 
-\item{predictors}{Numeric vector specifying which predictors to include in the model in addition to RT. Avaible options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT), 6=sqrt(RT).}
+\item{predictors}{Numeric vector specifying which predictors to include in the model in addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT), 6=sqrt(RT).}
 
 \item{nfolds}{An integer representing the number of folds for cross validation.}
 
@@ -25,5 +25,10 @@ adjust_frm(
 }
 \description{
 The goal of this function is to train a model that predicts RT_ADJ (retention time measured on a new, adjusted column) from RT (retention time measured on the original column) and to attach this "adjustmodel" to an existing FastRet model.
+}
+\examples{
+frm <- read_rp_lasso_model_rds()
+new_data <- read_rpadj_xlsx()
+frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
 }
 \keyword{public}

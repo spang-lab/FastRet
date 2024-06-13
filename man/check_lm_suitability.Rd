@@ -4,16 +4,24 @@
 \alias{check_lm_suitability}
 \title{Checks which chemical descriptors are suitable for linear models}
 \usage{
-check_lm_suitability(verbose = FALSE)
+check_lm_suitability(df = read_retip_hilic_data(), verbose = FALSE, nw = 2)
 }
 \arguments{
-\item{verbose}{A logical value indicating whether to print verbose output. Default is FALSE.}
+\item{df}{Input data for performing the analysis. Must be a data frame with columns NAME, RT and SMILES.}
+
+\item{verbose}{A logical value indicating whether to print verbose output.}
+
+\item{nw}{The number of workers to use for parallel processing.}
 }
 \value{
 A data frame with the predictors and their suitability status.
 }
 \description{
-This function checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable. The analysis is performed using the HILIC dataset from the \href{https://www.retip.app/}{Retip} package.
+This function checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable.
+}
+\examples{
+df <- head(read_retip_hilic_data())
+x <- check_lm_suitability(df, verbose = FALSE, nw = 1)
 }
 \seealso{
 \code{\link[=plot_lm_suitability]{plot_lm_suitability()}}

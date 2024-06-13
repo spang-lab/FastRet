@@ -17,4 +17,8 @@ The result of the expression
 \description{
 Execute an expression with a timeout
 }
+\examples{
+withTimeout(cat("This works\n"), timeout = 0.2)
+try(withTimeout({Sys.sleep(0.2); cat("This will fail\n")}, timeout = 0.1))
+}
 \keyword{internal}
