@@ -16,9 +16,11 @@
 #' @details Setting `rm_near_zero_var` and/or `rm_na` to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @return A trained FastRet model.
 #' @keywords public
-#' @examples \donttest{
-#' m <- train_frm(RP, method = "lasso", nfolds = 2, nw = 2, verbose = 0)
-#' }
+#' @examples
+#' system.time(m <- train_frm(RP[1:80, ], method = "lasso", nfolds = 2, nw = 1, verbose = 0))
+#' # For the sake of a short runtime, only the first 80 rows of the RP dataset
+#' # are used in this example. In practice, you should always use the entire
+#' # training dataset for model training.
 #' @export
 train_frm <- function(df = read_rp_xlsx(),
                       method = "lasso",

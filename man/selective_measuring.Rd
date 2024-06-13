@@ -2,16 +2,16 @@
 % Please edit documentation in R/sm.R
 \name{selective_measuring}
 \alias{selective_measuring}
-\title{Selective Measuring Function}
+\title{Selective Measuring}
 \usage{
-selective_measuring(raw_data = read_rp_xlsx(), k_cluster = 25, verbose = 1)
+selective_measuring(raw_data, k_cluster = 25, verbose = 1)
 }
 \arguments{
-\item{raw_data}{The raw data to be processed. Default is the result of \code{read_rp_xlsx()}.}
+\item{raw_data}{The raw data to be processed. Must be a dataframe with columns NAME, RT and SMILES.}
 
-\item{k_cluster}{The number of clusters for PAM clustering. Default is 25.}
+\item{k_cluster}{The number of clusters for PAM clustering.}
 
-\item{verbose}{The level of verbosity. Default is 1.}
+\item{verbose}{The level of verbosity.}
 }
 \value{
 A list containing the following elements:
@@ -26,11 +26,21 @@ A list containing the following elements:
 }
 }
 \description{
-This function performs selective measuring on the provided raw data. It includes preprocessing, standardizing features, training a Ridge Regression model, scaling features by coefficients of the Ridge Regression model, applying PAM clustering, and returning clustering results.
+The function \code{\link[=adjust_frm]{adjust_frm()}} is used to modify existing FastRet models based on changes in chromatographic conditions. It requires a set of molecules with measured retention times on both the original and new column. This function selects a sensible subset of molecules from the original dataset for re-measurement. The selection process includes:
+\enumerate{
+\item Generating chemical descriptors from the SMILES strings of the molecules. These are the features used by \code{\link[=train_frm]{train_frm()}} and \code{\link[=adjust_frm]{adjust_frm()}}.
+\item Standardizing chemical descriptors to have zero mean and unit variance.
+\item Training a Ridge Regression model with the standardized chemical descriptors as features and the retention times as the target variable.
+\item Scaling the chemical descriptors by coefficients of the Ridge Regression model.
+\item Applying PAM clustering on the entire dataset, which includes the scaled chemical descriptors and the retention times.
+\item Returning the clustering results, which include the cluster assignments, the medoid indicators, and the raw data.
+}
 }
 \examples{
-\donttest{
-x <- selective_measuring(RP, k = 5, verbose = 0)
-}
+RPsub <- RP[1:50, ]
+x <- selective_measuring(RPsub, k = 5, verbose = 0)
+# For the sake of a short runtime, only the first 50 rows of the RP dataset
+# were used in this example. In practice, you should always use the entire
+# dataset to find the optimal subset for re-measurement.
 }
 \keyword{public}

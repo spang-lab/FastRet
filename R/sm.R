@@ -1,8 +1,14 @@
-#' @title Selective Measuring Function
-#' @description This function performs selective measuring on the provided raw data. It includes preprocessing, standardizing features, training a Ridge Regression model, scaling features by coefficients of the Ridge Regression model, applying PAM clustering, and returning clustering results.
-#' @param raw_data The raw data to be processed. Default is the result of `read_rp_xlsx()`.
-#' @param k_cluster The number of clusters for PAM clustering. Default is 25.
-#' @param verbose The level of verbosity. Default is 1.
+#' @title Selective Measuring
+#' @description The function [adjust_frm()] is used to modify existing FastRet models based on changes in chromatographic conditions. It requires a set of molecules with measured retention times on both the original and new column. This function selects a sensible subset of molecules from the original dataset for re-measurement. The selection process includes:
+#' 1. Generating chemical descriptors from the SMILES strings of the molecules. These are the features used by [train_frm()] and [adjust_frm()].
+#' 2. Standardizing chemical descriptors to have zero mean and unit variance.
+#' 3. Training a Ridge Regression model with the standardized chemical descriptors as features and the retention times as the target variable.
+#' 4. Scaling the chemical descriptors by coefficients of the Ridge Regression model.
+#' 5. Applying PAM clustering on the entire dataset, which includes the scaled chemical descriptors and the retention times.
+#' 6. Returning the clustering results, which include the cluster assignments, the medoid indicators, and the raw data.
+#' @param raw_data The raw data to be processed. Must be a dataframe with columns NAME, RT and SMILES.
+#' @param k_cluster The number of clusters for PAM clustering.
+#' @param verbose The level of verbosity.
 #' @return A list containing the following elements:
 #' * `clustering`: a data frame with raw data, cluster assignments, and medoid indicators
 #' * `clobj`: the PAM clustering object
@@ -12,11 +18,14 @@
 #' * `dfz`: the standardized features
 #' * `dfzb`: the features scaled by coefficients of the Ridge Regression model
 #' @keywords public
-#' @examples \donttest{
-#' x <- selective_measuring(RP, k = 5, verbose = 0)
-#' }
+#' @examples
+#' RPsub <- RP[1:50, ]
+#' x <- selective_measuring(RPsub, k = 5, verbose = 0)
+#' # For the sake of a short runtime, only the first 50 rows of the RP dataset
+#' # were used in this example. In practice, you should always use the entire
+#' # dataset to find the optimal subset for re-measurement.
 #' @export
-selective_measuring <- function(raw_data = read_rp_xlsx(), k_cluster = 25, verbose = 1) {
+selective_measuring <- function(raw_data, k_cluster = 25, verbose = 1) {
 
     # Configure logging behaviours
     catf <- if (verbose >= 1) catf else function(...) {}
