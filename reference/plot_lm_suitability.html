@@ -22,7 +22,7 @@ The name of the predictor, its suitability, and the status of the checks for mis
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,9 @@ The name of the predictor, its suitability, and the status of the checks for mis
     <a class="dropdown-item" href="../articles/Contributing.html">Contributing</a>
     <a class="dropdown-item" href="../articles/Old-Intro.html">Old Introduction</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -75,7 +78,8 @@ The name of the predictor, its suitability, and the status of the checks for mis
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_lm_suitability</span><span class="op">(</span></span>
 <span>  slist <span class="op">=</span> <span class="fu"><a href="check_lm_suitability.html">check_lm_suitability</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  pdfpath <span class="op">=</span> <span class="st">"misc/lm_suitability.pdf"</span></span>
+<span>  pdfpath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"lm_suitability"</span>, fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span>,</span>
+<span>  descs <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -87,6 +91,10 @@ The name of the predictor, its suitability, and the status of the checks for mis
 
 <dt>pdfpath</dt>
 <dd><p>The path to the pdf file to save the plots.</p></dd>
+
+
+<dt>descs</dt>
+<dd><p>Index of chemical descriptors to plot. Leave at NULL to plot all chemical descriptors.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -100,6 +108,19 @@ The name of the predictor, its suitability, and the status of the checks for mis
     <div class="dont-index"><p><code><a href="check_lm_suitability.html">check_lm_suitability()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="read_retip_hilic_data.html">read_retip_hilic_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">slist</span> <span class="op">&lt;-</span> <span class="fu"><a href="check_lm_suitability.html">check_lm_suitability</a></span><span class="op">(</span><span class="va">df</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>, nw <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_lm_suitability</span><span class="op">(</span><span class="va">slist</span>, descs <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-13 11:25:02.38</span> Plotting suitability of predictors for linear models to file '/tmp/Rtmp9UW1Aq/lm_suitability1f897534b9b7.pdf'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-13 11:25:02.41</span> [1/5] Fsp3 (PLOTTED SUCCESSFULLY)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-13 11:25:02.41</span> [2/5] nSmallRings (PLOTTED SUCCESSFULLY)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-13 11:25:02.41</span> [3/5] nAromRings (PLOTTED SUCCESSFULLY)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-13 11:25:02.41</span> [4/5] nRingBlocks (PLOTTED SUCCESSFULLY)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-13 11:25:02.42</span> [5/5] nAromBlocks (PLOTTED SUCCESSFULLY)</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

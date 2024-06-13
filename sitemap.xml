@@ -28,6 +28,9 @@
     <loc>https://spang-lab.github.io/FastRet/index.html</loc>
   </url>
   <url>
+    <loc>https://spang-lab.github.io/FastRet/news/index.html</loc>
+  </url>
+  <url>
     <loc>https://spang-lab.github.io/FastRet/reference/CDNames.html</loc>
   </url>
   <url>
@@ -86,6 +89,12 @@
   </url>
   <url>
     <loc>https://spang-lab.github.io/FastRet/reference/preprocess_data.html</loc>
+  </url>
+  <url>
+    <loc>https://spang-lab.github.io/FastRet/reference/read_retip_hilic_data.html</loc>
+  </url>
+  <url>
+    <loc>https://spang-lab.github.io/FastRet/reference/read_rp_lasso_model_rds.html</loc>
   </url>
   <url>
     <loc>https://spang-lab.github.io/FastRet/reference/read_rp_xlsx.html</loc>

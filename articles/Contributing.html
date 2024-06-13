@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,9 @@
     <a class="dropdown-item" href="../articles/Contributing.html">Contributing</a>
     <a class="dropdown-item" href="../articles/Old-Intro.html">Old Introduction</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
@@ -118,17 +121,42 @@ commands to check that everything is still working as expected</p>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">document</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Build files in man folder</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Install as required by next command</span></span>
 <span><span class="fu">pkgdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">build_site</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Build website in docs folder</span></span></code></pre></div>
-<p>After doing these steps, you can push your changes to Github and then
-use the following commands to release the package to CRAN:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rcmdcheck</span><span class="fu">::</span><span class="fu"><a href="http://r-lib.github.io/rcmdcheck/reference/rcmdcheck.html" class="external-link">rcmdcheck</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Slower, but more realistic test than devtools::check()</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/spell_check.html" class="external-link">spell_check</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Check spelling. Add false positives to inst/WORDLIST</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/submit_cran.html" class="external-link">submit_cran</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Submits the package to CRAN</span></span>
-<span><span class="fu">revdepcheck</span><span class="fu">::</span><span class="fu">revdep_check</span><span class="op">(</span>num_workers <span class="op">=</span> <span class="fl">8</span><span class="op">)</span> <span class="co"># Reverse dependency check</span></span>
-<span><span class="co"># See https://r-pkgs.org/release.html#sec-release-revdep-checks for details</span></span></code></pre></div>
-<p>Above steps are based on: <a href="https://r-pkgs.org/release.html" class="external-link uri">https://r-pkgs.org/release.html</a></p>
+<p>After doing these steps, you can push your changes to Github</p>
 </div>
-  </main>
+<div class="section level2">
+<h2 id="releasing-to-cran">Releasing to CRAN<a class="anchor" aria-label="anchor" href="#releasing-to-cran"></a>
+</h2>
+<p>Whenever a package maintainer wants to release a new version of the
+package to CRAN, they should:</p>
+<ol style="list-style-type: decimal">
+<li>Check whether the <a href="https://r-pkgs.org/release.html#sec-release-initial" class="external-link">release
+requirements</a> are fulfilled</li>
+<li>Use the following commands to do a final check of package and
+release it to CRAN</li>
+</ol>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Slower, but more realistic tests than devtools::check()</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">check</span>(<span class="at">remote =</span> <span class="cn">TRUE</span>, <span class="at">manual =</span> <span class="cn">TRUE</span>, <span class="at">run_dont_test =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>rcmdcheck<span class="sc">::</span><span class="fu">rcmdcheck</span>(<span class="at">args =</span> <span class="fu">c</span>(<span class="st">"--no-manual"</span>, <span class="st">"--as-cran"</span>), <span class="at">build_args =</span> (<span class="st">"--no-manual"</span>), <span class="at">error_on =</span> (<span class="st">"warning"</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Check spelling, URLs, and reverse dependencies.</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># False positives findings of spell check should be added to inst/WORDLIST.</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># For details about revdep check see:</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># https://r-pkgs.org/release.html#sec-release-revdep-checks</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">spell_check</span>()</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>urlchecker<span class="sc">::</span><span class="fu">url_check</span>()</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>revdepcheck<span class="sc">::</span><span class="fu">revdep_check</span>(<span class="at">num_workers =</span> <span class="dv">8</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># Send your package to CRAN's win-builder service. You should receive an e-mail</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co"># within about 30 minutes with a link to the check results. Checking with r-devel</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co"># is required by CRAN policy and will (also) be done as part of CRAN's incoming</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co"># checks.</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">check_win_devel</span>().</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co"># Submit the package to CRAN</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">submit_cran</span>()</span></code></pre></div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

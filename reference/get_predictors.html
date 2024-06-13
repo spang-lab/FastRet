@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,9 @@
     <a class="dropdown-item" href="../articles/Contributing.html">Contributing</a>
     <a class="dropdown-item" href="../articles/Old-Intro.html">Old Introduction</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -74,6 +77,53 @@
 <p>A character vector with the predictor names.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">frm</span> <span class="op">&lt;-</span> <span class="fu"><a href="read_rp_lasso_model_rds.html">read_rp_lasso_model_rds</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">get_predictors</span><span class="op">(</span><span class="va">frm</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1] "Fsp3"             "nSmallRings"      "nAromRings"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [4] "nRingBlocks"      "nAromBlocks"      "nRings5"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [7] "nRings6"          "tpsaEfficiency"   "Zagreb"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [10] "XLogP"            "WPATH"            "WPOL"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [13] "WTPT.1"           "WTPT.2"           "WTPT.3"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [16] "WTPT.4"           "WTPT.5"           "MW"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [19] "VAdjMat"          "TopoPSA"          "LipinskiFailures"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [22] "nRotB"            "topoShape"        "PetitjeanNumber" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [25] "MDEC.12"          "MDEC.13"          "MDEC.22"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [28] "MDEC.23"          "MDEC.33"          "MDEO.11"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [31] "MDEO.12"          "MDEN.13"          "MDEN.22"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [34] "MDEN.23"          "MLogP"            "nAtomP"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [37] "nAtomLC"          "khs.sCH3"         "khs.ssCH2"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [40] "khs.dsCH"         "khs.aaCH"         "khs.sssCH"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [43] "khs.dssC"         "khs.aasC"         "khs.aaaC"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [46] "khs.sNH2"         "khs.ssNH"         "khs.aaNH"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [49] "khs.aaN"          "khs.aasN"         "khs.sOH"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [52] "khs.dO"           "khs.ssO"          "khs.dsssP"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [55] "Kier1"            "Kier2"            "HybRatio"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [58] "nHBDon"           "nHBAcc"           "fragC"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [61] "FMF"              "ECCEN"            "SP.0"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [64] "SP.1"             "SP.2"             "SP.3"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [67] "SP.4"             "SP.5"             "SP.6"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [70] "SP.7"             "VP.1"             "VP.2"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [73] "VP.3"             "VP.4"             "VP.5"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [76] "VP.6"             "VP.7"             "SPC.4"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [79] "SPC.5"            "SPC.6"            "VPC.4"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [82] "VPC.5"            "VPC.6"            "SC.3"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [85] "SC.4"             "SC.5"             "VC.3"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [88] "VC.4"             "VC.5"             "SCH.5"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [91] "SCH.6"            "SCH.7"            "VCH.5"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [94] "VCH.6"            "VCH.7"            "C1SP2"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [97] "C2SP2"            "C3SP2"            "C1SP3"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [100] "C2SP3"            "bpol"             "nB"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [103] "nBase"            "ATSp1"            "ATSp2"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [106] "ATSp3"            "ATSp4"            "ATSp5"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [109] "ATSm1"            "ATSm2"            "ATSm3"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [112] "ATSm4"            "ATSm5"            "nAtom"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [115] "nAromBond"        "naAromAtom"       "apol"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [118] "ALogP"            "ALogp2"           "AMR"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [121] "nAcid"            "nA"               "nG"              </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
