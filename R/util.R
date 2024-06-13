@@ -144,6 +144,7 @@ read_rp_lasso_model_rds <- function() {
 #' df <- read_retip_hilic_data(verbose = 0)
 #' @references
 #' Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
+#' @keywords dataset
 #' @export
 read_retip_hilic_data <- function(verbose = 1) {
     url <- "https://github.com/oloBion/Retip/raw/master/data/HILIC.RData"
