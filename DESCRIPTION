@@ -11,8 +11,9 @@ Authors@R: c(
 Description: A framework for predicting retention times in liquid
     chromatography. Users can train custom models for specific chromatography
     columns, predict retention times using existing models, or adjust existing
-    models to account for changes in chromatographic conditions. FastRet can be
-    accessed from the R console or via a graphical user interface.
+    models to account for altered experimental conditions. The provided
+    functionalities can be accessed either via the R console or via a
+    graphical user interface.
 License: GPL-3
 URL: https://github.com/spang-lab/FastRet/, https://spang-lab.github.io/FastRet/
 BugReports: https://github.com/spang-lab/FastRet/issues

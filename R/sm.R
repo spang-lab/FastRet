@@ -18,12 +18,13 @@
 #' * `dfz`: the standardized features
 #' * `dfzb`: the features scaled by coefficients of the Ridge Regression model
 #' @keywords public
-#' @examples
+#' @examples \donttest{
 #' RPsub <- RP[1:50, ]
 #' x <- selective_measuring(RPsub, k = 5, verbose = 0)
 #' # For the sake of a short runtime, only the first 50 rows of the RP dataset
 #' # were used in this example. In practice, you should always use the entire
 #' # dataset to find the optimal subset for re-measurement.
+#' }
 #' @export
 selective_measuring <- function(raw_data, k_cluster = 25, verbose = 1) {
 
