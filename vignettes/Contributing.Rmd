@@ -62,6 +62,8 @@ revdepcheck::revdep_check(num_workers = 8)
 # within about 30 minutes with a link to the check results. Checking with r-devel
 # is required by CRAN policy and will (also) be done as part of CRAN's incoming
 # checks.
+devtools::check_win_oldrelease()
+devtools::check_win_release()
 devtools::check_win_devel()
 
 # Submit the package to CRAN
