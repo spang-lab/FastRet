@@ -21,8 +21,10 @@ Analyze the chemical descriptor names and return a dataframe with their names an
 This function is used to analyze the chemical descriptor names and to identify which descriptors produce only NAs in the test datasets. The function is used to generate the CDNames object.
 }
 \examples{
+\donttest{
 df <- head(read_rp_xlsx(), 3)
 descriptors <- head(rcdk::get.desc.names(type = "all"))
 X <- analyzeCDNames(df, descriptors)
+}
 }
 \keyword{internal}

@@ -98,10 +98,11 @@ getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose =
 #' @param df dataframe with two mandatory columns: "NAME" and "SMILES"
 #' @param descriptors vector of chemical descriptor names
 #' @keywords internal
-#' @examples
+#' @examples \donttest{
 #' df <- head(read_rp_xlsx(), 3)
 #' descriptors <- head(rcdk::get.desc.names(type = "all"))
 #' X <- analyzeCDNames(df, descriptors)
+#' }
 #' @export
 analyzeCDNames <- function(df = read_rp_xlsx(),
                            descriptors = rcdk::get.desc.names(type = "all")) {
