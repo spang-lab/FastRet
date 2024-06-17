@@ -7,19 +7,19 @@
 getCDsFor1Molecule(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1)
 }
 \arguments{
-\item{smi}{SMILES string of the molecule}
+\item{smi}{SMILES string of the molecule.}
 
-\item{cache}{if TRUE, the results are cached in a directory \verb{~/.cache/FastRet/getCDsFor1Molecule/} to speed up subsequent calls}
+\item{cache}{If TRUE, the results are cached in RAM and on disk at directory \verb{~/.cache/FastRet/getCDsFor1Molecule/} to speed up subsequent calls.}
 
-\item{verbose}{0: no output, 1: show progress}
+\item{verbose}{Verbosity. 0: no output, 1: show progress.}
 }
 \description{
-Helper function for \code{\link[=getCDs]{getCDs()}}. Calculates chemical descriptors for a single molecule, specified as \href{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system}{SMILES} string. This function should NOT be used directly. It is only exported so \code{\link[=getCDs]{getCDs()}} can spawn background worker processes that are able to call this function.
+Helper function for \code{\link[=getCDs]{getCDs()}}. Calculates chemical descriptors for a single molecule, specified as \href{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system}{SMILES} string. This function should NOT be used directly. It is only exported so \code{\link[=getCDs]{getCDs()}} can easily spawn background worker processes that are able to call this function.
 }
 \details{
-Chemical descriptors in \code{\link[=getCDs]{getCDs()}} are calculated individually for each molecule. This is due to the inconsistent ordering of output dataframes when a list of IAtomContainers is provided to \code{rcdk::eval.desc}. Although the input SMILES are set as rownames, they don't match the original input SMILES due to an unclear transformation, making mapping non-trivial. Calculating descriptors molecule by molecule also enables parallelization in \code{\link[=getCDs]{getCDs()}}.
+Chemical descriptors in \code{\link[=getCDs]{getCDs()}} are calculated individually for each molecule. This is due to the inconsistent ordering of output dataframes when a list of \code{IAtomContainer} objects is provided to \code{rcdk::eval.desc}. Although the input SMILES are set as rownames, they don't match the original input SMILES due to an unclear transformation, making mapping non-trivial. Calculating descriptors molecule by molecule also enables parallelization in \code{\link[=getCDs]{getCDs()}}.
 }
 \examples{
-cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = FALSE, verbose = 0)
+y <- cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 0)
 }
 \keyword{internal}

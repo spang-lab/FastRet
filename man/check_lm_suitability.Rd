@@ -20,8 +20,7 @@ A data frame with the predictors and their suitability status.
 This function checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable.
 }
 \examples{
-df <- head(read_retip_hilic_data())
-x <- check_lm_suitability(df, verbose = FALSE, nw = 1)
+x <- check_lm_suitability(head(RP, 3), verbose = FALSE, nw = 1)
 }
 \seealso{
 \code{\link[=plot_lm_suitability]{plot_lm_suitability()}}

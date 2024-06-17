@@ -17,8 +17,6 @@ getCDs(df = read_rp_xlsx(), verbose = 1, nw = 1)
 Calculate Chemical Descriptors for a list of molecules. Molecules can appear multiple times in the list.
 }
 \examples{
-df <- read_rp_xlsx()
-df3 <- head(df, 3)
-cds <- getCDs(df3, verbose = 0, nw = 1)
+cds <- getCDs(head(RP, 3), verbose = 1, nw = 1)
 }
 \keyword{public}

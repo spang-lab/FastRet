@@ -94,6 +94,7 @@ get_n_workers <- function(mult = 0.5, nmax = 16) {
 #' @keywords dataset
 #' @seealso read_rp_xlsx
 "RP"
+globalVariables("RP")
 
 update_RP <- function() {
     RP <- read_rp_xlsx()
@@ -171,9 +172,6 @@ get_cache_dir <- function(subdir = NULL) {
     if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
     normalizePath(cache_dir, winslash = "/", mustWork = FALSE)
 }
-
-# CONTINUE HERE:
-# Error: object 'CDNames' not found
 
 #' @title Get package file
 #' @description Returns the path to a file within the FastRet package.

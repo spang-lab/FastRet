@@ -5,5 +5,5 @@ test_that("getCDs works correctly", {
     y2 <- getCDs(df, verbose = 0)
     nc <- ncol(y2)
     expect_true(all.equal(y2[, 1:3], df))
-    expect_true(all(colnames(y2)[4:nc] %in% CDs))
+    expect_true(all(colnames(y2)[4:nc] %in% CDFeatures))
 })

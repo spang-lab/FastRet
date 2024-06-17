@@ -77,14 +77,14 @@ train_frm <- function(df = read_rp_xlsx(),
         preds = rep(NA, nrow(df))
     )
     for (i in seq_along(folds)) {
-        X <- as.matrix(df[folds[[i]], colnames(df) %in% CDs])
+        X <- as.matrix(df[folds[[i]], colnames(df) %in% CDFeatures])
         preds <- predict(cv$models[[i]], X)
         cv$preds[folds[[i]]] <- preds
     }
 
     catf("Training final model on whole data set")
     model <- fit(df, verbose = 0)
-    RT_pred <- stats::predict(model, as.matrix(df[, colnames(df) %in% CDs]))
+    RT_pred <- stats::predict(model, as.matrix(df[, colnames(df) %in% CDFeatures]))
 
     catf("Finished model training. Returning frm object")
     frm <- list(model = model, df = df, cv = cv, seed = seed, version = packageVersion("FastRet"))
@@ -99,10 +99,11 @@ train_frm <- function(df = read_rp_xlsx(),
 #' @param nfolds An integer representing the number of folds for cross validation.
 #' @param verbose A logical value indicating whether to print progress messages.
 #' @keywords public
-#' @examples
+#' @examples \donttest{
 #' frm <- read_rp_lasso_model_rds()
 #' new_data <- read_rpadj_xlsx()
 #' frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
+#' }
 #' @export
 adjust_frm <- function(frm = train_frm(),
                        new_data = read_rpadj_xlsx(),
@@ -232,7 +233,7 @@ make_X_adj <- function(RT, predictors = 1:5) {
 #' @param model object useable as input for [stats::predict()]
 #' @noRd
 get_stats <- function(df, model) {
-    X <- as.matrix(df[, colnames(df) %in% CDs])
+    X <- as.matrix(df[, colnames(df) %in% CDFeatures])
     y <- df$RT
     yhat <- stats::predict(model, X, type = "response")
     measures <- c(
@@ -247,12 +248,12 @@ get_stats <- function(df, model) {
 validate_inputdata <- function(df, require = c("RT", "SMILES", "NAME"), min_cds = 1) {
     missing_cols <- setdiff(require, colnames(df))
     if (length(missing_cols) > 0) stop(sprintf("missing columns: %s", paste(missing_cols, collapse = ", ")))
-    n_cds <- sum(colnames(df) %in% CDs)
+    n_cds <- sum(colnames(df) %in% CDFeatures)
     if (n_cds < min_cds) {
         msg <- sprintf("At least %d chemical descriptors are required, but only %d are present", min_cds, n_cds)
         stop(msg)
     }
-    unnown_cols <- setdiff(colnames(df), c("RT", "SMILES", "NAME", CDs))
+    unnown_cols <- setdiff(colnames(df), c("RT", "SMILES", "NAME", CDFeatures))
     if (length(unnown_cols) > 0) {
         msg <- sprintf("Unknown columns present: %s", paste(unnown_cols, collapse = ", "))
         stop(msg)
@@ -286,7 +287,7 @@ validate_inputmodel <- function(model) {
 #' @param verbose Verbosity level
 #' @noRd
 fit_glmnet <- function(df = preprocess_data(), verbose = 1, alpha = 1) {
-    cds <- colnames(df) %in% CDs
+    cds <- colnames(df) %in% CDFeatures
     X <- as.matrix(df[, cds])
     Y <- as.matrix(df[, !cds])
     y <- df[, "RT"]
@@ -380,7 +381,7 @@ fit_gbtree_grid <- function(df = preprocess_data(),
 
     catf("Preparing data for GBTree model fitting")
     y <- df$RT
-    X <- as.matrix(df[, colnames(df) %in% CDs])
+    X <- as.matrix(df[, colnames(df) %in% CDFeatures])
     data <- xgboost::xgb.DMatrix(X, label = y, nthread = 1)
     foldids <- caret::createFolds(seq_len(nrow(df)), k = nfolds)
     param_grid <- base::expand.grid(max_depth = max_depth, eta = eta, gamma = gamma, colsample_bytree = colsample_bytree, subsample = subsample, min_child_weight = min_child_weight, nthread = n_threads)

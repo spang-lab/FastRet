@@ -87,8 +87,7 @@ preprocess_data <- function(data = read_rp_xlsx(),
 #' @seealso [plot_lm_suitability()]
 #' @keywords internal
 #' @examples
-#' df <- head(read_retip_hilic_data())
-#' x <- check_lm_suitability(df, verbose = FALSE, nw = 1)
+#' x <- check_lm_suitability(head(RP, 3), verbose = FALSE, nw = 1)
 #' @export
 check_lm_suitability <- function(df = read_retip_hilic_data(),
                                  verbose = FALSE,
@@ -119,7 +118,7 @@ check_lm_suitability <- function(df = read_retip_hilic_data(),
 #' @seealso [check_lm_suitability()]
 #' @keywords internal
 #' @examples
-#' df <- head(read_retip_hilic_data())
+#' df <- head(RP, 3)
 #' slist <- check_lm_suitability(df, verbose = FALSE, nw = 1)
 #' plot_lm_suitability(slist, descs = 1:5)
 #' @export

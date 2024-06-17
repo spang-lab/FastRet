@@ -30,7 +30,7 @@ The name of the predictor, its suitability, and the status of the checks for mis
 }
 }
 \examples{
-df <- head(read_retip_hilic_data())
+df <- head(RP, 3)
 slist <- check_lm_suitability(df, verbose = FALSE, nw = 1)
 plot_lm_suitability(slist, descs = 1:5)
 }

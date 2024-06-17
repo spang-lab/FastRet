@@ -47,8 +47,8 @@ Whenever a package maintainer wants to release a new version of the package to C
 
 ```R
 # Slower, but more realistic tests than devtools::check()
+rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), build_args = ("--no-manual"), error_on = ("warning"), check_dir = "../FastRet-RCMDcheck")
 devtools::check(remote = TRUE, manual = TRUE, run_dont_test = TRUE)
-rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), build_args = ("--no-manual"), error_on = ("warning"))
 
 # Check spelling, URLs, and reverse dependencies.
 # False positive findings of spell check should be added to inst/WORDLIST.
@@ -58,13 +58,14 @@ devtools::spell_check()
 urlchecker::url_check()
 revdepcheck::revdep_check(num_workers = 8)
 
-# Send your package to CRAN's win-builder service. You should receive an e-mail
-# within about 30 minutes with a link to the check results. Checking with r-devel
-# is required by CRAN policy and will (also) be done as part of CRAN's incoming
-# checks.
+# Send your package to CRAN's builder services. You should receive an e-mail
+# within about 30 minutes with a link to the check results. Checking with
+# check_win_devel is required by CRAN policy and will (also) be done as part
+# of CRAN's incoming checks.
 devtools::check_win_oldrelease()
 devtools::check_win_release()
 devtools::check_win_devel()
+devtools::check_mac_release()
 
 # Submit the package to CRAN
 devtools::submit_cran()
