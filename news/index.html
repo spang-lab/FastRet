@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,10 +55,38 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.3" id="fastret-103">FastRet 1.0.3<a class="anchor" aria-label="anchor" href="#fastret-103"></a></h2>
-<ul><li>Initial CRAN submission.</li>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="fastret-110">FastRet 1.1.0<a class="anchor" aria-label="anchor" href="#fastret-110"></a></h2>
+<ul><li>Added RAM caching to `getCDs</li>
 </ul></div>
-  </main></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.3" id="fastret-103">FastRet 1.0.3<a class="anchor" aria-label="anchor" href="#fastret-103"></a></h2>
+<ul><li>
+<p>Initial CRAN Submission.</p>
+<p>Rejected because the following examples either had a “CPU time &gt; 5s” on the CRAN testing machines or had a “CPU time &gt; 2.5 times elapsed time”. “CPU time” is the sum of the measured “user” and “system” times.</p>
+<table class="table"><thead><tr class="header"><th>function</th>
+<th>user</th>
+<th>system</th>
+<th>elapsed</th>
+<th>ratio</th>
+</tr></thead><tbody><tr class="odd"><td>check_lm_suitability</td>
+<td><strong>5.667</strong></td>
+<td>0.248</td>
+<td>2.211</td>
+<td><strong>2.675</strong></td>
+</tr><tr class="even"><td>predict.frm</td>
+<td>2.477</td>
+<td>0.112</td>
+<td>0.763</td>
+<td><strong>3.393</strong></td>
+</tr><tr class="odd"><td>getCDs</td>
+<td>2.745</td>
+<td>0.089</td>
+<td>0.961</td>
+<td><strong>2.949</strong></td>
+</tr></tbody></table></li>
+</ul></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

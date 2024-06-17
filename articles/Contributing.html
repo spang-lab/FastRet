@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,8 +137,8 @@ release it to CRAN</li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Slower, but more realistic tests than devtools::check()</span></span>
+<span><span class="fu">rcmdcheck</span><span class="fu">::</span><span class="fu"><a href="http://r-lib.github.io/rcmdcheck/reference/rcmdcheck.html" class="external-link">rcmdcheck</a></span><span class="op">(</span>args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"--no-manual"</span>, <span class="st">"--as-cran"</span><span class="op">)</span>, build_args <span class="op">=</span> <span class="op">(</span><span class="st">"--no-manual"</span><span class="op">)</span>, error_on <span class="op">=</span> <span class="op">(</span><span class="st">"warning"</span><span class="op">)</span>, check_dir <span class="op">=</span> <span class="st">"../FastRet-RCMDcheck"</span><span class="op">)</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span>remote <span class="op">=</span> <span class="cn">TRUE</span>, manual <span class="op">=</span> <span class="cn">TRUE</span>, run_dont_test <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">rcmdcheck</span><span class="fu">::</span><span class="fu"><a href="http://r-lib.github.io/rcmdcheck/reference/rcmdcheck.html" class="external-link">rcmdcheck</a></span><span class="op">(</span>args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"--no-manual"</span>, <span class="st">"--as-cran"</span><span class="op">)</span>, build_args <span class="op">=</span> <span class="op">(</span><span class="st">"--no-manual"</span><span class="op">)</span>, error_on <span class="op">=</span> <span class="op">(</span><span class="st">"warning"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check spelling, URLs, and reverse dependencies.</span></span>
 <span><span class="co"># False positive findings of spell check should be added to inst/WORDLIST.</span></span>
@@ -148,13 +148,14 @@ release it to CRAN</li>
 <span><span class="fu">urlchecker</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/urlchecker/man/url_check.html" class="external-link">url_check</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">revdepcheck</span><span class="fu">::</span><span class="fu">revdep_check</span><span class="op">(</span>num_workers <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Send your package to CRAN's win-builder service. You should receive an e-mail</span></span>
-<span><span class="co"># within about 30 minutes with a link to the check results. Checking with r-devel</span></span>
-<span><span class="co"># is required by CRAN policy and will (also) be done as part of CRAN's incoming</span></span>
-<span><span class="co"># checks.</span></span>
+<span><span class="co"># Send your package to CRAN's builder services. You should receive an e-mail</span></span>
+<span><span class="co"># within about 30 minutes with a link to the check results. Checking with</span></span>
+<span><span class="co"># check_win_devel is required by CRAN policy and will (also) be done as part</span></span>
+<span><span class="co"># of CRAN's incoming checks.</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check_win.html" class="external-link">check_win_oldrelease</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check_win.html" class="external-link">check_win_release</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check_win.html" class="external-link">check_win_devel</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check_mac_release.html" class="external-link">check_mac_release</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Submit the package to CRAN</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/submit_cran.html" class="external-link">submit_cran</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>

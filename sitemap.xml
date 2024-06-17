@@ -31,10 +31,10 @@
     <loc>https://spang-lab.github.io/FastRet/news/index.html</loc>
   </url>
   <url>
-    <loc>https://spang-lab.github.io/FastRet/reference/CDNames.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/CDFeatures.html</loc>
   </url>
   <url>
-    <loc>https://spang-lab.github.io/FastRet/reference/CDs.html</loc>
+    <loc>https://spang-lab.github.io/FastRet/reference/CDNames.html</loc>
   </url>
   <url>
     <loc>https://spang-lab.github.io/FastRet/reference/RP.html</loc>
@@ -89,6 +89,9 @@
   </url>
   <url>
     <loc>https://spang-lab.github.io/FastRet/reference/preprocess_data.html</loc>
+  </url>
+  <url>
+    <loc>https://spang-lab.github.io/FastRet/reference/ram_cache.html</loc>
   </url>
   <url>
     <loc>https://spang-lab.github.io/FastRet/reference/read_retip_hilic_data.html</loc>

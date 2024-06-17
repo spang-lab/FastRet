@@ -26,7 +26,7 @@ Returning the clustering results, which include the cluster assignments, the med
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,52 +115,7 @@ Returning the clustering results, which include the cluster assignments, the med
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">RPsub</span> <span class="op">&lt;-</span> <span class="va">RP</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">selective_measuring</span><span class="op">(</span><span class="va">RPsub</span>, k <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:43.04</span> Calculating chemical descriptors for: '[O-]C(=O)C[C@H](O)C[N+](C)(C)C'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:43.15</span> Calculating chemical descriptors for: 'C[N+](C)(CCOP([O-])(OCC(O)CO)=O)C'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:43.29</span> Calculating chemical descriptors for: 'CN1C=C(N=C1)CC(C(=O)O)N'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:43.42</span> Calculating chemical descriptors for: 'C(CC(=O)O)CN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:43.52</span> Calculating chemical descriptors for: 'C(C(C(C(C(=O)CO)O)O)O)OP(=O)(O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:43.66</span> Calculating chemical descriptors for: 'C(C(C(=O)O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:43.76</span> Calculating chemical descriptors for: 'C1=NC(=O)C2=C(N1)N(C=N2)C3C(C(C(O3)COP(=O)(O)O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.00</span> Calculating chemical descriptors for: 'C1=C(NC=N1)CC(C(=O)O)N'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.12</span> Calculating chemical descriptors for: 'C(CCN)CC(C(=O)O)N'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.23</span> Calculating chemical descriptors for: 'C(C(C(C(=O)O)O)C(=O)O)C(=O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.36</span> Calculating chemical descriptors for: 'CN1C=NC=C1CC(C(=O)O)NC(=O)CCN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.51</span> Calculating chemical descriptors for: 'C1=CC=C2C(=C1)C(=CN2)CC(=O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.65</span> Calculating chemical descriptors for: 'C(CN)CN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.75</span> Calculating chemical descriptors for: 'C(CC(=O)O)C(=O)C(=O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:44.87</span> Calculating chemical descriptors for: 'C(CCNC([C@H](O)C(C)(C)CO)=O)(=O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:45.01</span> Calculating chemical descriptors for: 'C(CC(C(=O)O)N)CN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:45.11</span> Calculating chemical descriptors for: 'O=P(O)(O)OCCN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:45.21</span> Calculating chemical descriptors for: 'C1=C(NC(=O)NC1=O)C(=O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:45.33</span> Calculating chemical descriptors for: 'CC1=C(SC=[N+]1CC2=CN=C(N=C2N)C)CCO'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:45.47</span> Calculating chemical descriptors for: 'C1=CC2=C(C=C1O)C(=CN2)CCN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:45.62</span> Calculating chemical descriptors for: 'C=C(C(=O)O)OP(=O)(O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:45.74</span> Calculating chemical descriptors for: 'O=P(O[C@H]1O[C@@H]([C@@H](O)[C@H](O)[C@H]1NC(=O)C)CO)(O)OP(=O)(O)OC[C@H]3OC(N2/C=C\C(=O)NC2=O)[C@H](O)[C@@H]3O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:46.13</span> Calculating chemical descriptors for: 'C(O[P](O[P](O)(=O)O)(=O)O)[C@H]1[C@@H]([C@@H]([C@H](O1)N2C=CC(NC2=O)=O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:46.35</span> Calculating chemical descriptors for: 'O=C(O)CCC(C(=O)O)C'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:46.46</span> Calculating chemical descriptors for: 'O=C(O)CCCCC(=O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:46.56</span> Calculating chemical descriptors for: 'C(O)C(O)C(O)C(O)C(O)C(O)=O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:46.68</span> Calculating chemical descriptors for: 'C([C@@H]1[C@@H]([C@@H]([C@H]([C@H](O1)OP(=O)(O)O)O)O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:46.82</span> Calculating chemical descriptors for: '[C@H]([C@@H]([C@@H](C(=O)O)O)O)([C@H](C(=O)O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:46.94</span> Calculating chemical descriptors for: 'C1=CC=C(C(=C1)C(=O)CC(C(=O)O)N)N'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:47.08</span> Calculating chemical descriptors for: 'O=C(O)C(N)CC(C)C'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:47.17</span> Calculating chemical descriptors for: 'C[N+]1=CC=CC(=C1)C(=O)N'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:47.28</span> Calculating chemical descriptors for: 'C1=CC(=CC=C1CC(C(=O)O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:47.41</span> Calculating chemical descriptors for: 'C(C(C(=O)O)O)OP(=O)(O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:47.51</span> Calculating chemical descriptors for: 'Oc1ccc(cc1OC)C(O)CN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:47.83</span> Calculating chemical descriptors for: 'Oc1ccccc1N'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:47.92</span> Calculating chemical descriptors for: 'C1=C(NC=N1)CCN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:48.02</span> Calculating chemical descriptors for: 'C[N+]1=CC=CC(=C1)C(=O)[O-]'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:48.14</span> Calculating chemical descriptors for: 'COC1=C(C=CC(=C1)C=CC(=O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:48.25</span> Calculating chemical descriptors for: 'C1[C@@H]([C@@H](COP(=O)(O)OP(=O)(O)O)O[C@H]1n1cnc2c1[nH]c(=N)nc2O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:48.52</span> Calculating chemical descriptors for: 'CC1=C(C(=CC2=C(C(=C(N2)C=C3C(=C(C(=O)N3)C)C=C)C)CCC(=O)O)NC1=CC4=NC(=O)C(=C4C)C=C)CCC(=O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:49.02</span> Calculating chemical descriptors for: 'C1C(C(OC1N2C=NC3=C2NC(=NC3=O)N)COP(=O)(O)O)O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:49.27</span> Calculating chemical descriptors for: 'C(CC(=O)O)C(=O)CN'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:49.42</span> Calculating chemical descriptors for: 'C[N+](C)(C)CCCC([O-])=O'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #000000; font-weight: bold;">2024-06-14 12:26:49.53</span> Calculating chemical descriptors for: 'C1=NC2=C(N1C3C(C(C(O3)COP(=O)(O)OP(=O)(O)OC4C(C(C(C(O4)CO)O)O)O)O)O)NC(=NC2=O)N'</span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">selective_measuring</span><span class="op">(</span><span class="va">RP</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, <span class="op">]</span>, k <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># For the sake of a short runtime, only the first 50 rows of the RP dataset</span></span></span>
 <span class="r-in"><span><span class="co"># were used in this example. In practice, you should always use the entire</span></span></span>
 <span class="r-in"><span><span class="co"># dataset to find the optimal subset for re-measurement.</span></span></span>
