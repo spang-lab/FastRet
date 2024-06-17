@@ -66,6 +66,7 @@ devtools::check_win_oldrelease()
 devtools::check_win_release()
 devtools::check_win_devel()
 devtools::check_mac_release()
+rhub::rhub_check()
 
 # Submit the package to CRAN
 devtools::submit_cran()
