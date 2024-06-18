@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,10 @@
       <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.2" id="fastret-112">FastRet 1.1.2<a class="anchor" aria-label="anchor" href="#fastret-112"></a></h2>
+<ul><li>Wrapped examples of <code><a href="../reference/read_rp_xlsx.html">read_rp_xlsx()</a></code> and <code><a href="../reference/read_rpadj_xlsx.html">read_rpadj_xlsx()</a></code> into <code>donttest</code> to prevent note <code>Examples with CPU time &gt; 2.5 times elapsed time: ...</code>. By now I’m pretty sure the culprit is the <code>xlsx</code> package, which uses a java process for reading the file. Maybe we should switch to openxlsx or readxl in the future.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.1" id="fastret-111">FastRet 1.1.1<a class="anchor" aria-label="anchor" href="#fastret-111"></a></h2>
 <ul><li>Improved examples of <code><a href="../reference/preprocess_data.html">preprocess_data()</a></code> to prevent note <code>Examples with CPU time &gt; 2.5 times elapsed time: preprocess_data (CPU=2.772, elapsed=0.788)</code>.</li>
