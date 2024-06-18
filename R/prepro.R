@@ -8,7 +8,7 @@
 #' @return A dataframe with the preprocessed data
 #' @keywords public
 #' @examples
-#' data <- head(read_rp_xlsx(), 3)
+#' data <- head(RP, 3)
 #' pre <- preprocess_data(data, verbose = 0)
 #' @export
 preprocess_data <- function(data = read_rp_xlsx(),

@@ -1,3 +1,7 @@
+# FastRet 1.1.1
+
+* Improved examples of `preprocess_data()` to prevent note `Examples with CPU time > 2.5 times elapsed time: preprocess_data (CPU=2.772, elapsed=0.788)`.
+
 # FastRet 1.1.0
 
 * Added RAM caching to `getCDs()`
