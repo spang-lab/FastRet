@@ -1,6 +1,6 @@
 Package: FastRet
 Title: Retention Time Prediction in Liquid Chromatography
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cph"), email = "christian-amesoeder@web.de"),
     person(given = "Marian", family = "Schoen", role = c("aut", "cph"), email = "marian.schoen@klinik.uni-regensburg.de"),

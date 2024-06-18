@@ -16,8 +16,10 @@ A dataframe of 442 metabolites with columns \code{RT}, \code{SMILES} and \code{N
 Read retention time data from a reverse phase liquid chromatography measured with a temperature of 35 degree and a flowrate of 0.3ml/min. The data also exists as dataframe in the package. To use it directly in R just enter \code{RP}.
 }
 \examples{
+\donttest{
 x <- read_rp_xlsx()
 all.equal(x, RP)
+}
 }
 \seealso{
 RP

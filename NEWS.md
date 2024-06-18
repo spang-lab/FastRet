@@ -1,3 +1,7 @@
+# FastRet 1.1.2
+
+* Wrapped examples of `read_rp_xlsx()` and `read_rpadj_xlsx()` into `donttest` to prevent note `Examples with CPU time > 2.5 times elapsed time: ...`. By now I'm pretty sure the culprit is the `xlsx` package, which uses a java process for reading the file. Maybe we should switch to openxlsx or readxl in the future.
+
 # FastRet 1.1.1
 
 * Improved examples of `preprocess_data()` to prevent note `Examples with CPU time > 2.5 times elapsed time: preprocess_data (CPU=2.772, elapsed=0.788)`.

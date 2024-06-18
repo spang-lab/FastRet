@@ -107,9 +107,10 @@ update_RP <- function() {
 #' @keywords dataset
 #' @source Measured by functional genomics lab at the University of Regensburg.
 #' @seealso RP
-#' @examples
+#' @examples \donttest{
 #' x <- read_rp_xlsx()
 #' all.equal(x, RP)
+#' }
 #' @export
 read_rp_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP.xlsx"), 1)
@@ -119,8 +120,9 @@ read_rp_xlsx <- function() {
 #' @description Subset of the data from [read_rp_xlsx()] with some slight modifications to simulate changes in temperature and/or flowrate.
 #' @format A dataframe of 25 metabolites and columns `RT`, `SMILES` and `NAME`.
 #' @keywords dataset
-#' @examples
+#' @examples \donttest{
 #' x <- read_rpadj_xlsx()
+#' }
 #' @export
 read_rpadj_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP_adj.xlsx"), 1)
