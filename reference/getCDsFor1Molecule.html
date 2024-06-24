@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,13 +79,23 @@
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>A dataframe of dimension 1 x 241. The rowname is the input SMILES string. The colnames are the chemical descriptor features specified by <a href="CDFeatures.html">CDFeatures</a>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Chemical descriptors in <code><a href="getCDs.html">getCDs()</a></code> are calculated individually for each molecule. This is due to the inconsistent ordering of output dataframes when a list of <code>IAtomContainer</code> objects is provided to <code><a href="https://rdrr.io/pkg/rcdk/man/eval.desc.html" class="external-link">rcdk::eval.desc</a></code>. Although the input SMILES are set as rownames, they don't match the original input SMILES due to an unclear transformation, making mapping non-trivial. Calculating descriptors molecule by molecule also enables parallelization in <code><a href="getCDs.html">getCDs()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="getCDs.html">getCDs()</a></code>, <a href="CDFeatures.html">CDFeatures</a></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">cds</span> <span class="op">&lt;-</span> <span class="fu">getCDsFor1Molecule</span><span class="op">(</span><span class="st">"O=C(O)CCCCCCCCCO"</span>, cache <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">cds</span> <span class="op">&lt;-</span> <span class="fu">getCDsFor1Molecule</span><span class="op">(</span><span class="st">"O=C(O)CCCCCCCCCO"</span>, cache <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
