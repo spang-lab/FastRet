@@ -14,6 +14,9 @@ analyzeCDNames(
 
 \item{descriptors}{vector of chemical descriptor names}
 }
+\value{
+A dataframe with two columns \code{descriptor} and \code{all_na}. Column \code{descriptor} contains the names of the chemical descriptors. Column \code{all_na} contains a boolean value indicating if all values obtained for the corresponding descriptor are NA.
+}
 \description{
 Analyze the chemical descriptor names and return a dataframe with their names and a boolean column indicating if all values are NA.
 }

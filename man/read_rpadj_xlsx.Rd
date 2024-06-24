@@ -3,11 +3,11 @@
 \name{read_rpadj_xlsx}
 \alias{read_rpadj_xlsx}
 \title{Hypothetical retention times (RT) measured on a reverse phase (RP) column}
-\format{
-A dataframe of 25 metabolites and columns \code{RT}, \code{SMILES} and \code{NAME}.
-}
 \usage{
 read_rpadj_xlsx()
+}
+\value{
+A dataframe with 25 rows (metabolites) and 3 columns \code{RT}, \code{SMILES} and \code{NAME}.
 }
 \description{
 Subset of the data from \code{\link[=read_rp_xlsx]{read_rp_xlsx()}} with some slight modifications to simulate changes in temperature and/or flowrate.

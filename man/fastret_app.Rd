@@ -17,6 +17,8 @@ fastret_app(port = 8080, host = "0.0.0.0", reload = FALSE, nsw = 0)
 }
 \value{
 A shiny app. This function returns a shiny app that can be run to interact with the model.
+
+An object of class \code{shiny.appobj}.
 }
 \description{
 This function creates the FastRet GUI

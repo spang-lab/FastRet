@@ -285,7 +285,7 @@ ui_train_controls <- function() {
                     "<li><code>Include interaction terms</code>: Includes interaction terms between predictors in the model.</li>",
                     "<li><code>Remove near-zero-variance predictors</code>: Removes predictors with variance close to zero to improve model performance.</li>",
                     "<li><code>Remove predictors with missing values</code>: Removes predictors with missing values to prevent errors during model training.</li>",
-                    "<li><code>Remove not suitable descriptors</code>: Removes chemical descriptors that were considered unsuitable for linear regression based on an analysis of the Retip::HILIC dataset.</li>",
+                    "<li><code>Remove not suitable descriptors</code>: Removes chemical descriptors that were considered unsuitable for linear regression based on an analysis of the HILIC dataset from the <a href='https://www.retip.app/'>Retip package</a>.</li>",
                     "</ul>",
                     "<p>Please note that setting <code>rm_near_zero_var</code> and/or <code>rm_na</code> to TRUE can cause the cross-validation results to be overly optimistic. This is because the predictor filtering is done on the entire dataset, which means information from the validation folds is used for feature selection.</p>"
                 )

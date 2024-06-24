@@ -13,6 +13,9 @@ getCDs(df = read_rp_xlsx(), verbose = 1, nw = 1)
 
 \item{nw}{number of workers for parallel processing}
 }
+\value{
+A dataframe with the chemical descriptor values appended as columns to the input dataframe.
+}
 \description{
 Calculate Chemical Descriptors for a list of molecules. Molecules can appear multiple times in the list.
 }

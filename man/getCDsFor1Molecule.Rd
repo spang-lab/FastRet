@@ -13,6 +13,9 @@ getCDsFor1Molecule(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1)
 
 \item{verbose}{Verbosity. 0: no output, 1: show progress.}
 }
+\value{
+A dataframe of dimension 1 x 241. The rowname is the input SMILES string. The colnames are the chemical descriptor features specified by \link{CDFeatures}.
+}
 \description{
 Helper function for \code{\link[=getCDs]{getCDs()}}. Calculates chemical descriptors for a single molecule, specified as \href{https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system}{SMILES} string. This function should NOT be used directly. It is only exported so \code{\link[=getCDs]{getCDs()}} can easily spawn background worker processes that are able to call this function.
 }
@@ -20,6 +23,9 @@ Helper function for \code{\link[=getCDs]{getCDs()}}. Calculates chemical descrip
 Chemical descriptors in \code{\link[=getCDs]{getCDs()}} are calculated individually for each molecule. This is due to the inconsistent ordering of output dataframes when a list of \code{IAtomContainer} objects is provided to \code{rcdk::eval.desc}. Although the input SMILES are set as rownames, they don't match the original input SMILES due to an unclear transformation, making mapping non-trivial. Calculating descriptors molecule by molecule also enables parallelization in \code{\link[=getCDs]{getCDs()}}.
 }
 \examples{
-y <- cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 0)
+cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 0)
+}
+\seealso{
+\code{\link[=getCDs]{getCDs()}}, \link{CDFeatures}
 }
 \keyword{internal}

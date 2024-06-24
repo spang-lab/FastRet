@@ -118,11 +118,11 @@ read_rp_xlsx <- function() {
 
 #' @title Hypothetical retention times (RT) measured on a reverse phase (RP) column
 #' @description Subset of the data from [read_rp_xlsx()] with some slight modifications to simulate changes in temperature and/or flowrate.
-#' @format A dataframe of 25 metabolites and columns `RT`, `SMILES` and `NAME`.
-#' @keywords dataset
+#' @return A dataframe with 25 rows (metabolites) and 3 columns `RT`, `SMILES` and `NAME`.
 #' @examples \donttest{
 #' x <- read_rpadj_xlsx()
 #' }
+#' @keywords dataset
 #' @export
 read_rpadj_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP_adj.xlsx"), 1)

@@ -37,7 +37,7 @@ train_frm(
 
 \item{rm_na}{A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.}
 
-\item{rm_ns}{A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on an analysis of the \code{Retip::HILIC} dataset. See \code{\link[=check_lm_suitability]{check_lm_suitability()}} for details on the analysis.}
+\item{rm_ns}{A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset. See \code{\link[=check_lm_suitability]{check_lm_suitability()}} for details on the analysis.}
 
 \item{seed}{An integer value to set the seed for random number generation to allow for reproducible results.}
 }

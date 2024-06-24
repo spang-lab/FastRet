@@ -5,6 +5,7 @@
 #' @param df dataframe with two mandatory columns: "NAME" and "SMILES"
 #' @param verbose 0: no output, 1: progress, 2: more progress and warnings
 #' @param nw number of workers for parallel processing
+#' @return A dataframe with the chemical descriptor values appended as columns to the input dataframe.
 #' @keywords public
 #' @examples
 #' cds <- getCDs(head(RP, 3), verbose = 1, nw = 1)
@@ -56,8 +57,10 @@ getCDs <- function(df = read_rp_xlsx(), verbose = 1, nw = 1) {
 #' @param cache If TRUE, the results are cached in RAM and on disk at directory `~/.cache/FastRet/getCDsFor1Molecule/` to speed up subsequent calls.
 #' @param verbose Verbosity. 0: no output, 1: show progress.
 #' @keywords internal
+#' @return A dataframe of dimension 1 x 241. The rowname is the input SMILES string. The colnames are the chemical descriptor features specified by [CDFeatures].
+#' @seealso [getCDs()], [CDFeatures]
 #' @examples
-#' y <- cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 0)
+#' cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 0)
 #' @export
 getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1) {
   if (verbose == 0) catf <- function(...) invisible() # disable catf prints
@@ -109,6 +112,7 @@ getCDsFor1Molecule <- function(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose =
 #' @keywords internal
 #' @examples
 #' X <- analyzeCDNames(df = head(RP, 2), descriptors = CDNames[1:2])
+#' @return A dataframe with two columns `descriptor` and `all_na`. Column `descriptor` contains the names of the chemical descriptors. Column `all_na` contains a boolean value indicating if all values obtained for the corresponding descriptor are NA.
 #' @export
 analyzeCDNames <- function(df = read_rp_xlsx(),
                            descriptors = rcdk::get.desc.names(type = "all")) {
@@ -230,8 +234,7 @@ CDFeatures <- c("Fsp3", "nSmallRings", "nAromRings", "nRingBlocks", "nAromBlocks
 #' @format An environment with the following elements:
 #' - `CDs`: A data frame. The column names of `CDs` are the chemical descriptors listed in [CDFeatures]. The rownames in `CDs` are SMILES strings.
 #' - `CDRowNr`: A list. The names of the list elements equal the rownames of `CDs`. The values are the indices of the rows in the `CDs` data frame.
-#' @references
-#' Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
+#' @references Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
 #' @keywords internal
 #' @export
 ram_cache <- as.environment(list(

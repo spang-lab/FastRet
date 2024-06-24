@@ -47,9 +47,8 @@ startModes <- c("Train new Model", "Predict Retention Times", "Selective Measuri
 #'   * `selective_measuring`: mocks [selective_measuring()]
 #' @param startMode The start mode to use. Can be one of "Train new Model", "Predict Retention Times", "Selective Measuring", "Adjust existing Model"
 #' @return NULL. Called for side effects.
+#' @details By using no subworkers and multicore or sequential, we can ensure that all processes are forked from the current R session and therefore use the functions loaded via devtools. If we use multisession and or subworkers, these processes will use the installed version of FastRet instead. ==> If we work on the UI part, we can use multisession and/or subworkers, because the UI part is handled by the main process, BUT, If we develop train/predict/plot functions, we must use multicore or sequential and NO subworkers! In particular, to use `browser()` in these functions, we must use sequential.
 #' @keywords internal
-#' @details By using no subworkers and multicore or sequential, we can ensure that all processes are forked from the current R session and therefore use the functions loaded via devtools. If we use multisession and or subworkers, these processes will use the installed version of FastRet instead.
-#' ==> If we work on the UI part, we can use multisession and/or subworkers, because the UI part is handled by the main process, BUT, If we develop train/predict/plot functions, we must use multicore or sequential and NO subworkers! In particular, to use `browser()` in these functions, we must use sequential.
 #' @noRd
 start_gui_in_devmode <- function(strategy = "sequential",
                                  mocks = mocklist,
@@ -61,8 +60,16 @@ start_gui_in_devmode <- function(strategy = "sequential",
     if (!all(mocks %in% mocklist)) stop("mocks must be a subset of: ", paste(mocklist, collapse = ", "))
 
     catf("Patching shiny and pkgload")
-    patch_shiny()
-    patch_pkgload()
+    patch_file <- pkg_file("misc/scripts/patch-shiny.R")
+    if (file.exists(patch_file)) { # I.e. the package is loaded from source via `devtools::load_all()`.
+        patch_env <- new.env()
+        source(patch_file, local = patch_env, echo = FALSE)
+        patch_env$patch_shiny()
+        patch_env$patch_pkgload()
+    } else { # I.e. the package was installed and loaded e.g. via `library(FastRet)`. This code part shouldn't be reached, because the function is not exported, but we print a message just in case.
+        catf("No patch file found. Autoreload will not work.")
+    }
+
 
     catf("Reloading FastRet")
     devtools::load_all() # needs to be called once with updated function
@@ -91,6 +98,7 @@ start_gui_in_devmode <- function(strategy = "sequential",
 #' x <- fastret_app()
 #' if (interactive()) shiny::runApp(x)
 #' @keywords public
+#' @return An object of class `shiny.appobj`.
 #' @export
 fastret_app <- function(port = 8080,
                         host = "0.0.0.0",
@@ -115,4 +123,3 @@ check_cdk_version <- function() {
         stop(msgf, call. = FALSE)
     }
 }
-

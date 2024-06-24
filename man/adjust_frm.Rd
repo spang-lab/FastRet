@@ -23,6 +23,17 @@ adjust_frm(
 
 \item{verbose}{A logical value indicating whether to print progress messages.}
 }
+\value{
+An object of class \code{frm}, which is a list with the following elements:
+\itemize{
+\item \code{model}: A list containing details about the original model.
+\item \code{df}: The data frame used for training the model.
+\item \code{cv}: A list containing the cross validation results.
+\item \code{seed}: The seed used for random number generation.
+\item \code{version}: The version of the FastRet package used to train the model.
+\item \code{adj}: A list containing details about the adjusted model.
+}
+}
 \description{
 The goal of this function is to train a model that predicts RT_ADJ (retention time measured on a new, adjusted column) from RT (retention time measured on the original column) and to attach this "adjustmodel" to an existing FastRet model.
 }

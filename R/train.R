@@ -11,7 +11,7 @@
 #' @param interaction_terms A logical value indicating whether to include interaction terms in the model.
 #' @param rm_near_zero_var A logical value indicating whether to remove near zero variance predictors. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @param rm_na A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @param rm_ns A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on an analysis of the `Retip::HILIC` dataset. See [check_lm_suitability()] for details on the analysis.
+#' @param rm_ns A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset. See [check_lm_suitability()] for details on the analysis.
 #' @param seed An integer value to set the seed for random number generation to allow for reproducible results.
 #' @details Setting `rm_near_zero_var` and/or `rm_na` to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @return A trained FastRet model.
@@ -104,6 +104,13 @@ train_frm <- function(df = read_rp_xlsx(),
 #' new_data <- read_rpadj_xlsx()
 #' frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
 #' }
+#' @return An object of class `frm`, which is a list with the following elements:
+#' * `model`: A list containing details about the original model.
+#' * `df`: The data frame used for training the model.
+#' * `cv`: A list containing the cross validation results.
+#' * `seed`: The seed used for random number generation.
+#' * `version`: The version of the FastRet package used to train the model.
+#' * `adj`: A list containing details about the adjusted model.
 #' @export
 adjust_frm <- function(frm = train_frm(),
                        new_data = read_rpadj_xlsx(),

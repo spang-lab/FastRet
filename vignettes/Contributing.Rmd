@@ -29,9 +29,9 @@ Things you can update, are:
 Whenever you update any of those things, you should run the below commands to check that everything is still working as expected:
 
 ```R
+devtools::document() # Build files in man folder
 devtools::test() # Execute tests from tests folder
 devtools::check() # Check package formalities
-devtools::document() # Build files in man folder
 devtools::install() # Install as required by next command
 pkgdown::build_site() # Build website in docs folder
 ```
