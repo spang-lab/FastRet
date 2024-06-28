@@ -1,5 +1,8 @@
 <!-- badges: start -->
 [![R CMD check](https://github.com/spang-lab/FastRet/workflows/r-cmd-check/badge.svg)](https://github.com/spang-lab/FastRet/actions)
+[![Codecov test coverage](https://codecov.io/gh/spang-lab/FastRet/branch/main/graph/badge.svg)](https://app.codecov.io/gh/spang-lab/FastRet?branch=main)
+[![CRAN Status Badge](https://www.r-pkg.org/badges/version/FastRet)](https://cran.r-project.org/package=FastRet)
+[![CRAN Downloads Badge](https://cranlogs.r-pkg.org/badges/grand-total/FastRet)](https://cranlogs.r-pkg.org/badges/grand-total/FastRet)
 <!-- badges: end -->
 
 # FastRet
