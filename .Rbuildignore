@@ -6,12 +6,13 @@
 ^\.vscode$
 ^app\.R$
 ^check/$
+^codecov\.yml$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
 ^Dockerfile$
 ^docs$
 ^FastRet\.Rproj$
 ^misc$
 ^pkgdown$
+^TODOS.md$
 ^vignettes$
-^CRAN-SUBMISSION$
-^codecov\.yml$
