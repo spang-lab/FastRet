@@ -43,7 +43,7 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.4" id="fastret-114">FastRet 1.1.4<a class="anchor" aria-label="anchor" href="#fastret-114"></a></h2>
-<ul><li>Added <code>.onUnload()</code> function, handing cache cleanup after package unloading (e.g. when R session is closed)</li>
+<ul><li>Added a cache cleanup handler that gets registered via <code><a href="https://rdrr.io/r/base/reg.finalizer.html" class="external-link">reg.finalizer()</a></code> upon package loading to ensure that the cache directory is removed if it doesn’t contain any files that should persist between R sessions.</li>
 <li>Added an article about installation details incl. a troubleshooting section</li>
 <li>Improved function docs</li>
 <li>Improved examples by removing <code>donttest</code> blocks</li>
