@@ -1,14 +1,14 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note (New submission)
 
 ## Changes since removal of package from CRAN
 
-This package has already been accepted by CRAN at 25.06.2024, but was removed later on due to the following note in the "donttest" log:
+This package has already been accepted by CRAN at 25-06-2024, but was archived on 2024-07-09 due to the following note in the "donttest" log:
 
 > 1 NOTE: Found the following files/directories: ‘~/.cache/R/FastRet’
 
-This note has been addressed by adding an `.onUnload()` function, that ensures that the cache directory is removed if it doesn't contain any files that should persist between R sessions.
+This note has been addressed by adding a cache cleanup handler that gets registered via `reg.finalizer()` upon package loading to ensure that the cache directory is removed if it doesn't contain any files that should persist between R sessions.
 
 Apart from that, the following improvements have been made to the package:
 

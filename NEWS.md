@@ -1,6 +1,6 @@
 # FastRet 1.1.4
 
-* Added `.onUnload()` function, handing cache cleanup after package unloading (e.g. when R session is closed)
+* Added a cache cleanup handler that gets registered via `reg.finalizer()` upon package loading to ensure that the cache directory is removed if it doesn't contain any files that should persist between R sessions.
 * Added an article about installation details incl. a troubleshooting section
 * Improved function docs
 * Improved examples by removing `donttest` blocks

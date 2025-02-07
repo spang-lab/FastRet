@@ -61,7 +61,11 @@ rcmdcheck::rcmdcheck(
   error_on = ("warning"),
   check_dir = "../FastRet-RCMDcheck"
 )
-devtools::check(remote = TRUE, manual = TRUE, run_dont_test = TRUE)
+devtools::check(
+  remote = TRUE,
+  manual = TRUE,
+  run_dont_test = TRUE
+)
 
 # Check reverse dependencies. For details see:
 # https://r-pkgs.org/release.html#sec-release-revdep-checks
@@ -75,7 +79,6 @@ devtools::check_win_oldrelease()
 devtools::check_win_release()
 devtools::check_win_devel()
 devtools::check_mac_release()
-rhub::rhub_check()
 
 # Use the following command to submit the package to CRAN of submit via the web
 # interface available at https://cran.r-project.org/submit.html.

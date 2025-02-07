@@ -291,7 +291,20 @@ enable_function_tracing <- function() {
     options(FastRet.onFuncEntry = onFuncEntry)
 }
 
-.onUnload <- function(libname, pkgname) {
+# Package Hooks (Private) #####
+
+rm_cachedir_if_empty <- function(...) {
     cache_dir <- get_cache_dir()
-    if (length(dir(cache_dir)) == 0) unlink(cache_dir)
+    cache_files <- dir(cache_dir, all.files = TRUE) # includes . and ..
+    if (length(cache_files) <= 2) {
+        unlink(cache_dir, recursive = TRUE)
+    }
+}
+
+.onLoad <- function(libname, pkgname) {
+  reg.finalizer(
+    e = environment(rm_cachedir_if_empty),
+    f = rm_cachedir_if_empty,
+    onexit = TRUE
+  )
 }
