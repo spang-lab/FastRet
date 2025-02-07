@@ -8,8 +8,8 @@
 <title>GUI Usage • FastRet</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="GUI Usage">
 </head>
 <body>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,7 @@
     <li><a class="dropdown-item" href="../articles/CLI-Usage.html">CLI Usage</a></li>
     <li><a class="dropdown-item" href="../articles/Package-Internals.html">Package Internals</a></li>
     <li><a class="dropdown-item" href="../articles/Contributing.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/Installation.html">Installation</a></li>
     <li><a class="dropdown-item" href="../articles/Old-Intro.html">Old Introduction</a></li>
   </ul>
 </li>
@@ -83,8 +84,8 @@ then run the following command in an interactive R terminal:</p>
 <p>in your R console. This means that the GUI is now running and you can
 access it via the URL <a href="http://localhost:8080" class="external-link uri">http://localhost:8080</a> in your browser. If your terminal
 supports it, you can also click on the displayed link.</p>
-<p><a href="GUI-Usage/start-page.png"><img src="GUI-Usage/start-page.png" width="45%"></a>
-<a href="GUI-Usage/mode-help.png"><img src="GUI-Usage/mode-help.png" width="45%"></a></p>
+<p><a href="GUI-Usage/start-page.png"><img src="GUI-Usage%2Fstart-page.png" width="45%"></a>
+<a href="GUI-Usage/mode-help.png"><img src="GUI-Usage%2Fmode-help.png" width="45%"></a></p>
 <p>By default, the GUI opens in mode <em>Train new Model</em>. To apply
 or adjust pretrained models, select mode <em>Predict Retention Time</em>
 or <em>Adjust existing Model</em> instead. For more information about
@@ -132,8 +133,8 @@ process. Upon completion, performance measures and a table of training
 dataset is shown. For further details about the training process and the
 performance measures, see section <a href="https://spang-lab.github.io/FastRet/articles/Package-Internals.html#model-training">Model-Training</a>
 of article <a href="https://spang-lab.github.io/FastRet/articles/Package-Internals.html">Package-Internals</a>.</p>
-<p><a href="GUI-Usage/model-training.png"><img src="GUI-Usage/model-training.png" width="45%"></a>
-<a href="GUI-Usage/model-performance.png"><img src="GUI-Usage/model-performance.png" width="45%"></a></p>
+<p><a href="GUI-Usage/model-training.png"><img src="GUI-Usage%2Fmodel-training.png" width="45%"></a>
+<a href="GUI-Usage/model-performance.png"><img src="GUI-Usage%2Fmodel-performance.png" width="45%"></a></p>
 <p>To use the trained model to predict retention times for new
 molecules, you have to:</p>
 <ol style="list-style-type: decimal">
@@ -169,7 +170,7 @@ xlsx</em> and select an Excel file containing columns NAME and
 SMILES</li>
 <li>Click button <em>Predict</em> at the bottom of the side bar</li>
 </ol>
-<p><img src="Old-Intro/04.png" style="width:45.0%"></p>
+<p><img src="Old-Intro%2F04.png" style="width:45.0%"></p>
 </div>
 <div class="section level2">
 <h2 id="adjusting-existing-model">Adjusting existing model<a class="anchor" aria-label="anchor" href="#adjusting-existing-model"></a>
@@ -183,7 +184,7 @@ metabolites measured on your new column. The Excel file should contain
 columns NAME, SMILES and RT. After clicking the <em>Adjust Model</em>
 button, the model will be adjusted and you can use it to predict
 retention times for new molecules measured on your new column.</p>
-<p><img src="Old-Intro/05.png" style="width:45.0%"></p>
+<p><img src="Old-Intro%2F05.png" style="width:45.0%"></p>
 </div>
 <div class="section level2">
 <h2 id="selective-measuring">Selective Measuring<a class="anchor" aria-label="anchor" href="#selective-measuring"></a>
@@ -208,7 +209,7 @@ chromatographic properties such as gradient, temperature, etc.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
