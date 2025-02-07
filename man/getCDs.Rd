@@ -4,7 +4,7 @@
 \alias{getCDs}
 \title{Get Chemical Descriptors for a list of molecules}
 \usage{
-getCDs(df = read_rp_xlsx(), verbose = 1, nw = 1)
+getCDs(df, verbose = 1, nw = 1)
 }
 \arguments{
 \item{df}{dataframe with two mandatory columns: "NAME" and "SMILES"}

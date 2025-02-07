@@ -1,7 +1,9 @@
+# Private #####
+
+#' @noRd
 #' @description Create boxplots for up to 4 models to compare their performance measures
 #' @param models A list of objects of class `frm` as returned by [train_frm()].
 #' @param ptype A string specifying the plot type. Options are: "base" (default) and "ggplot2".
-#' @noRd
 plot_boxplot <- function(model = train_frm(), ptype = "base") {
     ptype <- match.arg(ptype, c("base", "ggplot2"))
     stats <- as.data.frame(collect(model$cv$stats))
@@ -22,6 +24,7 @@ plot_boxplot <- function(model = train_frm(), ptype = "base") {
     }
 }
 
+#' @noRd
 #' @description Plot predictions of a FastRet Model (FRM) for its training data. If the FRM was adjusted, the original and adjusted predictions are plotted.
 #' @param frm An object of class `frm` as returned by [train_frm()].
 #' @param type A string specifying the plot type. Options are:
@@ -32,7 +35,6 @@ plot_boxplot <- function(model = train_frm(), ptype = "base") {
 #' @param trafo A string specifying the transformation to apply to the data before plotting. Options are:
 #' - "identity": No transformation
 #' - "log2": Apply the log2 transformation
-#' @noRd
 plot_frm <- function(frm = train_frm(verbose = 1),
                      type = "scatter.cv", # c("scatter.cv", "scatter.cv.adj", "scatter.train", "scatter.train.adj")
                      trafo = "identity" # c("identity", "log2")

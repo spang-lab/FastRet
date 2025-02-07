@@ -21,7 +21,7 @@ catf(
 No return value. This function is called for its side effect of printing a message.
 }
 \description{
-This function prints a formatted string with optional prefix and end strings.
+Prints a formatted string with optional prefix and end strings.
 }
 \examples{
 catf("Hello, \%s!", "world")

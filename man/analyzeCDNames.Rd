@@ -4,10 +4,7 @@
 \alias{analyzeCDNames}
 \title{Analyze Chemical Descriptors Names}
 \usage{
-analyzeCDNames(
-  df = read_rp_xlsx(),
-  descriptors = rcdk::get.desc.names(type = "all")
-)
+analyzeCDNames(df, descriptors = rcdk::get.desc.names(type = "all"))
 }
 \arguments{
 \item{df}{dataframe with two mandatory columns: "NAME" and "SMILES"}

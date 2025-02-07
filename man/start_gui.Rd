@@ -24,7 +24,7 @@ A shiny app. This function returns a shiny app that can be run to interact with 
 Starts the FastRet GUI
 }
 \details{
-If you set \code{nw = 3} and \code{nsw = 4}, you should have at least 16 cores, one core for the shiny main process. Three cores for the three worker processes. And 12 cores (3 * 4) for the subworkers. For the default case, \code{nworkers = 1} and \code{nsw = 2}, you should have at least 4 cores.
+If you set \code{nw = 3} and \code{nsw = 4}, you should have at least 16 cores, one core for the shiny main process. Three cores for the three worker processes and 12 cores (3 * 4) for the subworkers. For the default case, \code{nworkers = 2} and \code{nsw = 1}, you only need 3 cores, as \code{nsw = 1} means that all subprocesses will run sequentially.
 }
 \examples{
 if (interactive()) start_gui()

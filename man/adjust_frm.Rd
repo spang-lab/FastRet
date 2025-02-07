@@ -38,10 +38,8 @@ An object of class \code{frm}, which is a list with the following elements:
 The goal of this function is to train a model that predicts RT_ADJ (retention time measured on a new, adjusted column) from RT (retention time measured on the original column) and to attach this "adjustmodel" to an existing FastRet model.
 }
 \examples{
-\donttest{
 frm <- read_rp_lasso_model_rds()
 new_data <- read_rpadj_xlsx()
 frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
-}
 }
 \keyword{public}

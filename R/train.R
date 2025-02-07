@@ -1,4 +1,4 @@
-# Main #####
+# Public #####
 
 #' @title Train a new FastRet model (FRM) for retention time prediction
 #' @description Trains a new model from molecule SMILES to predict retention times (RT) using the specified method.
@@ -11,19 +11,18 @@
 #' @param interaction_terms A logical value indicating whether to include interaction terms in the model.
 #' @param rm_near_zero_var A logical value indicating whether to remove near zero variance predictors. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @param rm_na A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @param rm_ns A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset. See [check_lm_suitability()] for details on the analysis.
+#' @param rm_ns A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset.
 #' @param seed An integer value to set the seed for random number generation to allow for reproducible results.
 #' @details Setting `rm_near_zero_var` and/or `rm_na` to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 #' @return A trained FastRet model.
 #' @keywords public
-#' @examples \donttest{
+#' @examples
 #' system.time(m <- train_frm(RP[1:80, ], method = "lasso", nfolds = 2, nw = 1, verbose = 0))
 #' # For the sake of a short runtime, only the first 80 rows of the RP dataset
 #' # are used in this example. In practice, you should always use the entire
 #' # training dataset for model training.
-#' }
 #' @export
-train_frm <- function(df = read_rp_xlsx(),
+train_frm <- function(df,
                       method = "lasso",
                       verbose = 1,
                       nfolds = 5, # folds for cross validation
@@ -99,11 +98,10 @@ train_frm <- function(df = read_rp_xlsx(),
 #' @param nfolds An integer representing the number of folds for cross validation.
 #' @param verbose A logical value indicating whether to print progress messages.
 #' @keywords public
-#' @examples \donttest{
+#' @examples
 #' frm <- read_rp_lasso_model_rds()
 #' new_data <- read_rpadj_xlsx()
 #' frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
-#' }
 #' @return An object of class `frm`, which is a list with the following elements:
 #' * `model`: A list containing details about the original model.
 #' * `df`: The data frame used for training the model.
@@ -213,7 +211,7 @@ predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, ver
 }
 
 #' @title Extract predictor names from an 'frm' object
-#' @description This function extracts the predictor names from an 'frm' object.
+#' @description Extracts the predictor names from an 'frm' object.
 #' @param frm An object of class 'frm' from which to extract the predictor names.
 #' @return A character vector with the predictor names.
 #' @keywords internal
@@ -233,12 +231,12 @@ make_X_adj <- function(RT, predictors = 1:5) {
     cbind(RT, preds)
 }
 
-# Helpers #####
+# Helpers (Private) #####
 
+#' @noRd
 #' @description Get RMSE, Rsquared, MAE and %below1min for a specific dataset and model.
 #' @param data dataframe with retention time in the first column
 #' @param model object useable as input for [stats::predict()]
-#' @noRd
 get_stats <- function(df, model) {
     X <- as.matrix(df[, colnames(df) %in% CDFeatures])
     y <- df$RT
@@ -286,13 +284,13 @@ validate_inputmodel <- function(model) {
     invisible(model)
 }
 
-# GLMNET Helpers #####
+# GLMNET Helpers (Private) #####
 
+#' @noRd
 #' @description Fits a lasso model using the function [glmnet::cv.glmnet()].
 #' @param df Dataframe containing columns RT, SMILES, NAME and a set of chemical descriptors
 #' @param alpha Elastic net mixing parameter (1 = lasso, 0 = ridge)
 #' @param verbose Verbosity level
-#' @noRd
 fit_glmnet <- function(df = preprocess_data(), verbose = 1, alpha = 1) {
     cds <- colnames(df) %in% CDFeatures
     X <- as.matrix(df[, cds])
@@ -322,15 +320,15 @@ fit_ridge <- function(df = preprocess_data(), verbose = 1) {
     )
 }
 
-# GBTree Helpers #####
+# GBTree Helpers (Private) #####
 
+#' @noRd
 #' @description Finds the optimal number of nrounds for fitting a GBTree model in CV and then uses this number to fit a final model on the complete dataset.
 #' @details The optimal value for the other hyperparameters eta, gamma, etc. was determined a priori using a grid search on the RP dataset ([read_rp_xlsx()]). To reproduce the grid search, see the example of function [plot_gbtree_performance()].
 #' @param df Dataframe containing columns RT, SMILES, NAME and a set of chemical descriptors
 #' @param verbose verbosity level (0 = silent, 1 = progress, 2 = more details)
 #' @param nw number of workers to use for parallel processing, ignored on Windows
 #' @return A object as returned by `caret::train`
-#' @noRd
 fit_gbtree <- function(df = preprocess_data(), verbose = 1) {
     if (verbose) catf("Fitting GBTree model")
     obj <- fit_gbtree_grid(
@@ -350,6 +348,7 @@ fit_gbtree <- function(df = preprocess_data(), verbose = 1) {
     obj$model
 }
 
+#' @noRd
 #' @description Fits multiple GBTree (Gradiant Boosted Tree) models, evaluates their performance in cross validation (CV) and then fits a final model using the optimal set of parameters.
 #' @param df Dataframe containing columns RT, SMILES, NAME and a set of chemical descriptors
 #' @param verbose verbosity level (0 = silent, 1 = progress, 2 = more details)
@@ -363,7 +362,6 @@ fit_gbtree <- function(df = preprocess_data(), verbose = 1) {
 #' @param n_threads threads used internally by xgboost
 #' @param nw number of workers to use for parallel processing, ignored on Windows
 #' @return A object as returned by `caret::train`
-#' @noRd
 fit_gbtree_grid <- function(df = preprocess_data(),
                             verbose = 1, # verbose level (0 = silent, 1 = progress, 2 = more details)
                             nrounds = 1000, # maximium number of boosting rounds
@@ -422,6 +420,7 @@ fit_gbtree_grid <- function(df = preprocess_data(),
     return(list(model = model, cv_results = cv_results, param_grid = param_grid))
 }
 
+#' @noRd
 #' @description Plot cross validation results of a GBTree model.
 #' @param x Object as returned by [fit_gbtree_grid()]
 #' @param print Print the plots to the console?
@@ -433,7 +432,6 @@ fit_gbtree_grid <- function(df = preprocess_data(),
 #' plot_gbtree_performance(x, pdfpath = "misc/cvgbtree.pdf")
 #' plot_gbtree_performance(x, pdfpath = "misc/cvgbtree_box.pdf", type = "box")
 #' }
-#' @noRd
 plot_gbtree_performance <- function(x = fit_gbtree_grid(),
                                     print = TRUE,
                                     pdfpath = NULL,

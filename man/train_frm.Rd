@@ -5,7 +5,7 @@
 \title{Train a new FastRet model (FRM) for retention time prediction}
 \usage{
 train_frm(
-  df = read_rp_xlsx(),
+  df,
   method = "lasso",
   verbose = 1,
   nfolds = 5,
@@ -37,7 +37,7 @@ train_frm(
 
 \item{rm_na}{A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.}
 
-\item{rm_ns}{A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset. See \code{\link[=check_lm_suitability]{check_lm_suitability()}} for details on the analysis.}
+\item{rm_ns}{A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset.}
 
 \item{seed}{An integer value to set the seed for random number generation to allow for reproducible results.}
 }
@@ -51,11 +51,9 @@ Trains a new model from molecule SMILES to predict retention times (RT) using th
 Setting \code{rm_near_zero_var} and/or \code{rm_na} to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
 }
 \examples{
-\donttest{
 system.time(m <- train_frm(RP[1:80, ], method = "lasso", nfolds = 2, nw = 1, verbose = 0))
 # For the sake of a short runtime, only the first 80 rows of the RP dataset
 # are used in this example. In practice, you should always use the entire
 # training dataset for model training.
-}
 }
 \keyword{public}

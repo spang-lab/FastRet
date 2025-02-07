@@ -1,3 +1,6 @@
+# Public #####
+
+#' @export
 #' @title Preprocess data
 #' @description Preprocess data so they can be used as input for [train_frm()].
 #' @param data dataframe with columns RT, NAME, SMILES
@@ -8,10 +11,9 @@
 #' @return A dataframe with the preprocessed data
 #' @keywords public
 #' @examples
-#' data <- head(RP, 3)
+#' data <- head(RP, 3) # Only use first three rows to speed up example runtime
 #' pre <- preprocess_data(data, verbose = 0)
-#' @export
-preprocess_data <- function(data = read_rp_xlsx(),
+preprocess_data <- function(data,
                             degree_polynomial = 1,
                             interaction_terms = FALSE,
                             verbose = 1,
@@ -78,8 +80,11 @@ preprocess_data <- function(data = read_rp_xlsx(),
     return(df)
 }
 
+# Private #####
+
+#' @noRd
 #' @title Checks which chemical descriptors are suitable for linear models
-#' @description This function checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable.
+#' @description Checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable.
 #' @param df Input data for performing the analysis. Must be a data frame with columns NAME, RT and SMILES.
 #' @param verbose A logical value indicating whether to print verbose output.
 #' @param nw The number of workers to use for parallel processing.
@@ -88,7 +93,6 @@ preprocess_data <- function(data = read_rp_xlsx(),
 #' @keywords internal
 #' @examples
 #' x <- check_lm_suitability(head(RP, 3), verbose = FALSE, nw = 1)
-#' @export
 check_lm_suitability <- function(df = read_retip_hilic_data(),
                                  verbose = FALSE,
                                  nw = 2) {
@@ -100,18 +104,19 @@ check_lm_suitability <- function(df = read_retip_hilic_data(),
     hasNAs <- apply(X, 2, function(x) any(is.na(x)))
     isAlmostConstant <- seq_len(ncol(X)) %in% caret::nearZeroVar(X)
     hasOutliers <- apply(X, 2, function(x) any(abs(x - median(x)) > 50 * mad(x)))
-    isSuiteable <- !(hasNAs | isAlmostConstant | hasOutliers)
-    V <- data.frame(predictors, hasNAs, isAlmostConstant, hasOutliers, isSuiteable)
+    isSuitable <- !(hasNAs | isAlmostConstant | hasOutliers)
+    V <- data.frame(predictors, hasNAs, isAlmostConstant, hasOutliers, isSuitable)
     list(df = df, X = X, V = V)
 }
 
+#' @noRd
 #' @title Plot the suitability of predictors for linear models
-#' @description This function creates one pdf page for every predictor inside `slist$X`. The pdf page consists of the following three plots shown next to each other:
+#' @description Creates one pdf page for every predictor inside `slist$X`. The pdf page consists of the following three plots shown next to each other:
 #' 1. Histogram
 #' 2. Density plot
 #' 3. Scatterplot against `slist$df$RT`
 #' The name of the predictor, its suitability, and the status of the checks for missing values, near-zero variance, and outliers are shown in the title of each plot.
-#' @param slist A list containing the data frame `df`, the matrix `X`, and the data frame `V` from `check_lm_suitability()`.
+#' @param slist A list containing the data frame `df`, the matrix `X`, and the data frame `V` from [check_lm_suitability()].
 #' @param pdfpath The path to the pdf file to save the plots.
 #' @param descs Index of chemical descriptors to plot. Leave at NULL to plot all chemical descriptors.
 #' @return No return value. The function is used for its side effect of creating a pdf file with the plots.
@@ -121,7 +126,6 @@ check_lm_suitability <- function(df = read_retip_hilic_data(),
 #' df <- head(RP, 3)
 #' slist <- check_lm_suitability(df, verbose = FALSE, nw = 1)
 #' plot_lm_suitability(slist, descs = 1:5)
-#' @export
 plot_lm_suitability <- function(slist = check_lm_suitability(),
                                 pdfpath = tempfile("lm_suitability", fileext = ".pdf"),
                                 descs = NULL) {
@@ -137,7 +141,7 @@ plot_lm_suitability <- function(slist = check_lm_suitability(),
     for (i in seq_len(ncol(X))) {
         x <- X[, i]
         name <- colnames(X)[i]
-        state <- ifelse(V$isSuiteable[i], "Ok", "Bad")
+        state <- ifelse(V$isSuitable[i], "Ok", "Bad")
         reasons <- c("Has NAs", "Almost Constant", "Has Outliers")
         reasons <- reasons[unlist(V[i, c("hasNAs", "isAlmostConstant", "hasOutliers")])]
         reasons <- paste(reasons, collapse = ", ")

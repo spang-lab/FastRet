@@ -13,7 +13,7 @@ now(format = "\%Y-\%m-\%d \%H:\%M:\%OS2")
 A string representing the current system time in the specified format.
 }
 \description{
-This function returns the current system time formatted according to the provided format string.
+Returns the current system time formatted according to the provided format string.
 }
 \examples{
 now()            # e.g. "2024-06-12 16:09:32.41"

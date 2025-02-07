@@ -1,3 +1,5 @@
+# Imports (Private) #####
+
 # Standard Lib Imports
 #' @import graphics
 #' @import grDevices
@@ -15,9 +17,11 @@
 #' @import glmnet
 # Note: xgboost and glmnet must be imported because we use their S3 methods for predict. If we remove the imports, we need to use :: to access their predict explicitly.
 
+# Globals (Private) #####
+
 globalVariables(".data") # to avoid warnings about NSE in ggplot2 calls (https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html)
 
-# Colors #####
+# Colors (Private) #####
 
 GREY <- "\033[1;30m"
 RED <- "\033[1;31m"
@@ -26,23 +30,24 @@ YELLOW <- "\033[1;33m"
 BLUE <- "\033[1;34m"
 RESET <- "\033[0m"
 
-# Print #####
+# Misc (Public) #####
 
+#' @export
 #' @title now function
-#' @description This function returns the current system time formatted according to the provided format string.
+#' @description Returns the current system time formatted according to the provided format string.
 #' @param format A string representing the desired time format. Default is "%Y-%m-%d %H:%M:%OS2".
 #' @return A string representing the current system time in the specified format.
 #' @keywords internal
 #' @examples
 #' now()            # e.g. "2024-06-12 16:09:32.41"
 #' now("%H:%M:%S")  # e.g. "16:09:32"
-#' @export
 now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
     format(Sys.time(), format)
 }
 
+#' @export
 #' @title catf function
-#' @description This function prints a formatted string with optional prefix and end strings.
+#' @description Prints a formatted string with optional prefix and end strings.
 #' @param ... Arguments to be passed to sprintf for string formatting.
 #' @param prefix A function returning a string to be used as the prefix. Default is a timestamp.
 #' @param end A string to be used as the end of the message. Default is a newline character.
@@ -51,7 +56,6 @@ now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
 #' @examples
 #' catf("Hello, %s!", "world")
 #' catf("Goodbye", prefix = NULL, end = "!\n")
-#' @export
 catf <- function(..., prefix = .Options$FastRet.catf.prefix, end = .Options$FastRet.catf.end) {
     prefixstr <- if (is.null(prefix)) sprintf("%s%s%s ", GREY, now(), RESET) else prefix()
     endstr <- if (is.null(end)) "\n" else end
@@ -60,27 +64,22 @@ catf <- function(..., prefix = .Options$FastRet.catf.prefix, end = .Options$Fast
     cat(msg)
 }
 
-# Multicore #####
-
-#' @description Calculate the number of workers for parallel processing
-#' @param mult A multiplier for the number of cores. Default is 0.5.
-#' @param nmax The maximum number of workers allowed. Default is 16.
-#' @return The number of workers to be used for parallel processing.
+#' @export
+#' @title Collect elements from a list of lists
+#' @description Takes a list of lists where each inner list has the same names. It returns a list where each element corresponds to a name of the inner list that is extracted from each inner list. Especially useful for collecting results from lapply.
+#' @param xx A list of lists where each inner list has the same names.
+#' @return A list where each element corresponds to a name of the inner list that is extracted from each inner list.
 #' @examples
-#' get_n_workers(0.5)      # returns  2 on a  4-core machine
-#' get_n_workers(1.0)      # returns  4 on a  4-core machine
-#' get_n_workers(2.0)      # returns  8 on a  4-core machine
-#' get_n_workers(1.0,  4)  # returns  4 on a 32-core machine
-#' get_n_workers(1.0, 16)  # returns 16 on a 32-core machine
-#' get_n_workers(1.0, 64)  # returns 32 on a 32-core machine
-#' @noRd
-get_n_workers <- function(mult = 0.5, nmax = 16) {
-    n <- parallel::detectCores()
-    nmul <- ceiling(n * mult)
-    min(nmul, nmax)
+#' xx <- lapply(1:3, function(i) list(a = i, b = i^2, c = i^3))
+#' ret <- collect(xx)
+#' @keywords internal
+collect <- function(xx) {
+    ns <- names(xx[[1]])
+    ret <- lapply(ns, function(n) sapply(xx, function(x) x[[n]]))
+    `names<-`(ret, ns)
 }
 
-# Datasets #####
+# Datasets (Public) #####
 
 #' @title Retention Times (RT) Measured on a Reverse Phase (RP) Column
 #' @description Retention time data from a reverse phase liquid chromatography measured with a temperature of 35 degree and a flowrate of 0.3ml/min. The same data is available as an xlsx file in the package. To read it into R use `read_rp_xlsx()`.
@@ -101,21 +100,21 @@ update_RP <- function() {
     usethis::use_data(RP, overwrite = TRUE)
 }
 
+#' @export
 #' @title Read retention times (RT) measured on a reverse phase (RP) column
 #' @description Read retention time data from a reverse phase liquid chromatography measured with a temperature of 35 degree and a flowrate of 0.3ml/min. The data also exists as dataframe in the package. To use it directly in R just enter `RP`.
 #' @return A dataframe of 442 metabolites with columns `RT`, `SMILES` and `NAME`.
 #' @keywords dataset
 #' @source Measured by functional genomics lab at the University of Regensburg.
 #' @seealso RP
-#' @examples \donttest{
+#' @examples
 #' x <- read_rp_xlsx()
 #' all.equal(x, RP)
-#' }
-#' @export
 read_rp_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP.xlsx"), 1)
 }
 
+#' @export
 #' @title Hypothetical retention times (RT) measured on a reverse phase (RP) column
 #' @description Subset of the data from [read_rp_xlsx()] with some slight modifications to simulate changes in temperature and/or flowrate.
 #' @return A dataframe with 25 rows (metabolites) and 3 columns `RT`, `SMILES` and `NAME`.
@@ -123,22 +122,22 @@ read_rp_xlsx <- function() {
 #' x <- read_rpadj_xlsx()
 #' }
 #' @keywords dataset
-#' @export
 read_rpadj_xlsx <- function() {
     xlsx::read.xlsx(pkg_file("extdata/RP_adj.xlsx"), 1)
 }
 
+#' @export
 #' @title LASSO Model trained on RP dataset
 #' @description Read a LASSO model trained on the [RP] dataset using [train_frm()].
 #' @return A `frm` object.
 #' @keywords dataset
 #' @examples
 #' frm <- read_rp_lasso_model_rds()
-#' @export
 read_rp_lasso_model_rds <- function() {
     readRDS(pkg_file("extdata/RP_lasso_model.rds"))
 }
 
+#' @export
 #' @title Download and read the HILIC dataset from Retip the package
 #' @description Downloads and reads the HILIC dataset from the [Retip](https://www.retip.app/) package. The dataset is downloaded from `https://github.com/oloBion/Retip/raw/master/data/HILIC.RData`, saved to a temporary file and then read and returned.
 #' @param verbose Verbosity level. 1 == print progress messages, 0 == no progress messages.
@@ -148,7 +147,6 @@ read_rp_lasso_model_rds <- function() {
 #' @references
 #' Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
 #' @keywords dataset
-#' @export
 read_retip_hilic_data <- function(verbose = 1) {
     url <- "https://github.com/oloBion/Retip/raw/master/data/HILIC.RData"
     destfile <- tempfile("HILIC", fileext = ".RData")
@@ -158,8 +156,9 @@ read_retip_hilic_data <- function(verbose = 1) {
     df <- HILIC
 }
 
-# Caching #####
+# Caching (Public) #####
 
+#' @export
 #' @title Get cache directory
 #' @description Creates and returns the cache directory for the FastRet package.
 #' @param subdir Optional subdirectory within the cache directory.
@@ -167,7 +166,6 @@ read_retip_hilic_data <- function(verbose = 1) {
 #' @keywords internal
 #' @examples
 #' path <- get_cache_dir()
-#' @export
 get_cache_dir <- function(subdir = NULL) {
     cache_dir <- tools::R_user_dir("FastRet", which = "cache")
     if (!is.null(subdir)) cache_dir <- file.path(cache_dir, subdir)
@@ -175,6 +173,7 @@ get_cache_dir <- function(subdir = NULL) {
     normalizePath(cache_dir, winslash = "/", mustWork = FALSE)
 }
 
+#' @export
 #' @title Get package file
 #' @description Returns the path to a file within the FastRet package.
 #' @param path The path to the file within the package.
@@ -183,29 +182,31 @@ get_cache_dir <- function(subdir = NULL) {
 #' @keywords internal
 #' @examples
 #' path <- pkg_file("extdata/RP.xlsx")
-#' @export
 pkg_file <- function(path, mustWork = FALSE) {
     system.file(path, package = "FastRet", mustWork = mustWork)
 }
 
-# Misc #####
+# Multicore (Private) #####
 
-#' @title Collect elements from a list of lists
-#' @description This function takes a list of lists where each inner list has the same names. It returns a list where each element corresponds to a name of the inner list that is extracted from each inner list. Especially useful for collecting results from lapply.
-#' @param xx A list of lists where each inner list has the same names.
-#' @return A list where each element corresponds to a name of the inner list that is extracted from each inner list.
+#' @noRd
+#' @description Calculate the number of workers for parallel processing
+#' @param mult A multiplier for the number of cores. Default is 0.5.
+#' @param nmax The maximum number of workers allowed. Default is 16.
+#' @return The number of workers to be used for parallel processing.
 #' @examples
-#' xx <- lapply(1:3, function(i) list(a = i, b = i^2, c = i^3))
-#' ret <- collect(xx)
-#' @keywords internal
-#' @export
-collect <- function(xx) {
-    ns <- names(xx[[1]])
-    ret <- lapply(ns, function(n) sapply(xx, function(x) x[[n]]))
-    `names<-`(ret, ns)
+#' get_n_workers(0.5)      # returns  2 on a  4-core machine
+#' get_n_workers(1.0)      # returns  4 on a  4-core machine
+#' get_n_workers(2.0)      # returns  8 on a  4-core machine
+#' get_n_workers(1.0,  4)  # returns  4 on a 32-core machine
+#' get_n_workers(1.0, 16)  # returns 16 on a 32-core machine
+#' get_n_workers(1.0, 64)  # returns 32 on a 32-core machine
+get_n_workers <- function(mult = 0.5, nmax = 16) {
+    n <- parallel::detectCores()
+    nmul <- ceiling(n * mult)
+    min(nmul, nmax)
 }
 
-# Test Helpers #####
+# Test Helpers (Private) #####
 
 serve_docs <- function() {
     servr::httd("docs")
@@ -279,8 +280,8 @@ save_mockdata <- function(obj, name, xlsx = FALSE) {
     }
 }
 
-#' @description To enable either call add "eval(.Options$FastRet.onFuncEntry)" at the beginning of each function or call `trace(f, quote(eval(.Options$FastRet.onFuncEntry)))` for each function `f` you want to trace.
 #' @noRd
+#' @description To enable either call add "eval(.Options$FastRet.onFuncEntry)" at the beginning of each function or call `trace(f, quote(eval(.Options$FastRet.onFuncEntry)))` for each function `f` you want to trace.
 enable_function_tracing <- function() {
     onFuncEntry <- quote({
         funcname <- as.character(sys.call(-2))
@@ -288,4 +289,9 @@ enable_function_tracing <- function() {
         on.exit(cat(sprintf("Exit: %s\n", funcname)), add = TRUE)
     })
     options(FastRet.onFuncEntry = onFuncEntry)
+}
+
+.onUnload <- function(libname, pkgname) {
+    cache_dir <- get_cache_dir()
+    if (length(dir(cache_dir)) == 0) unlink(cache_dir)
 }

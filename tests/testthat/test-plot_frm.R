@@ -21,7 +21,7 @@ test_that("plot_frm works for not-adjusted models", {
 test_that("plot_frm works for adjusted models", {
     opts <- options(FastRet.mocks = c("train_frm"))
     on.exit(options(opts), add = TRUE)
-    frm <- train_frm(df = read_rp_xlsx(), method = "lasso", seed = 123, nfolds = 4, nw = 2)
+    frm <- train_frm(df = RP, method = "lasso", seed = 123, nfolds = 4, nw = 2)
     frmadj <- adjust_frm(frm, new_data = read_rpadj_xlsx())
     testthat::expect_no_error(object = {
         plot_frm(frm = frmadj, type = "scatter.cv")

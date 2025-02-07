@@ -18,7 +18,16 @@ The result of the expression
 Execute an expression with a timeout
 }
 \examples{
-withTimeout(cat("This works\n"), timeout = 0.2)
-try(withTimeout({Sys.sleep(0.2); cat("This will fail\n")}, timeout = 0.1))
+withTimeout(
+     cat("This works\n"),
+     timeout = 0.2
+)
+try(
+     withTimeout(
+         expr = {Sys.sleep(0.2); cat("This fails\n")},
+         timeout = 0.1
+     ),
+     silent = TRUE
+)
 }
 \keyword{internal}

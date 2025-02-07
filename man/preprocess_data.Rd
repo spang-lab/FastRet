@@ -5,7 +5,7 @@
 \title{Preprocess data}
 \usage{
 preprocess_data(
-  data = read_rp_xlsx(),
+  data,
   degree_polynomial = 1,
   interaction_terms = FALSE,
   verbose = 1,
@@ -30,7 +30,7 @@ A dataframe with the preprocessed data
 Preprocess data so they can be used as input for \code{\link[=train_frm]{train_frm()}}.
 }
 \examples{
-data <- head(RP, 3)
+data <- head(RP, 3) # Only use first three rows to speed up example runtime
 pre <- preprocess_data(data, verbose = 0)
 }
 \keyword{public}

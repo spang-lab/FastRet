@@ -13,7 +13,7 @@ init_log_dir(SE)
 Updates the logdir element in the SE list with the path to the log directory.
 }
 \description{
-This function initializes the log directory for the session. It creates a new directory if it does not exist.
+Initializes the log directory for the session. It creates a new directory if it does not exist.
 }
 \examples{
 SE <- as.environment(list(session = list(token = "asdf")))

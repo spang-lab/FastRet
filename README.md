@@ -15,12 +15,15 @@ FastRet is an R package for predicting retention times in liquid chromatography.
 
 ## Installation
 
-You can install the development version of FastRet from [GitHub](https://github.com/) with:
+You can install the development version of FastRet from [GitHub](https://github.com/) by entering the following commands in an R session:
 
 ```R
-install.packages("devtools")
-devtools::install_github("spang-lab/FastRet", build_vignettes = TRUE)
+if (Sys.which("java")[1] == "") stop("Please install a Java SDK first.")
+install.packages("pak")
+pak::pkg_install("spang-lab/FastRet")
 ```
+
+For further details see [Installation](https://spang-lab.github.io/FastRet/articles/Installation.html).
 
 ## Usage
 

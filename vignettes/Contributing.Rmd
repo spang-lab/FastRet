@@ -9,22 +9,22 @@ vignette: >
 
 To contribute to this package, you should follow the below steps:
 
-1.  Create a issue at [github.com/spang-lab/FastRet/issues](https://github.com/spang-lab/FastRet/issues) describing the problem or feature you want to work on.
-2.  Wait until the issue is approved by a package maintainer.
-3.  Create a fork of the repository at [github.com/spang-lab/FastRet](https://github.com/spang-lab/FastRet)
-4.  Make your edits as described in section [Making Edits](#making-edits)
-5.  Create a pull request at [github.com/spang-lab/FastRet/pulls](https://github.com/spang-lab/FastRet/pulls)
+1. Create a issue at [github.com/spang-lab/FastRet/issues](https://github.com/spang-lab/FastRet/issues) describing the problem or feature you want to work on.
+2. Wait until the issue is approved by a package maintainer.
+3. Create a fork of the repository at [github.com/spang-lab/FastRet](https://github.com/spang-lab/FastRet)
+4. Make your edits as described in section [Making Edits](#making-edits)
+5. Create a pull request at [github.com/spang-lab/FastRet/pulls](https://github.com/spang-lab/FastRet/pulls)
 
 # Making Edits
 
 Things you can update, are:
 
-1.  Function code in folder [R](R)
-2.  Function documentation in folder [R](R)
-3.  Package documentation in folder `vignettes`
-4.  Test cases in folder [tests](tests)
-5.  Dependencies in file [DESCRIPTION](DESCRIPTION)
-6.  Authors in file [DESCRIPTION](DESCRIPTION)
+1. Function code in folder [R](R)
+2. Function documentation in folder [R](R)
+3. Package documentation in folder `vignettes`
+4. Test cases in folder [tests](tests)
+5. Dependencies in file [DESCRIPTION](DESCRIPTION)
+6. Authors in file [DESCRIPTION](DESCRIPTION)
 
 Whenever you update any of those things, you should run the below commands to check that everything is still working as expected:
 
@@ -45,8 +45,8 @@ After doing these steps, you can push your changes to Github.
 
 Whenever a package maintainer wants to release a new version of the package to CRAN, they should:
 
-1.  Check whether the [release requirements](https://r-pkgs.org/release.html#sec-release-initial) are fulfilled
-2.  Use the following commands to do a final check of the package and release it to CRAN
+1. Check whether the [release requirements](https://r-pkgs.org/release.html#sec-release-initial) are fulfilled
+2. Use the following commands to do a final check of the package and release it to CRAN
 
 ```R
 # Check spelling and URLs. False positive findings of spell check should be
@@ -55,7 +55,12 @@ devtools::spell_check()
 urlchecker::url_check()
 
 # Slower, but more realistic tests than devtools::check()
-rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), build_args = ("--no-manual"), error_on = ("warning"), check_dir = "../FastRet-RCMDcheck")
+rcmdcheck::rcmdcheck(
+  args = c("--no-manual", "--as-cran"),
+  build_args = ("--no-manual"),
+  error_on = ("warning"),
+  check_dir = "../FastRet-RCMDcheck"
+)
 devtools::check(remote = TRUE, manual = TRUE, run_dont_test = TRUE)
 
 # Check reverse dependencies. For details see:

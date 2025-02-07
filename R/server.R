@@ -1,4 +1,4 @@
-# Main #####
+# Main (Public) #####
 
 #' @title Server function for the FastRet GUI
 #' @description This function initializes the server-side of the FastRet GUI. It sets up reactive values, initializes handlers for various events and tasks, and sets up observers and outputs.
@@ -32,12 +32,7 @@ fastret_server <- function(input, output, session, nsw = 1) {
     catf("Exit: fastret_server")
 }
 
-#' @title Overview of reactive values and inputs used by the FastRet GUI
-#' @details Only the widgets at the far left should be used by render Functions.
-#' @noRd
-reactives_overview <- NULL
-
-# Init funcs  #####
+# Inits (Private) #####
 
 init_extended_tasks <- function(SE) {
     catf("Start: init_extended_tasks")
@@ -550,7 +545,110 @@ init_mocks <- function(SE) {
     # catf("Exit: init_mocks")
 }
 
-# Helpers #####
+
+# Helpers (Public) #####
+
+#' @export
+#' @title Execute an expression with a timeout
+#' @param expr The expression to execute
+#' @param timeout The timeout in seconds. Default is 2.
+#' @return The result of the expression
+#' @keywords internal
+#' @examples
+#' withTimeout(
+#'      cat("This works\n"),
+#'      timeout = 0.2
+#' )
+#' try(
+#'      withTimeout(
+#'          expr = {Sys.sleep(0.2); cat("This fails\n")},
+#'          timeout = 0.1
+#'      ),
+#'      silent = TRUE
+#' )
+withTimeout <- function(expr, timeout = 2) {
+    setTimeLimit(cpu = timeout, elapsed = timeout, transient = TRUE)
+    on.exit(setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE), add = TRUE, after = FALSE)
+    expr
+}
+
+#' @export
+#' @title Execute an expression while redirecting output to a file
+#' @param expr The expression to execute
+#' @param logfile The file to redirect output to. Default is "tmp.txt".
+#' @return The result of the expression
+#' @keywords internal
+#' @examples
+#' logfile <- tempfile(fileext = ".txt")
+#' withSink(logfile = logfile, expr = {
+#'   cat("Helloworld\n")
+#'   message("Goodbye")
+#' })
+#' readLines(logfile) == c("Helloworld", "Goodbye")
+withSink <- function(expr, logfile = tempfile(fileext = ".txt")) {
+    zz <- file(logfile, open = "wt")
+    on.exit(close(zz), add = TRUE, after = FALSE)
+    sink(zz)
+    on.exit(sink(), add = TRUE, after = FALSE)
+    sink(zz, type = "message")
+    on.exit(sink(type = "message"), add = TRUE, after = FALSE)
+    expr
+}
+
+#' @export
+#' @title Try expression with predefined error message
+#' @description Executes an expression and prints an error message if it fails
+#' @param expr The expression to execute
+#' @return The result of the expression
+#' @keywords internal
+#' @examples
+#' f <- function(expr) {
+#'   val <- try(expr, silent = TRUE)
+#'   err <- if (inherits(val, "try-error")) attr(val, "condition") else NULL
+#'   if (!is.null(err)) value <- NULL
+#'   list(value = val, error = err)
+#' }
+#' ret <- f(log("a")) # this error will not show up in the console
+#' ret <- f(withStopMessage(log("a"))) # this error will show up in the console
+withStopMessage <- function(expr) {
+    tryCatch(expr, error = function(e) {
+        message("Error in ", deparse(e$call), " : ", e$message)
+        stop(e)
+    })
+}
+
+#' @export
+#' @title Initialize log directory
+#' @description Initializes the log directory for the session. It creates a new directory if it does not exist.
+#' @param SE A list containing session information.
+#' @return Updates the logdir element in the SE list with the path to the log directory.
+#' @keywords internal
+#' @examples
+#' SE <- as.environment(list(session = list(token = "asdf")))
+#' init_log_dir(SE)
+#' dir.exists(SE$logdir)
+init_log_dir <- function(SE) {
+    catf("Start: init_log_dir")
+    token <- SE$session$token
+    logdir <- file.path(tempdir(), "FastRet", token)
+    if (!dir.exists(logdir)) dir.create(logdir, recursive = TRUE)
+    catf("Logdir: %s", logdir)
+    SE$logdir <- logdir
+}
+
+#' @export
+#' @title Add line end
+#' @description Checks if a string ends with a newline character. If not, a newline character is appended.
+#' @param x A string.
+#' @return The input string with a newline character at the end if it was not already present.
+#' @keywords internal
+#' @examples
+#' cat(withLineEnd("Hello"))
+withLineEnd <- function(x) {
+    if (!grepl("\n$", x)) paste0(x, "\n") else x
+}
+
+# Helpers (Private) #####
 
 withShowError <- function(expr, error = NULL) {
     tryCatch(
@@ -567,6 +665,7 @@ showError <- function(msg = NULL, expr = NULL, duration = 10) {
     showNotification(msg, type = "error", duration = duration)
 }
 
+#' @noRd
 #' @title Create an ExtendedTask Object
 #' @description This function wraps a given function in a [promises::future_promise()] and the result into a [shiny::ExtendedTask()] object.
 #' When the ExtendedTask Object is invoked, the function is executed asynchronously in a seperate process (assuming [future::plan()] has been called with strategy unequal "sequential").
@@ -607,7 +706,6 @@ showError <- function(msg = NULL, expr = NULL, duration = 10) {
 #' et$status() == "running"
 #' Sys.sleep(0.04)
 #' et$status() == "success"
-#' @noRd
 extendedTask <- function(func, logfile = tempfile(fileext = ".log"), timeout = 300) {
     logfile <- logfile
     func <- as.symbol(func)
@@ -644,6 +742,7 @@ extendedTask <- function(func, logfile = tempfile(fileext = ".log"), timeout = 3
     ET
 }
 
+#' @noRd
 #' @title Create an ExtendedTask Handler
 #' @description This function creates a handler for an ExtendedTask object. The handler checks the status of the task and executes the appropriate function based on the status. The status can be "error", "running", "success", or "initial".
 #' @param id The ID of the ExtendedTask object. This ID must be unique and must match the ID of an ExtendedTask object created via `init_extended_tasks()`.
@@ -659,7 +758,6 @@ extendedTask <- function(func, logfile = tempfile(fileext = ".log"), timeout = 3
 #' f <- function(SE) print("Task completed successfully!")
 #'
 #' extendedTaskHandler(id = "task1", onSuccess = f)
-#' @noRd
 extendedTaskHandler <- function(id,
                                 onSuccess = function(SE) {},
                                 onRunning = function(SE) {},
@@ -700,95 +798,4 @@ renderTbl <- function(expr,
         scrollX = scrollX
     )
     DT::renderDT(expr = expr, rownames = rownames, options = opts)
-}
-
-#' @title Execute an expression with a timeout
-#' @param expr The expression to execute
-#' @param timeout The timeout in seconds. Default is 2.
-#' @return The result of the expression
-#' @keywords internal
-#' @examples
-#' withTimeout(cat("This works\n"), timeout = 0.2)
-#' try(withTimeout({Sys.sleep(0.2); cat("This will fail\n")}, timeout = 0.1))
-#' @export
-withTimeout <- function(expr, timeout = 2) {
-    setTimeLimit(cpu = timeout, elapsed = timeout, transient = TRUE)
-    on.exit(setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE), add = TRUE, after = FALSE)
-    expr
-}
-
-#' @title Execute an expression while redirecting output to a file
-#' @param expr The expression to execute
-#' @param logfile The file to redirect output to. Default is "tmp.txt".
-#' @return The result of the expression
-#' @keywords internal
-#' @examples
-#' logfile <- tempfile(fileext = ".txt")
-#' withSink(logfile = logfile, expr = {
-#'   cat("Helloworld\n")
-#'   message("Goodbye")
-#' })
-#' readLines(logfile) == c("Helloworld", "Goodbye")
-#' @export
-withSink <- function(expr, logfile = tempfile(fileext = ".txt")) {
-    zz <- file(logfile, open = "wt")
-    on.exit(close(zz), add = TRUE, after = FALSE)
-    sink(zz)
-    on.exit(sink(), add = TRUE, after = FALSE)
-    sink(zz, type = "message")
-    on.exit(sink(type = "message"), add = TRUE, after = FALSE)
-    expr
-}
-
-#' Execute an expression and print an error message if it fails
-#'
-#' @param expr The expression to execute
-#' @return The result of the expression
-#' @keywords internal
-#' @examples
-#' f <- function(expr) {
-#'   val <- try(expr, silent = TRUE)
-#'   err <- if (inherits(val, "try-error")) attr(val, "condition") else NULL
-#'   if (!is.null(err)) value <- NULL
-#'   list(value = val, error = err)
-#' }
-#' ret <- f(log("a")) # this error will not show up in the console
-#' ret <- f(withStopMessage(log("a"))) # this error will show up in the console
-#' @export
-withStopMessage <- function(expr) {
-    tryCatch(expr, error = function(e) {
-        message("Error in ", deparse(e$call), " : ", e$message)
-        stop(e)
-    })
-}
-
-#' @title Initialize log directory
-#' @description This function initializes the log directory for the session. It creates a new directory if it does not exist.
-#' @param SE A list containing session information.
-#' @return Updates the logdir element in the SE list with the path to the log directory.
-#' @keywords internal
-#' @examples
-#' SE <- as.environment(list(session = list(token = "asdf")))
-#' init_log_dir(SE)
-#' dir.exists(SE$logdir)
-#' @export
-init_log_dir <- function(SE) {
-    catf("Start: init_log_dir")
-    token <- SE$session$token
-    logdir <- file.path(tempdir(), "FastRet", token)
-    if (!dir.exists(logdir)) dir.create(logdir, recursive = TRUE)
-    catf("Logdir: %s", logdir)
-    SE$logdir <- logdir
-}
-
-#' @title Add line end
-#' @description This function checks if a string ends with a newline character. If not, it adds one.
-#' @param x A string.
-#' @return The input string with a newline character at the end if it was not already present.
-#' @keywords internal
-#' @examples
-#' cat(withLineEnd("Hello"))
-#' @export
-withLineEnd <- function(x) {
-    if (!grepl("\n$", x)) paste0(x, "\n") else x
 }

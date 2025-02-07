@@ -2,7 +2,7 @@
 % Please edit documentation in R/server.R
 \name{withStopMessage}
 \alias{withStopMessage}
-\title{Execute an expression and print an error message if it fails}
+\title{Try expression with predefined error message}
 \usage{
 withStopMessage(expr)
 }
@@ -13,7 +13,7 @@ withStopMessage(expr)
 The result of the expression
 }
 \description{
-Execute an expression and print an error message if it fails
+Executes an expression and prints an error message if it fails
 }
 \examples{
 f <- function(expr) {

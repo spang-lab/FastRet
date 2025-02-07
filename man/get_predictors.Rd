@@ -13,7 +13,7 @@ get_predictors(frm = train_frm())
 A character vector with the predictor names.
 }
 \description{
-This function extracts the predictor names from an 'frm' object.
+Extracts the predictor names from an 'frm' object.
 }
 \examples{
 frm <- read_rp_lasso_model_rds()

@@ -13,7 +13,7 @@ withLineEnd(x)
 The input string with a newline character at the end if it was not already present.
 }
 \description{
-This function checks if a string ends with a newline character. If not, it adds one.
+Checks if a string ends with a newline character. If not, a newline character is appended.
 }
 \examples{
 cat(withLineEnd("Hello"))

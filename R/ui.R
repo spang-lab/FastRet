@@ -1,4 +1,4 @@
-# Main #####
+# Main (Private) #####
 
 fastret_ui <- function(req = NULL) {
     shiny::tagList(
@@ -34,7 +34,7 @@ fastret_ui <- function(req = NULL) {
     )
 }
 
-# Pages #####
+# Pages (Private) #####
 
 ui_home <- function() {
     tabPanel(
@@ -122,7 +122,7 @@ ui_about <- function() {
     )
 }
 
-# Homepage Sidebar #####
+# Homepage Sidebar (Private) #####
 
 ui_sidebar <- function() {
     sidebarPanel(
@@ -460,7 +460,7 @@ ui_adjust_controls <- function() {
     )
 }
 
-# Homepage Main Area #####
+# Homepage Main Area (Private) #####
 
 ui_main <- function() {
     mainPanel(
@@ -519,7 +519,7 @@ ui_adjust_results <- function(SE) {
     )
 }
 
-# Helpers #####
+# Helpers (Private) #####
 
 with_helptext <- function(..., content) {
     shinyhelper::helper(
@@ -545,16 +545,9 @@ consoleOutput <- function(divID, vtoID) {
         word-break: break-all;
         white-space: pre-wrap;
     "
-    # vto$attribs$style <- paste0(vto$attribs$style, "background-color: #eeeeee;")
     div(
         id = divID,
-        style = "
-            margin-top: 15px;
-            margin-bottom: 15px;
-        ",
-        # position: fixed;
-        # bottom: 0;
-        # width: 100%;
+        style = "margin-top: 15px; margin-bottom: 15px;",
         htmltools::tags$label("Console Log", class = "control-label"),
         vto
     )

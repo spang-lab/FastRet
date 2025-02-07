@@ -9,6 +9,7 @@ articles:
       - CLI-Usage
       - Package-Internals
       - Contributing
+      - Installation
       - Old-Intro
 reference:
 - title: Public API
