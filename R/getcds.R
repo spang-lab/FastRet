@@ -216,6 +216,18 @@ ram_cache <- as.environment(list(
 
 # Constants #####
 
+#' @noRd
+#' @title Make cachedata/CDs.rds
+#' @description
+#' The FastRet package comes with a set of pre-calculated chemical descriptors
+#' for metabolites stored in cachedata/CDS.rds, allowing all examples, tests
+#' etc. to run much faster. This function creates cachedata/CDs.rds.
+#' @details
+#' Since this function is used to create the cachedata/CDs.rds file, that is
+#' shipped with the package, it MUST be called during package development, i.e.
+#' after cloning the package sources and invoking [devtools::load_all()]. It
+#' makes no sense to call if after installation and loading of the package via
+#' [library()].
 make_cachedata_cds <- function() {
     hilic <- read_retip_hilic_data()
     df <- rbind(RP, hilic[colnames(RP)])
