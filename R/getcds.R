@@ -230,7 +230,7 @@ ram_cache <- as.environment(list(
 #' [library()].
 make_cachedata_cds <- function() {
     hilic <- read_retip_hilic_data()
-    df <- rbind(RP, hilic[colnames(RP)])
+    df <- rbind(FastRet::RP, hilic[colnames(FastRet::RP)])
     df <- df[!duplicated(df$SMILES), ]
     cds <- getCDs(df, verbose = 1, nw = 1)
     # Use nw=1 to ensure that the RAM is populated in this process and not in a worker processes

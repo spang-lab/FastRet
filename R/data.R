@@ -12,7 +12,6 @@
 #' @keywords dataset
 #' @seealso read_rp_xlsx
 "RP"
-globalVariables("RP")
 
 update_RP <- function() {
     RP <- read_rp_xlsx()
