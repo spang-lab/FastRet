@@ -1,5 +1,13 @@
 # Planned
 
+## Categorize existing Excel sheets
+
+List all files in `misc/datasets` and add a description to each one.
+
+## Add "Use current trained model" checkbox
+
+Add "Use current trained model" checkbox next to "upload trained model"
+
 ## Add a logo to the package
 
 ## Fill out NEWS.md entries before 1.0.3
@@ -51,10 +59,6 @@ Super optional:
 - Move `fastret-dev` and `fastret` Kubernetes deployments into HA-Config repo
 
 ## Add visualization of feature importance
-
-## Add "Use current trained model" checkbox
-
-Add "Use current trained model" checkbox next to "upload trained model"
 
 ## Implement Fadis doc suggestions
 
