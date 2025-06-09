@@ -26,7 +26,7 @@
 
 ## Validation Data Sets
 
-- Combined: Sheet 'R8_RT_Validation_set' of [20211022_R8_dif_conditions_Medoids_validSet.xlsx](20211022_R8_dif_conditions_Medoids_validSet.xlsx)
+- Combined: Sheet 'R8_RT_Validation set' of [20211022_R8_dif_conditions_Medoids_validSet.xlsx](20211022_R8_dif_conditions_Medoids_validSet.xlsx)
 
 ## Validation Data Set Predictions
 
@@ -67,7 +67,7 @@ SHEET1: R8_RT_Medoids
 - Keep: yes
 - Symbol: -
 
-SHEET2: R8_RT_Validation_set
+SHEET2: R8_RT_Validation set
 
 - Link: [20211022_R8_dif_conditions_Medoids_validSet.xlsx](20211022_R8_dif_conditions_Medoids_validSet.xlsx)
 - Description: Retention times for **Validation Set Metabolites** measured on the original RP column as well as all 6 adjusted reversed phase (ARP) columns

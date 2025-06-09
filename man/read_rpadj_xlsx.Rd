@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{read_rpadj_xlsx}
 \alias{read_rpadj_xlsx}
-\title{Hypothetical retention times (RT) measured on a reverse phase (RP) column}
+\title{Hypothetical retention times}
 \usage{
 read_rpadj_xlsx()
 }

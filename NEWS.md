@@ -1,3 +1,15 @@
+# FastRet 1.1.5 <!-- Commit Date: 2025-06-09 -->
+
+- Improved `read_retip_hilic_data()`: the dataset is now only downloaded from GitHub if the package is not installed. If it is installed, the dataset is loaded directly.
+
+- Internal Changes:
+  - Removed TODOS.md
+  - Bumbed version to 1.1.5
+  - Moved all data related functions from `util.R` to `data.R`
+  - Added a README to `misc/datasets`
+  - Added private functions for reading `misc/datasets/*.xlsx`
+  - Added tests for most data related functions in `test-data.R`
+
 # FastRet 1.1.4 <!-- Commit Date: 2025-02-08 -->
 
 - Added a cache cleanup handler that gets registered via

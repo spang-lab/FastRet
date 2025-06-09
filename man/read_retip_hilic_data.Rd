@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{read_retip_hilic_data}
 \alias{read_retip_hilic_data}
-\title{Download and read the HILIC dataset from Retip the package}
+\title{Read the HILIC dataset from the Retip package}
 \usage{
 read_retip_hilic_data(verbose = 1)
 }
@@ -13,7 +13,7 @@ read_retip_hilic_data(verbose = 1)
 df A data frame containing the HILIC dataset.
 }
 \description{
-Downloads and reads the HILIC dataset from the \href{https://www.retip.app/}{Retip} package. The dataset is downloaded from \verb{https://github.com/oloBion/Retip/raw/master/data/HILIC.RData}, saved to a temporary file and then read and returned.
+If the \href{https://www.retip.app/}{Retip} package is installed, its HILIC dataset is read from its installation directory. If not, the dataset is downloaded from \verb{https://github.com/oloBion/Retip/raw/master/data/HILIC.RData} to a temporary file and then read from there.
 }
 \examples{
 df <- read_retip_hilic_data(verbose = 0)
