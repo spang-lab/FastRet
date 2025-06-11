@@ -7,10 +7,11 @@
 read_rpadj_xlsx()
 }
 \value{
-A dataframe with 25 rows (metabolites) and 3 columns \code{RT}, \code{SMILES} and \code{NAME}.
+A dataframe with 25 rows (metabolites) and 3 columns: RT, SMILES and NAME.
 }
 \description{
-Subset of the data from \code{\link[=read_rp_xlsx]{read_rp_xlsx()}} with some slight modifications to simulate changes in temperature and/or flowrate.
+Subset of the data from \code{\link[=read_rp_xlsx]{read_rp_xlsx()}} with some slight modifications to
+simulate changes in temperature and/or flowrate.
 }
 \examples{
 \donttest{

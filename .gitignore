@@ -1,10 +1,12 @@
+.pytest_cache/
 .Rhistory
 .Rproj
 .Rproj.user
 .vscode/
+*.bkp
+check/
 docs
 FastRet.Rproj
 inst/doc
+rcmdcheck.log
 tests/testthat/Rplots.pdf
-*.bkp
-check/

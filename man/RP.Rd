@@ -3,23 +3,28 @@
 \docType{data}
 \name{RP}
 \alias{RP}
-\title{Retention Times (RT) Measured on a Reverse Phase (RP) Column}
+\title{Retention Times (RT) measured on a Reverse Phase (RP) Column}
 \format{
-A dataframe of 442 metabolites with the following columns:
-\describe{
-\item{RT}{Retention time}
-\item{SMILES}{SMILES notation of the metabolite}
-\item{NAME}{Name of the metabolite}
-}
+An object of class \code{data.frame} with 442 rows and 3 columns.
 }
 \source{
-Measured by functional genomics lab at the University of Regensburg.
+Measured by the Institute of Functional Genomics at the University of
+Regensburg.
 }
 \usage{
 RP
 }
 \description{
-Retention time data from a reverse phase liquid chromatography measured with a temperature of 35 degree and a flowrate of 0.3ml/min. The same data is available as an xlsx file in the package. To read it into R use \code{read_rp_xlsx()}.
+Retention time data from a reverse phase liquid chromatography measured with
+a temperature of 35\eqn{^\circ}C and a flowrate of 0.3ml/min. The same data
+is available as an xlsx file in the package. To read it into R use
+\code{read_rp_xlsx()}. @format A dataframe of 442 metabolites with the following
+columns:
+\describe{
+\item{RT}{Retention time}
+\item{SMILES}{SMILES notation of the metabolite}
+\item{NAME}{Name of the metabolite}
+}
 }
 \seealso{
 read_rp_xlsx

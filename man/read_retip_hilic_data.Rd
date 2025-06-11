@@ -7,18 +7,26 @@
 read_retip_hilic_data(verbose = 1)
 }
 \arguments{
-\item{verbose}{Verbosity level. 1 == print progress messages, 0 == no progress messages.}
+\item{verbose}{Verbosity level. Set to 1 to enable progress messages,
+0 to suppress them.}
 }
 \value{
-df A data frame containing the HILIC dataset.
+A data frame containing the Retip HILIC dataset.
 }
 \description{
-If the \href{https://www.retip.app/}{Retip} package is installed, its HILIC dataset is read from its installation directory. If not, the dataset is downloaded from \verb{https://github.com/oloBion/Retip/raw/master/data/HILIC.RData} to a temporary file and then read from there.
+If the \href{https://www.retip.app/}{Retip} package is installed, its HILIC
+dataset is read from its installation directory. If not, the dataset is
+downloaded from
+\verb{https://github.com/oloBion/Retip/raw/master/data/HILIC.RData} to a temporary
+file and then read from there.
 }
 \examples{
 df <- read_retip_hilic_data(verbose = 0)
 }
 \references{
-Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
+Retip: Retention Time Prediction for Compound Annotation in Untargeted
+Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar
+Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI:
+10.1021/acs.analchem.9b05765
 }
 \keyword{dataset}

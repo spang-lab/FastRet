@@ -56,7 +56,9 @@ now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
 #' @examples
 #' catf("Hello, %s!", "world")
 #' catf("Goodbye", prefix = NULL, end = "!\n")
-catf <- function(..., prefix = .Options$FastRet.catf.prefix, end = .Options$FastRet.catf.end) {
+catf <- function(...,
+                 prefix = .Options$FastRet.catf.prefix,
+                 end = .Options$FastRet.catf.end) {
     prefixstr <- if (is.null(prefix)) sprintf("%s%s%s ", GREY, now(), RESET) else prefix()
     endstr <- if (is.null(end)) "\n" else end
     middlestr <- sprintf(...)
@@ -129,7 +131,29 @@ get_n_workers <- function(mult = 0.5, nmax = 16) {
     min(nmul, nmax)
 }
 
-# Test Helpers (Private) #####
+# Development Helpers (Private) #####
+
+load_all <- function() {
+    x <- Sys.time()
+    catf("Calling: pkgload::load_all(reset = TRUE)")
+    pkgload::load_all(reset = TRUE, quiet = TRUE)
+    catf("Calling: pkgload_env$insert_global_shims(force = TRUE)")
+    pkgload_env <- environment(pkgload::load_all)
+    pkgload_env$insert_global_shims(force = TRUE)
+    diff <- Sys.time() - x
+    catf("Elapsed: %s", format(diff))
+}
+
+document <- function() {
+    x <- Sys.time()
+    catf("Calling: devtools::document(quiet = TRUE)")
+    devtools::document(quiet = TRUE)
+    catf("Calling: pkgload_env$insert_global_shims(force = TRUE)")
+    pkgload_env <- environment(pkgload::load_all)
+    pkgload_env$insert_global_shims(force = TRUE)
+    diff <- Sys.time() - x
+    catf("Elapsed: %s", format(diff))
+}
 
 serve_docs <- function() {
     servr::httd("docs")
