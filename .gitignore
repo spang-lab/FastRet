@@ -5,8 +5,9 @@
 .vscode/
 *.bkp
 check/
-docs
+docs/
 FastRet.Rproj
-inst/doc
+inst/doc/
+out/
 rcmdcheck.log
 tests/testthat/Rplots.pdf
