@@ -14,6 +14,7 @@
 ^(?i)docs$
 ^(?i)fastret\.rproj$
 ^(?i)misc$
+^(?i)out$
 ^(?i)pkgdown$
 ^(?i)r*cmd*check.log$
 ^(?i)r*cmd*check.md$
