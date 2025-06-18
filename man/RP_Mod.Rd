@@ -5,7 +5,7 @@
 \alias{RP_Mod}
 \title{Subset of the 'RP' dataset measured under different conditions}
 \format{
-A named list with elements: 'Normal', 'Steep', 'Flat', 'T25_Flat',
+A named list with elements: 'Steep', 'Flat', 'T25_Flat',
 'FR25_Flat', 'T25_FR25_Flat', and 'T25_FR25_Steep'. Each element is a data
 frame with 25 metabolites (rows) and the following columns:
 \describe{
@@ -13,11 +13,6 @@ frame with 25 metabolites (rows) and the following columns:
 \item{SMILES}{SMILES notation of the metabolite}
 \item{NAME}{Name of the metabolite}
 }
-The 'Normal' condition is a true subset of the original \link{RP} dataset: it
-contains the same metabolites with identical retention times as in \link{RP}. All
-other elements ('Steep', 'Flat', etc.) contain the same metabolites, but
-their retention times were measured under different chromatographic
-conditions.
 }
 \source{
 Measured by the Institute of Functional Genomics at the University of
@@ -47,8 +42,9 @@ The following conditions were used during the experiment:\tabular{llll}{
 
 For all conditions, formic acid 0.1\% (v/v) in Water was used as mobile phase
 A and formic acid 0.1\% (v/v) in ACN as mobile phase B. Temperatures are given
-in \eqn{^\circ}C and flow rates in mL/min. For the exact definitions of a
-'normal', 'steep' and 'flat' gradient please refer to the FastRet
-publication.
+in \eqn{^\circ}C and flow rates in mL/min. The 'Normal' condition was used to
+measured the original \code{RP} dataset and is not included in the \code{RP_Mod}
+object. For the exact definitions of a 'normal', 'steep' and 'flat' gradient
+please refer to the FastRet publication.
 }
 \keyword{dataset}

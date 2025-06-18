@@ -3,9 +3,10 @@
 \docType{data}
 \name{HILIC}
 \alias{HILIC}
-\title{Retention Times (RT) measured on a Hydrophilic Interaction Chromatography (HILIC) Column}
+\title{Retention Times (RT) measured on a Hydrophilic Interaction Chromatography
+(HILIC) Column}
 \format{
-A dataframe of 393 metabolites with the following columns:
+A dataframe of 392 metabolites with the following columns:
 \describe{
 \item{NAME}{Name of the metabolite}
 \item{SMILES}{SMILES notation of the metabolite}

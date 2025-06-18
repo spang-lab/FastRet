@@ -85,7 +85,7 @@ read_rp_lasso_model_rds <- function() {
 
 # Read From Disk (Private) #####
 
-read_rp_sub <- function() {
+read_rp_mod <- function() {
     path <- "misc/datasets/20211022_R8_dif_conditions_Medoids_validSet.xlsx"
     df <- xlsx::read.xlsx(
         file = pkg_file(path),
@@ -99,9 +99,9 @@ read_rp_sub <- function() {
     RP_Mod <- list(
         Steep = df[, c("CNAME", "SMILES", "Steeper")],
         Flat = df[, c("CNAME", "SMILES", "Flatter")],
-        T25 = df[, c("CNAME", "SMILES", "T25")],
-        FR25 = df[, c("CNAME", "SMILES", "FR025")],
-        T25_FR25 = df[, c("CNAME", "SMILES", "T25_FR025")],
+        T25_Flat = df[, c("CNAME", "SMILES", "T25")],
+        FR25_Flat = df[, c("CNAME", "SMILES", "FR025")],
+        T25_FR25_Flat = df[, c("CNAME", "SMILES", "T25_FR025")],
         T25_FR25_Steep = df[, c("CNAME", "SMILES", "T25_FR025_Steeper")]
     )
     for (x in names(RP_Mod)) {
@@ -140,30 +140,26 @@ read_hilic_xlsx <- function() {
 }
 
 read_rp_axmm_xlsx <- function() {
-    stop("Excel file with measurements from RP-AXMM column is missing")
+    path <- "misc/datasets/RP-AXMM_FastRet_Input.xlsx"
+    df <- xlsx::read.xlsx(pkg_file(path), 1)
+    df[, c("NAME", "SMILES", "RT")]
 }
 
 # Lazyload Objects (Private) #####
 
 make_lazyload_objs <- function(HILIC, RP, RP_Mod, RP_Val) {
-
     # Read in data from Excel files
     HILIC <- read_hilic_xlsx()
     RP <- read_rp_xlsx()
-    RP_Mod <- read_rp_sub()
+    RP_Mod <- read_rp_mod()
     RP_Val <- read_rp_val()
-
-    # Prepend the normal conditions to the RP_Mod datasets
-    mod_idx <- match(RP_Mod[[1]]$SMILES, RP$SMILES)
-    RP_Sub <- RP[mod_idx, c("NAME", "SMILES", "RT")]
-    rownames(RP_Sub) <- NULL
-    RP_Mod <- c(list(Normal = RP_Sub), RP_Mod)
-
+    RP_AXMM <- read_rp_axmm_xlsx()
     # Store objects in the data folder
     usethis::use_data(HILIC, overwrite = TRUE)
     usethis::use_data(RP, overwrite = TRUE)
     usethis::use_data(RP_Mod, overwrite = TRUE)
     usethis::use_data(RP_Val, overwrite = TRUE)
+    usethis::use_data(RP_AXMM, overwrite = TRUE)
 }
 
 # Lazyload Objects (Public) #####
@@ -189,11 +185,36 @@ make_lazyload_objs <- function(HILIC, RP, RP_Mod, RP_Val) {
 #' @seealso read_rp_xlsx
 "RP"
 
+## RP_AXMM #####
+
+#' @title
+#' Retention Times (RT) measured on a Reverse Phase Anion Exchange Mixed Mode
+#' (RP-AXMM) Column
+#' @description
+#' Retention time data from a Reverse Phase Anion Exchange Mixed Mode (RP-AXMM)
+#' Column.
+#' @format A dataframe of 438 metabolites with the following
+#' columns:
+#' \describe{
+#'   \item{SMILES}{SMILES notation of the metabolite}
+#'   \item{NAME}{Name of the metabolite}
+#'   \item{RT}{Retention time}
+#' }
+#' @source
+#' Measured by the Institute of Functional Genomics at the University of
+#' Regensburg.
+#' @keywords dataset
+#' @seealso read_rp_xlsx
+"RP_AXMM"
+
 ## HILIC #####
 
-#' @title Retention Times (RT) measured on a Hydrophilic Interaction Chromatography (HILIC) Column
-#' @description Retention time data from a hydrophilic interaction chromatography experiment.
-#' @format A dataframe of 393 metabolites with the following columns:
+#' @title
+#' Retention Times (RT) measured on a Hydrophilic Interaction Chromatography
+#' (HILIC) Column
+#' @description
+#' Retention time data from a hydrophilic interaction chromatography experiment.
+#' @format A dataframe of 392 metabolites with the following columns:
 #' \describe{
 #'   \item{NAME}{Name of the metabolite}
 #'   \item{SMILES}{SMILES notation of the metabolite}
@@ -214,7 +235,7 @@ make_lazyload_objs <- function(HILIC, RP, RP_Mod, RP_Val) {
 #' rate). This object contains the results as data frames. See 'Details' for an
 #' overview of the modifications.
 #' @format
-#' A named list with elements: 'Normal', 'Steep', 'Flat', 'T25_Flat',
+#' A named list with elements: 'Steep', 'Flat', 'T25_Flat',
 #' 'FR25_Flat', 'T25_FR25_Flat', and 'T25_FR25_Steep'. Each element is a data
 #' frame with 25 metabolites (rows) and the following columns:
 #' \describe{
@@ -222,11 +243,6 @@ make_lazyload_objs <- function(HILIC, RP, RP_Mod, RP_Val) {
 #'   \item{SMILES}{SMILES notation of the metabolite}
 #'   \item{NAME}{Name of the metabolite}
 #' }
-#' The 'Normal' condition is a true subset of the original [RP] dataset: it
-#' contains the same metabolites with identical retention times as in [RP]. All
-#' other elements ('Steep', 'Flat', etc.) contain the same metabolites, but
-#' their retention times were measured under different chromatographic
-#' conditions.
 #' @details
 #' The following conditions were used during the experiment:
 #'
@@ -242,9 +258,11 @@ make_lazyload_objs <- function(HILIC, RP, RP_Mod, RP_Val) {
 #'
 #' For all conditions, formic acid 0.1% (v/v) in Water was used as mobile phase
 #' A and formic acid 0.1% (v/v) in ACN as mobile phase B. Temperatures are given
-#' in \eqn{^\circ}C and flow rates in mL/min. For the exact definitions of a
-#' 'normal', 'steep' and 'flat' gradient please refer to the FastRet
-#' publication.
+#' in \eqn{^\circ}C and flow rates in mL/min. The 'Normal' condition was used to
+#' measured the original `RP` dataset and is not included in the `RP_Mod`
+#' object. For the exact definitions of a 'normal', 'steep' and 'flat' gradient
+#' please refer to the FastRet publication.
+#'
 #' @source
 #' Measured by the Institute of Functional Genomics at the University of
 #' Regensburg.
