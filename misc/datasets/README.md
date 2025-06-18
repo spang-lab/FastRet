@@ -10,7 +10,7 @@
 
 - HILIC-Retip: availble through R function `FastRet::read_retip_hilic_data()`
 - HILIC: [20210702_RT_Prediction_Hilic_Library_FF.xlsx]
-- RP-AXMM: Excel missing
+- RP-AXMM: [RP-AXMM_FastRet_Input.xlsx]
 - RP: [RP.xlsx]
 
 ## Model Adjustment Datasets (Subset of 25 Metabolites)
@@ -40,7 +40,7 @@
 ## RP.xlsx
 
 - Link: [RP.xlsx]
-- Description: 442 metabolites measured on in-house HILIC column
+- Description: 442 metabolites measured on in-house Reverse-Phase (RP) column
 - Dimensions: 443 x 3 (row one contains colnames)
 - Columns:
     - RT: Measured retention times in minutes, e.g. '0.91' or '10.2'
@@ -49,10 +49,19 @@
 - Keep: yes
 - Symbol: `RP`
 
+## RP-AXMM_FastRet_Input.xlsx
+
+- Link: [RP-AXMM_FastRet_Input.xlsx]
+- Description: 438 metabolites measured on in-house Reverse-Phase Anion-Exchange Mixed-Mode (RP-AXMM) Column.
+- Dimensions: 439 x 3 (row one contains colnames)
+- Columns: RT, NAME, SMILES (like in [RP.xlsx])
+- Keep: yes
+- Symbol: RP_AXMM
+
 ## 20210702_RT_Prediction_Hilic_Library_FF.xlsx
 
 - Link: [20210702_RT_Prediction_Hilic_Library_FF.xlsx]
-- Description: **In-House-Library Metabolites** measured on in-house HILIC column
+- Description: 392 Metabolites measured on in-house HILIC column
 - Dimensions: 393 x 5 (row one contains colnames)
 - Columns:
     - Code: To be described by Fadi. Example values: e.g. '7B3' or '7E3'. (TODO: VERIFY)
@@ -66,7 +75,7 @@
 ## 20211022_R8_dif_conditions_Medoids_validSet.xlsx > R8_RT_Medoids
 
 - Link: [20211022_R8_dif_conditions_Medoids_validSet.xlsx]
-- Description: Retention times for **Medoid Metabolites** measured on the original RP column as well as all 6 adjusted reversed phase (ARP) columns
+- Description: Retention times for "Medoid Metabolites" measured on the original RP column under six different chromatographic conditions
 - Dimensions: 25 x 16 (row one contains colnames)
 - Columns:
     - PLATE, NROW, NCOL, CODE, M+H, M-H: To be described by Fadi.
@@ -78,7 +87,7 @@
 ## 20211022_R8_dif_conditions_Medoids_validSet.xlsx > R8_RT_Validation set
 
 - Link: [20211022_R8_dif_conditions_Medoids_validSet.xlsx]
-- Description: Retention times for **Validation Set Metabolites** measured on the original RP column as well as all 6 adjusted reversed phase (ARP) columns
+- Description: Retention times for "Validation Set Metabolites" measured on the original RP column under the original chromatographic conditions as well as six different modified chromatographic conditions
 - Dimensions: 25 x 16 (row one contains colnames)
 - Columns:
     - SMILES, Name: Identifiers for measured Molecule.
@@ -163,6 +172,7 @@ reference.
 <!-- Active Dataset Links -->
 
 [RP.xlsx]: RP.xlsx
+[RP-AXMM_FastRet_Input.xlsx]: RP-AXMM_FastRet_Input.xlsx
 [20210702_RT_Prediction_Hilic_Library_FF.xlsx]: 20210702_RT_Prediction_Hilic_Library_FF.xlsx
 [20211022_R8_dif_conditions_Medoids_validSet.xlsx]: 20211022_R8_dif_conditions_Medoids_validSet.xlsx
 
