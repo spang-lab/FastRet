@@ -1,0 +1,128 @@
+---
+title: Publication Figures and Statistics
+author: Tobias Schmidt
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    keep_md: true
+    self_contained: true
+    toc: true
+    toc_depth: 2
+    css: styles.css
+---
+
+# Datasets Overview
+
+```{r, set-defaults, include=FALSE}
+message("Setting default options for knitr and pander")
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE, message = NA)
+pander::panderOptions("table.split.table", 200)
+pander::panderOptions("table.split.cells", 30)
+pander::panderOptions("table.alignment.default", "left")
+pander::panderOptions("table.alignment.rownames", "left")
+```
+
+```{r init-tblDS}
+DS <- list(
+    HILIC = FastRet::HILIC,
+    HILIC_Retip = FastRet::read_retip_hilic_data(),
+    RP_AXMM = FastRet::RP_AXMM,
+    RP = FastRet::RP,
+    RP_Steep = FastRet::RP_Mod$Steep,
+    RP_Flat = FastRet::RP_Mod$Flat,
+    RP_T25_Flat = FastRet::RP_Mod$T25_Flat,
+    RP_FR25_Flat = FastRet::RP_Mod$FR25_Flat,
+    RP_T25_FR25_Flat = FastRet::RP_Mod$T25_FR25_Flat,
+    RP_T25_FR25_Steep = FastRet::RP_Mod$T25_FR25_Steep,
+    RP_Val = FastRet::RP_Val$Normal,
+    RP_Val_Steep = FastRet::RP_Val$Steep,
+    RP_Val_Flat = FastRet::RP_Val$Flat,
+    RP_Val_T25_Flat = FastRet::RP_Val$T25_Flat,
+    RP_Val_FR25_Flat = FastRet::RP_Val$FR25_Flat,
+    RP_Val_T25_FR25_Flat = FastRet::RP_Val$T25_FR25_Flat,
+    RP_Val_T25_FR25_Steep = FastRet::RP_Val$T25_FR25_Steep
+)
+ID <- names(DS)
+Column <- c("HILIC1", "HILIC2", "RPAXMM1", rep("RP1", 14))
+ColumnTypes <- unique(Column)
+ColumnTypesStr <- paste(ColumnTypes, collapse = ", ")
+Usage <- c(rep("Training", 4), rep("Adjustment", 6), rep("Validation", 7))
+tblDS <- data.frame(ID, Column, Usage)
+dir.create("out", showWarnings = FALSE)
+message("")
+for (i in seq_along(ID)) {
+    message(sprintf("Processing dataset %s (%d/%d)", ID[i], i, length(ID)))
+    DS[[i]]$NUM <- seq_len(nrow(DS[[i]]))
+    DS[[i]]$CANONICAL <- FastRet:::get_canonical_smiles(DS[[i]]$SMILES)
+    DS[[i]]$DUPOF <- FastRet:::get_dupof(DS[[i]])
+    DS[[i]] <- DS[[i]][, c("NUM", "RT", "NAME", "DUPOF", "SMILES", "CANONICAL")]
+    path <- file.path("out", paste0(ID[i], ".html"))
+    tblDS[i, "ID"] <- sprintf("[%s](%s)", ID[i], path)
+    tblDS[i, "nMeas"] <- nrow(DS[[i]])
+    x <- 1
+    tblDS[i, "nNames"] <- length(unique(DS[[i]]$NAME))
+    tblDS[i, "nSMILES"] <- length(unique(DS[[i]]$SMILES))
+    tblDS[i, "nMets"] <- length(unique(DS[[i]]$CANONICAL))
+    FastRet:::save_as_html(DS[[i]], path, title = ID[i])
+}
+nColumns <- length(unique(Column))
+nDS <- length(DS)
+x <- 1
+nMeas <- sum(sapply(DS, nrow))
+nMets <- length(unique(unlist(sapply(DS, `[[`, "CANONICAL"))))
+```
+
+To evaluate FastRet, we used metabolite retention time measurements from `r nColumns` different chromatography columns: HILIC1, HILIC2, RPAXMM1, and RP1. The RP1 column was used under seven different chromatographic conditions and with two distinct metabolite sets, resulting in a total of `r nDS` datasets comprising `r nMeas` measurements of `r nMets` metabolites. Table [Datasets](#table-datasets) summarizes the key properties of each dataset.
+
+The full list of metabolites as canonical SMILES strings is provided in section [Metabolites](#metabolites). For each metabolite, the datasets in which it was measured, the number of measurements, the input name and the input SMILES string entered by the experimenter are listed. This information is also visualized in several ways: in Figure [Met-DS-Heatmap](#met-ds-heatmap), a heatmap of measurement counts per metabolite and dataset is presented; in Figure [Met-DS-Venn](#met-ds-venn), Venn diagrams illustrating metabolite overlap and uniqueness across datasets are shown; and in Figure [Met-DS-Upset](#met-ds-upset), an UpSet plot of the same information is displayed.
+
+```{r print-tblDS, results='asis'}
+cat("<a id='table-datasets'></a>\n")
+knitr::kable(tblDS)
+```
+
+**Table Datasets:**
+Overview of datasets used for retention time prediction.
+*ID:* Dataset identifier.
+*Column:* Chromatographic Column Identifier.
+*Usage:* Dataset purpose.
+*nMeas:* Number of unique measurements.
+*nNames:* Number of unique metabolite input names.
+*nSMILES:* Number of unique input SMILES.
+*nMets:* Number of unique canonical SMILES.
+'Input' refers to names and SMILES as entered by the experimenter.
+'Canonical' refers to standardized SMILES derived from input SMILES.
+
+# Metabolites
+
+<!-- VALIDATE: number of metabolites in in-house RT library (~380) -->
+<!-- VALIDATE: model adjustment works with as few as 25 metabolites -->
+<!-- VALIDATE: BRT MAE for RP (0.5), HILIC (0.86), RP-AX (X.XX) -->
+<!-- VALIDATE: min-size for metabolites for adjustment -->
+<!-- VALIDATE: number of metabolites in each dataset (Retip HILIC: 970, In-house HILIC: 364, Mixed mode: 412, RP: 40) -->
+<!-- VALIDATE: RMSE, MAE, R2, PPB1M for all datasets and methods -->
+<!-- VALIDATE: 200 candidate lambda values, 10-fold CV for Lasso -->
+<!-- VALIDATE: xgboost hyperparameters (tree depth 2-5, nrounds 300-1000 step 100, eta 0.01/0.02), 10-fold CV -->
+<!-- VALIDATE: selective measuring method as described is implemented and used (steps 1-5) -->
+<!-- VALIDATE: k = 25 is used for medoid selection -->
+<!-- VALIDATE: 25 medoids are used for further validation -->
+<!-- VALIDATE: adjustment is performed using polynomial regression (linear, quadratic, cubic) on medoids -->
+<!-- VALIDATE: 10-fold cross-validation is used for all performance evaluations -->
+<!-- VALIDATE: BRTs outperform Lasso by 0.26 RMSE and 0.24 MAE on average -->
+<!-- VALIDATE: PPB1M for RP (85.95%), RP-AX (46.37%) -->
+<!-- VALIDATE: HILIC in-house (364 metabolites, 327 per fold), Retip (970, 873 per fold), in-house HILIC performs slightly better -->
+<!-- VALIDATE: Figure 1 shows RMSE vs training set size for RP, saturation point -->
+<!-- VALIDATE: Lasso saturates at ~25, BRTs at ~60 training samples -->
+<!-- VALIDATE: For small sets Lasso > BRTs, for large sets BRTs > Lasso -->
+<!-- VALIDATE: external validation set contains 25 metabolites not in training -->
+<!-- VALIDATE: Figure 2 shows RT changes for all tested conditions -->
+<!-- VALIDATE: original model MAE = 1 min on validation set -->
+<!-- VALIDATE: adjusted model MAE = 0.65 min -->
+<!-- VALIDATE: medoids-only model MAE = 1.06 min, original model trained on 401 metabolites -->
+<!-- VALIDATE: adjusted models outperform medoids-only and original model -->
+<!-- VALIDATE: Table values match actual MAE for each approach -->
+<!-- VALIDATE: performance comparable to Retip paper -->
+<!-- VALIDATE: in-house HILIC slightly better than Retip HILIC -->
+<!-- VALIDATE: BRTs > Lasso for large datasets -->
+<!-- VALIDATE: Lasso reliable for small training sets -->
+<!-- VALIDATE: chemical descriptor quality is limiting factor (if possible to check) -->

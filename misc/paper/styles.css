@@ -1,0 +1,25 @@
+body {
+    background: #b6b6b6 url(
+        'https://www.transparenttextures.com/patterns/white-wall-3.png'
+    );
+    font-family: "Georgia", serif;
+    margin: 0;
+    padding: 0;
+    text-align: justify;
+}
+.main-container {
+    background: white;
+    max-width: 794px;
+    margin: 20px auto;
+    padding: 40px 80px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+table {
+    border: 1px solid #ccc;
+    max-width: 100%;
+}
+td, th {
+    word-break:
+    break-word;
+}
