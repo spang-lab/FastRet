@@ -1,18 +1,82 @@
 # Main #####
 
 reproduce_paper <- function() {
-    dat <- get_norm_ds()
+    # [x] Implement function [make_metabolites_df()].
+    # [x] Print all the tables in the a markdown document.
+    # [ ] Convert the markdown document to PDF using the typst engine. <-- CONTINUE HERE
+    # [ ] Add the intro text from the old Rmd.
+    # [ ] Add the figures from the old Rmd.
+    # [ ] Add some checks to the dataset objects during [make_datasets_list()] to ensure that all links are valid.
+
+    Columns <- make_columns_df()
+    Conditions <- make_conditions_df()
+    Gradients <- make_gradients_df()
+    Eluents <- make_eluents_df()
+    Datasets_List <- make_datasets_list()
+    Datasets <- make_datasets_df(Datasets_List)
+    Measurements <- make_measurements_df(Datasets_List)
+    Metabolites <- make_metabolites_df(Datasets_List)
+
+    intro <- glue::glue(
+        "To evaluate FastRet, we used metabolite retention time measurements from 4 different chromatography columns: RP, RP_AXMM, HILIC and HILIC_Retip. The RP column was used under seven different chromatographic conditions and with two distinct metabolite sets, resulting in a total of 17 datasets comprising 2546 measurements of 1256 metabolites. Table [Datasets](#table-datasets) summarizes the key properties of each dataset."
+    )
+    stopifnot(
+        all(nrow(Columns) == 4),
+        all(sort(Columns$ID) == sort(c("RP", "RP_AXMM", "HILIC", "HILIC_Retip"))),
+        length(unique(Datasets$ConditionID[Datasets$ColumnID == "RP"])) == 7,
+        nrow(Datasets) == 17,
+        nrow(Measurements) == 2546,
+        nrow(Metabolites) == 1256
+    )
+
+    while (doc.cur() != 0) doc.off()
+    doc <- doc.new()
+    sec("## Table: Columns"); tbl(Columns)
+    sec("## Table: Conditions"); tbl(Conditions)
+    sec("## Table: Gradients"); tbl(Gradients)
+    sec("## Table: Eluents"); tbl(Eluents)
+    sec("## Table: Datasets"); tbl(Datasets)
+    # sec("## Table: Metabolites"); tbl(Metabolites)
+    sec("## Datasets");
+    for (id in names(Datasets_List)[2:4]) {
+        sec(sprintf("### Table: %s", id))
+        x <- Datasets_List[[id]]
+        x$SMILES <- make_breakable(x$SMILES, n = 20)
+        x$CANONICAL <- make_breakable(x$CANONICAL, n = 20)
+        tbl(x)
+    }
+    doc.save()
+    doc.fetch()
+    doc.off()
+
+    par(sprintf(
+        "The full list of metabolites as canonical SMILES strings is provided in section [Metabolites](#metabolites). For each metabolite, the datasets in which it was measured, the number of measurements, the input name and the input SMILES string entered by the experimenter are listed. This information is also visualized in several ways: in Figure [Met-DS-Heatmap](#met-dsl-heatmap), a heatmap of measurement counts per metabolite and dataset is presented; in Figure [Met-DS-Venn](#met-dsl-venn), Venn diagrams illustrating metabolite overlap and uniqueness across datasets are shown; and in Figure [Met-DS-Upset](#met-dsl-upset), an UpSet plot of the same information is displayed."
+    ))
+
+    tbl(df = tblDS, caption = paste(sep = "\n",
+        "**Table Datasets:**",
+        "Overview of datasets used for retention time prediction.",
+        "*ID:* Dataset identifier.",
+        "*Column:* Chromatographic Column Identifier.",
+        "*Usage:* Dataset purpose.",
+        "*nMeas:* Number of unique measurements.",
+        "*nNames:* Number of unique metasbolite input names.",
+        "*nSMILES:* Number of unique input SMILES.",
+        "*nMets:* Number of unique canonical SMILES.",
+        "'Input' refers to names and SMILES as entered by the experimenter.",
+        "'Canonical' refers to standardized SMILES derived from input SMILES."
+    ))
 
     # VALIDATE: number of metabolites in in-house RT library (~380)
     pdf.open("out/heatmap_met_cc.pdf")
-    try(plot_met_cc_heatmap(dat))
+    try(plot_met_cc_heatmap(ds))
     dev.off()
 
     pdf.open("out/venn_met_cc.pdf")
     try({
-        plot_met_cc_venn(dat, HILIC = FALSE, HILIC_Retip = FALSE)
-        plot_met_cc_venn(dat, HILIC = TRUE, HILIC_Retip = FALSE)
-        plot_met_cc_venn(dat, HILIC = TRUE, HILIC_Retip = TRUE)
+        plot_met_cc_venn(ds, HILIC = FALSE, HILIC_Retip = FALSE)
+        plot_met_cc_venn(ds, HILIC = TRUE, HILIC_Retip = FALSE)
+        plot_met_cc_venn(ds, HILIC = TRUE, HILIC_Retip = TRUE)
     })
     dev.off()
 
@@ -48,65 +112,7 @@ reproduce_paper <- function() {
     # VALIDATE: chemical descriptor quality is limiting factor (if possible to check)
 }
 
-# Saving #####
-
-pdf.open <- function(path, width = 3.33, height = 3.33) {
-    catf("Saving %s", path)
-    if (!dir.exists("out")) dir.create("out", recursive = TRUE)
-    pdf(path, width = width, height = height)
-}
-
-#' @noRd
-#' @title Save a data.frame as an interactive standalone HTML file
-#' @description
-#' This function creates an interactive, sortable, filterable HTML table from
-#' a data.frame and saves it as a standalone HTML file using the DT and
-#' htmlwidgets packages.
-#' @param x A data.frame or tibble to be rendered.
-#' @param file Character. Output HTML file path (e.g. "table.html").
-#' @param title Character. Optional HTML page title.
-#' @param caption Character. Optional table caption.
-#' @param pageLength Integer. Number of rows to show per page (default is 25).
-#' @param row.names Logical. Whether to include row names. Default is FALSE.
-#' @return Invisibly returns the DT widget object.
-#' @examples
-#' save_as_html(iris, tempfile(fileext = ".html"))
-save_as_html <- function(x,
-                         file,
-                         digits = 2,
-                         title = "Interactive Table",
-                         caption = NULL,
-                         pageLength = 999,
-                         row.names = FALSE) {
-    kbl <- knitr::kable(x, "html", digits, row.names, caption = caption)
-    kbl <- kableExtra::kable_styling(kbl, fixed_thead = TRUE)
-    maxchar <- apply(x, 2, function(col) max(nchar(col)))
-    longcols <- which(maxchar > 30)
-    for (col in longcols) kbl <- kableExtra::column_spec(
-        kbl, col, extra_css = "word-break: break-word;"
-    )
-    html_page <- paste0(
-        "<!DOCTYPE html>\n<html><head><meta charset='utf-8'>\n",
-        "<title>", title, "</title>\n",
-        "<style>",
-        "body {font-family: sans-serif; padding: 2em;}",
-        "thead th { background: #ccc; }",
-        "table {table-layout: auto; width: 100%; border-collapse: collapse;}",
-        "td, th {padding: 0.4em; border: 1px solid #ccc; vertical-align: top;}",
-        "</style>\n",
-        "</head><body>\n",
-        as.character(kbl),
-        "\n</body></html>"
-    )
-    writeLines(html_page, con = file)
-    invisible(TRUE)
-}
-
-save_as_xlsx <- function(x, file, rowNames = FALSE) {
-    openxlsx::write.xlsx(x, file, rowNames = rowNames)
-}
-
-# Analysis Helpers #####
+# Analysis #####
 
 #' @noRd
 #' @title Get duplicates in a vector
@@ -148,7 +154,65 @@ get_canonical_smiles <- function(smiles) {
     sapply(molecules, rcdk::get.smiles, flavor)
 }
 
-# Runtime Helpers #####
+# Helpers #####
+
+make_breakable <- function(x,
+                           n = NULL,
+                           at_underscore = TRUE,
+                           sep = c(" ", "_\u200b")[1]) {
+    patt <- paste0("(.{", n, "})")
+    repl <- paste0("\\1", sep)
+    if (is.numeric(n)) x <- gsub(patt, repl, x)
+    if (isTRUE(at_underscore)) x <- gsub("_", repl, x)
+    x
+}
+
+#' @noRd
+#' @title Pretty Print Data Frame
+pp <- function(x, ...,
+               digits = 3, # base default is NULL
+               quote = FALSE, # base default is FALSE
+               right = FALSE, # base default is TRUE
+               row.names = NULL, # base default is TRUE
+               max = NULL, # base default is NULL
+               maxrow = 10, # new argument
+               maxchar = 32) { # new argument
+    nrows_total <- nrow(x)
+    xhead <- head(x, maxrow)
+    nrows <- nrow(xhead)
+    for (k in colnames(xhead)) {
+        v <- xhead[[k]]
+        if (is.character(v)) {
+            is_long <- which(nchar(v) > maxchar)
+            if (length(is_long) == 0) next
+            longs <- v[is_long]
+            short <- paste0(substr(longs, 1, 25), "[...]")
+            v[is_long] <- short
+            xhead[[k]] <- v
+        }
+        if (is.list(v)) {
+            xhead[[k]] <- NULL
+            xhead[[k]] <- rep("SUBLIST", nrows)
+        }
+    }
+    if (is.null(row.names)) {
+        rnams <- rownames(xhead)
+        rseq <- as.character(seq_len(nrows))
+        row.names <- if (identical(rnams, rseq)) FALSE else TRUE
+    }
+    print(
+        xhead,
+        digits = digits,
+        quote = quote,
+        right = right,
+        row.names = row.names,
+        max = max
+    )
+    if (nrows < nrows_total && interactive() && isatty(stdout())) {
+        cat(sprintf("\nOmitted rows %d-%d\n", nrows + 1, nrows_total))
+        cat("Set 'maxrow' and/or 'maxchar' to configure printing\n\n")
+    }
+}
 
 #' @noRd
 #' @title Measure runtime of an expression.
@@ -178,138 +242,31 @@ saveRdsVerbose <- function(x, path) {
     catf("Done")
 }
 
-# Formatting Helpers #####
-
-wrap_n <- function(x, n = 3) {
-  vapply(x, function(s) {
-    gsub(paste0("(.{", n, "})"), "\\1\n", s)
-  }, character(1))
-}
-
-#' @noRd
-#' @title Pretty Print Data Frame
-pprint <- function(x, ...,
-                   digits = 3, # base default is NULL
-                   quote = FALSE, # base default is FALSE
-                   right = FALSE, # base default is TRUE
-                   row.names = TRUE, # base default is TRUE
-                   max = NULL, # base default is NULL
-                   maxrow = 10, # new argument
-                   maxchar = 32) { # new argument
-    nrows_total <- nrow(x)
-    xhead <- head(x, maxrow)
-    nrows <- nrow(xhead)
-    for (k in colnames(xhead)) {
-        v <- xhead[[k]]
-        if (is.character(v)) {
-            is_long <- which(nchar(v) > maxchar)
-            if (length(is_long) == 0) next
-            longs <- v[is_long]
-            short <- paste0(substr(longs, 1, 25), "[...]")
-            v[is_long] <- short
-            xhead[[k]] <- v
-        }
-        if (is.list(v)) {
-            xhead[[k]] <- NULL
-            xhead[[k]] <- doc("SUBLIST", nrows)
-        }
-    }
-    print(
-        xhead,
-        digits = digits,
-        quote = quote,
-        right = right,
-        row.names = row.names,
-        max = max
-    )
-    if (nrows < nrows_total && interactive() && isatty(stdout())) {
-        cat(sprintf("\nOmitted rows %d-%d\n", nrows + 1, nrows_total))
-        cat("Set 'maxrow' and/or 'maxchar' to configure printing\n\n")
-    }
-}
-
-# Plotting Helpers #####
-
-rect1 <- function(x, y, col) {
-    rect(
-        xleft = x - 0.5, ybottom = y - 0.5,
-        xright = x + 0.5, ytop = y + 0.5,
-        col = col, border = NULL, density = NA
-    )
-}
-
-# Analysis #####
-
-get_ds <- function() {
-    list(
-        HILIC = FastRet::HILIC,
-        HILIC_Retip = FastRet::read_retip_hilic_data(),
-        RP_AXMM = FastRet::RP_AXMM,
-        RP = FastRet::RP,
-        RP_Steep = FastRet::RP_Mod$Steep,
-        RP_Flat = FastRet::RP_Mod$Flat,
-        RP_T25_Flat = FastRet::RP_Mod$T25_Flat,
-        RP_FR25_Flat = FastRet::RP_Mod$FR25_Flat,
-        RP_T25_FR25_Flat = FastRet::RP_Mod$T25_FR25_Flat,
-        RP_T25_FR25_Steep = FastRet::RP_Mod$T25_FR25_Steep,
-        RP_Val = FastRet::RP_Val$Normal,
-        RP_Val_Steep = FastRet::RP_Val$Steep,
-        RP_Val_Flat = FastRet::RP_Val$Flat,
-        RP_Val_T25_Flat = FastRet::RP_Val$T25_Flat,
-        RP_Val_FR25_Flat = FastRet::RP_Val$FR25_Flat,
-        RP_Val_T25_FR25_Flat = FastRet::RP_Val$T25_FR25_Flat,
-        RP_Val_T25_FR25_Steep = FastRet::RP_Val$T25_FR25_Steep
-    )
-}
-
-#' @noRd
-#' @title Get Normalized Datasets
-#' @details Runtime: 1.26 seconds
-#' @examples
-#' get_norm_ds(read_cache = FALSE, update_cache = TRUE) # update cache
-#' ds <- get_norm_ds()
-#' str(ds, 1)
-get_norm_ds <- function(read_cache = TRUE, update_cache = TRUE) {
-    cachefile <- file.path(get_cache_dir("get_norm_ds"), "nds.rds")
-    if (read_cache && file.exists(cachefile)) return(readRdsVerbose(cachefile))
-    ds <- get_ds()
-    ids <- names(ds)
-    cols <- c("NUM", "RT", "NAME", "DUPOF", "SMILES", "CANONICAL")
-    for (i in seq_along(ids)) {
-        catf("Processing dataset %s (%d/%d)", ids[i], i, length(ids))
-        ds[[i]]$NUM <- seq_len(nrow(ds[[i]]))
-        ds[[i]]$CANONICAL <- get_canonical_smiles(ds[[i]]$SMILES) # slow part
-        ds[[i]]$DUPOF <- get_dupof(ds[[i]])
-        ds[[i]] <- as.data.frame(ds[[i]][, cols])
-    }
-    if (update_cache) saveRdsVerbose(ds, cachefile)
-    invisible(ds)
-}
 
 # Plotting #####
 
 #' @noRd
 #' @title Heatmap of Metabolites per Column
 #' @examples
-#' dat = get_norm_ds()
-#' plot_met_cc_heatmap(dat)
-plot_met_cc_heatmap <- function(dat) {
+#' ds = get_norm_ds()
+#' plot_met_cc_heatmap(ds)
+plot_met_cc_heatmap <- function(ds) {
 
     # Prapare data frame for plotting
-    IDs <- unique(unlist(sapply(dat, function(df) df$ID)))
-    mctbl <- sapply(dat, function(df) as.integer(IDs %in% df$ID))
-    colnams <- sprintf("%s (%d)", names(dat), sapply(dat, nrow))
+    IDs <- unique(unlist(sapply(ds, function(df) df$ID)))
+    mctbl <- sapply(ds, function(df) as.integer(IDs %in% df$ID))
+    colnams <- sprintf("%s (%d)", names(ds), sapply(ds, nrow))
     rownames(mctbl) <- IDs
     colnames(mctbl) <- colnams
     nr <- nrow(mctbl)
     nc <- ncol(mctbl)
 
     # Sort metabolites
-    in_Mod <- IDs %in% dat$RP_Steep$ID
-    in_Val <- IDs %in% dat$RP_Val_Normal$ID
-    in_Normal <- IDs %in% dat$RP_Normal$ID
-    in_HILIC <- IDs %in% dat$HILIC$ID
-    in_HILIC_Retip <- IDs %in% dat$HILIC_Retip$ID
+    in_Mod <- IDs %in% ds$RP_Steep$ID
+    in_Val <- IDs %in% ds$RP_Val_Normal$ID
+    in_Normal <- IDs %in% ds$RP_Normal$ID
+    in_HILIC <- IDs %in% ds$HILIC$ID
+    in_HILIC_Retip <- IDs %in% ds$HILIC_Retip$ID
     idx_sorted <- c(
         which( in_Mod &  in_Normal &  in_HILIC &   in_HILIC_Retip),
         which( in_Mod &  in_Normal &  in_HILIC &  !in_HILIC_Retip),
@@ -352,16 +309,16 @@ plot_met_cc_heatmap <- function(dat) {
     }
 }
 
-plot_met_cc_venn <- function(dat, HILIC = TRUE, HILIC_Retip = TRUE) {
+plot_met_cc_venn <- function(ds, HILIC = TRUE, HILIC_Retip = TRUE) {
     opar <- par(cex = 0.5)
     on.exit(par(opar), add = TRUE, after = FALSE)
-    IDs <- unique(unlist(sapply(dat, function(df) df$ID)))
+    IDs <- unique(unlist(sapply(ds, function(df) df$ID)))
     dat2 <- list(
-        RP_Mod = dat$RP_Steep$ID,
-        RP_Normal = dat$RP_Normal$ID,
-        RP_Val = dat$RP_Val_Normal$ID,
-        HILIC = dat$HILIC$ID,
-        HILIC_Retip = dat$HILIC_Retip$ID
+        RP_Mod = ds$RP_Steep$ID,
+        RP_Normal = ds$RP_Normal$ID,
+        RP_Val = ds$RP_Val_Normal$ID,
+        HILIC = ds$HILIC$ID,
+        HILIC_Retip = ds$HILIC_Retip$ID
     )
     if (!HILIC) dat2$HILIC <- NULL
     if (!HILIC_Retip) dat2$HILIC_Retip <- NULL
@@ -369,41 +326,72 @@ plot_met_cc_venn <- function(dat, HILIC = TRUE, HILIC_Retip = TRUE) {
     venn::venn(dat2, ilabels = "counts", zcolor = "bw")
 }
 
-plot_met_cc_upset  <- function(dat) {
+plot_met_cc_upset  <- function(ds) {
 
 }
 
-# Tables #####
-
-table_datasets <- function() {
-    ds <- get_ds()
-    ids <- names(ds)
-    Column <- c("HILIC1", "HILIC2", "RPAXMM1", doc("RP1", 14))
-    ColumnTypes <- unique(Column)
-    ColumnTypesStr <- paste(ColumnTypes, collapse = ", ")
-    Usage <- c(doc("Training", 4), doc("Adjustment", 6), doc("Validation", 7))
-    tbl <- data.frame(ids, Column, Usage)
-    dir.create("out", showWarnings = FALSE)
-    message("")
-
-    for (i in seq_along(ids)) {
-        message(sprintf("Processing dataset %s (%d/%d)", ids[i], i, length(ids)))
-        ds[[i]]$NUM <- seq_len(nrow(ds[[i]]))
-        ds[[i]]$CANONICAL <- get_canonical_smiles(ds[[i]]$SMILES)
-        ds[[i]]$DUPOF <- get_dupof(ds[[i]])
-        ds[[i]] <- ds[[i]][, c("NUM", "RT", "NAME", "DUPOF", "SMILES", "CANONICAL")]
-        path <- file.path("out", paste0(ids[i], ".html"))
-        tbl[i, "ID"] <- sprintf("[%s](%s)", ids[i], path)
-        tbl[i, "nMeas"] <- nrow(ds[[i]])
-        x <- 1
-        tbl[i, "nNames"] <- length(unique(ds[[i]]$NAME))
-        tbl[i, "nSMILES"] <- length(unique(ds[[i]]$SMILES))
-        tbl[i, "nMets"] <- length(unique(ds[[i]]$CANONICAL))
-        save_as_html(ds[[i]], path, title = ids[i])
-    }
-    nColumns <- length(unique(Column))
-    nDS <- length(ds)
-    x <- 1
-    nMeas <- sum(sapply(ds, nrow))
-    nMets <- length(unique(unlist(sapply(ds, `[[`, "CANONICAL"))))
+rect1 <- function(x, y, col) {
+    rect(
+        xleft = x - 0.5, ybottom = y - 0.5,
+        xright = x + 0.5, ytop = y + 0.5,
+        col = col, border = NULL, density = NA
+    )
 }
+
+pdf.open <- function(path, width = 3.33, height = 3.33) {
+    catf("Saving %s", path)
+    if (!dir.exists("out")) dir.create("out", recursive = TRUE)
+    pdf(path, width = width, height = height)
+}
+
+#' @noRd
+#' @title Save a data.frame as an interactive standalone HTML file
+#' @description
+#' This function creates an interactive, sortable, filterable HTML table from
+#' a data.frame and saves it as a standalone HTML file using the ds and
+#' htmlwidgets packages.
+#' @param x A data.frame or tibble to be rendered.
+#' @param file Character. Output HTML file path (e.g. "table.html").
+#' @param title Character. Optional HTML page title.
+#' @param caption Character. Optional table caption.
+#' @param pageLength Integer. Number of rows to show per page (default is 25).
+#' @param row.names Logical. Whether to include row names. Default is FALSE.
+#' @return Invisibly returns the ds widget object.
+#' @examples
+#' save_as_html(iris, tempfile(fileext = ".html"))
+save_as_html <- function(x,
+                         file,
+                         digits = 2,
+                         title = "Interactive Table",
+                         caption = NULL,
+                         pageLength = 999,
+                         row.names = FALSE) {
+    kbl <- knitr::kable(x, "html", digits, row.names, caption = caption)
+    kbl <- kableExtra::kable_styling(kbl, fixed_thead = TRUE)
+    maxchar <- apply(x, 2, function(col) max(nchar(col)))
+    longcols <- which(maxchar > 30)
+    for (col in longcols) kbl <- kableExtra::column_spec(
+        kbl, col, extra_css = "word-break: break-word;"
+    )
+    html_page <- paste0(
+        "<!DOCTYPE html>\n<html><head><meta charset='utf-8'>\n",
+        "<title>", title, "</title>\n",
+        "<style>",
+        "body {font-family: sans-serif; padding: 2em;}",
+        "thead th { background: #ccc; }",
+        "table {table-layout: auto; width: 100%; border-collapse: collapse;}",
+        "td, th {padding: 0.4em; border: 1px solid #ccc; vertical-align: top;}",
+        "</style>\n",
+        "</head><body>\n",
+        as.character(kbl),
+        "\n</body></html>"
+    )
+    writeLines(html_page, con = file)
+    invisible(TRUE)
+}
+
+save_as_xlsx <- function(x, file, rowNames = FALSE) {
+    openxlsx::write.xlsx(x, file, rowNames = rowNames)
+}
+
+
