@@ -13,15 +13,19 @@ de <- local({
     de
 })
 
-doc.defaults <- structure(class = "doc", .Data = as.environment(list(
+doc.cur <- function() {
+    de$cur
+}
+
+doc.new <- function(
     # Metadata
     title = NULL, # Document Title as string
     subtitle = NULL, # Document Subtitle as string
     author = NULL, # Document Authors as string
     # Debugging
-    print = TRUE, # Print text to stdout after creation?
-    show = TRUE, # Show plotted figures in grafical window after creation?
-    split_output = FALSE, # Write doc to stdout in addition to out_file?
+    print_tbls = FALSE, # Print tables to stdout after creation?
+    print_secs = TRUE, # Print sections to stdout after creation?
+    show_figs = TRUE, # Show figures in grafical window after creation?
     # Pandoc
     work_dir = tempfile("dir"), # Path where files should be written to
     out_dir = ".", # Path where the output file should be written to
@@ -50,15 +54,11 @@ doc.defaults <- structure(class = "doc", .Data = as.environment(list(
     # heading, a list item, etc. We start at block 2, because block 1 is
     # reserved for the yaml header.
     #
-)))
-
-doc.new <- function(work_dir = tempfile("dir"),
-                    out_dir = ".",
-                    out_file = "out",
-                    formats = "html") {
-    de$doc <- doc.defaults
-    de$doc$work_dir <- tempfile("dir")
-    de$doc$out_dir <- out_dir
+) {
+    #
+    # FUNCTION BODY
+    #
+    de$doc <- structure(as.list(environment()), class = "doc")
     de$docs[[de$cur + 1]] <- de$doc
     de$cur <- de$cur + 1
     invisible(de$doc)
@@ -68,6 +68,8 @@ doc.off <- function() {
     if (de$cur == 0) stop("Cannot shut down document 0.", call. = FALSE)
     de$docs[[de$cur]] <- NULL
     de$cur <- de$cur - 1
+    de$doc <- if (de$cur == 0) NULL else de$docs[[de$cur]]
+    de$cur
 }
 
 doc.write <- function(x, collapse = "\n", end = "\n") {
@@ -85,7 +87,30 @@ doc.get <- function() {
 }
 
 doc.show <- function() {
-    cat(paste(de$doc$content, collapse = ""))
+    tty <- interactive() && isatty(stdout())
+    if (tty) cat("\033[34m")
+    for (blk in de$doc$content) cat(blk)
+    if (tty) cat("\033[0m")
+}
+
+doc.save <- function() {
+    if (de$cur == 0) stop("No open document. Call `doc.new()` first.", call. = FALSE)
+    doc <- de$doc
+    dir.create(de$doc$work_dir, recursive = TRUE, showWarnings = FALSE)
+    md_path <- file.path(de$doc$work_dir, paste0(de$doc$out_file, ".md"))
+    writeLines(de$doc$content, md_path, sep = "")
+    catf("Document saved to %s", md_path)
+    if (de$doc$open) utils::browseURL(md_path)
+    invisible(md_path)
+}
+
+doc.fetch <- function(overwrite = TRUE) {
+    if (de$cur == 0) stop("No open document. Call `doc.new()` first.", call. = FALSE)
+    src <- file.path(de$doc$work_dir, paste0(de$doc$out_file, ".md"))
+    dst <- file.path(de$doc$out_dir, paste0(de$doc$out_file, ".md"))
+    dir.create(de$doc$out_dir, recursive = TRUE, showWarnings = FALSE)
+    file.copy(from=src, to=dst, overwrite = overwrite)
+    catf("Document copied to %s", dst)
 }
 
 # S3 Methods #####
@@ -156,6 +181,7 @@ sec <- function(x, n = NULL) {
     }
     de$doc$sec_ctr <- n
     if (!endsWith("\n", x)) x <- paste0(x, "\n")
+    if (de$doc$print_secs) catf(trimws(x))
     doc.write(x)
 }
 
@@ -180,16 +206,19 @@ sec <- function(x, n = NULL) {
 #' @examples
 #' tbl(data.frame(a = 1:5, b = 6:10), caption = "Example table")
 tbl <- function(df,
+                id = NULL,
                 caption = "",
                 justify = "left",
                 row.names = FALSE,
                 col.names = NULL,
                 widths = pander::panderOptions("table.split.cells"),
-                split.tables = 200,
-                use.hyphening = TRUE,
+                split.tables = Inf,
+                use.hyphening = FALSE,
                 keep.line.breaks = TRUE,
                 ...) {
-    pander::pandoc.table(
+    colnames(df) <- make_breakable(colnames(df))
+    if (is.character(id)) doc.write(sprintf("<a id = %s></a>", id))
+    doc.write(pander::pandoc.table.return(
         df,
         caption = caption,
         row.names = row.names,
@@ -200,41 +229,36 @@ tbl <- function(df,
         use.hyphening = use.hyphening,
         keep.line.breaks = keep.line.breaks,
         ...
-    )
-    list(df = df, caption = caption)
+    ))
 }
 
 #' @noRd
 #' @keywords md
 #' @title Save figure and print its caption
 #' @description
-#' Saves ggplot object `plt` as PDF and SVG in directory `opts$fig_dir` and prints `caption` to STDOUT.
-#' @param name The name of the output files (without extension).
-#' @param plt The ggplot object to be saved.
+#' Saves the plot produced by expr as SVG and prints a Markdown image tag.
+#' @param expr An expression that produces a plot.
+#' @param name The name of the output file (without extension).
 #' @param caption The caption for the image in the Markdown tag.
 #' @param width The width of the output images in inches. Default is 7.
 #' @param height The height of the output images in inches. Default is 5.
 #' @title Save figure and print its caption
 #' @return A Markdown image tag for the SVG file.
 #' @examples \dontrun{
-#' # Create a ggplot object
+#' # Create a plot object
 #' map <- ggplot2::aes(x = mpg, y = disp)
-#' plt <- ggplot2::ggplot(mtcars, map)
-#' plt <- plt + ggplot2::geom_point()
+#' expr <- ggplot2::plot(mtcars, map)
+#' expr <- expr + ggplot2::geom_point()
 #' # Save the plot and generate a Markdown tag
-#' fig("my_plot", plt, "This is a scatter plot of mtcars data.")
+#' fig("my_plot", expr, "This is a scatter plot of mtcars data.")
 #' }
-fig <- function(name, plt, caption, width = 7, height = 5) {
-    pdf_abs <- file.path(opts$fig_dir, paste0(name, ".pdf"))
-    svg_abs <- file.path(opts$fig_dir, paste0(name, ".svg"))
+fig <- function(expr, name, caption = "", width = 7, height = 5) {
+    svg_abs <- file.path(de$doc$work_dir, "figures", paste0(name, ".svg"))
     svg_rel <- paste0("figures/", name, ".svg")
-    if (opts$show) print(plt)
-    if (opts$print) {
-        ggsave(pdf_abs, plt, width = width, height = height)
-        svg(filename = svg_abs, width = width, height = height)
-        tryCatch(print(plt), finally = dev.off())
-        catf("![%s](%s)\n\n", caption, svg_rel)
-    }
+    dir.create(dirname(svg_abs), recursive = TRUE, showWarnings = FALSE)
+    svg(filename = svg_abs, width = width, height = height)
+    tryCatch(expr, finally = dev.off())
+    doc.write(sprintf("![%s](%s)\n", caption, svg_rel))
 }
 
 #' @noRd
@@ -243,8 +267,8 @@ fig <- function(name, plt, caption, width = 7, height = 5) {
 #' @description Print a markdown paragraph.
 #' @param x Text of the paragraph.
 #' @examples
-#' par("Dies ist ein deutscher Absatz.", "This is an English paragraph.")
-par <- function(x) {
+#' para("Dies ist ein deutscher Absatz.", "This is an English paragraph.")
+para <- function(x) {
     doc.write(x)
     doc.write("")
 }
@@ -255,27 +279,31 @@ par <- function(x) {
 #' @keywords md
 #' @title Tags for writing Markdown Lists
 #' @description
-#' [lst()] starts a new unordered list,
-#' [ol()] starts a new ordered list,
-#' [end()] ends the current list and
+#' [lst()] starts a new list (can be either unordered or ordered),
+#' [ulst()] starts a new unordered list,
+#' [olsl()] starts a new ordered list,
+#' [elst()] ends the current list and
 #' [item()] adds an item to the list.
 #' See the 'Examples' section for further details.
-#' @examples \dontrun{
-#' par("Parargaph before")
-#' lst()
-#' item("Element 1")
-#' item("Element 2")
-#' ol()
-#' item("Sub Element 1")
-#' item("Sub Element 2")
-#' lst()
-#' item("Sub Sub Element 1")
-#' item("Sub Sub Element 2")
-#' end()
-#' end()
-#' end()
-#' par("Parargaph below")
-#' }
+#' @examples
+#' local({
+#'      doc.new()
+#'      on.exit(doc.off())
+#'      para("Paragaph before")
+#'      ulst()
+#'      item("Unordered 1")
+#'      item("Unordered 2")
+#'      olst()
+#'      item("Ordered 2.1")
+#'      item("Ordered 2.2")
+#'      ulst()
+#'      item("Unordered 2.2.1")
+#'      elst()
+#'      elst()
+#'      elst()
+#'      para("Paragaph after")
+#'      doc.show()
+#' })
 lst <- function(typ = "ul") {
     x <- de$doc$lst_ctr + 1
     de$doc$lst_ctr <- x
@@ -286,8 +314,16 @@ lst <- function(typ = "ul") {
 }
 
 #' @noRd
+#' @rdName lst
+ulst <- function() lst("ul")
+
+#' @noRd
+#' @rdName lst
+olst <- function() lst("ol")
+
+#' @noRd
 #' @rdname lst
-end <- function() {
+elst <- function() {
     x <- de$doc$lst_ctr
     if (x == 0) stop("Not in list. Use lst() or ol() first.", call. = FALSE)
     de$doc$lst_sym[[x]] <- NULL
@@ -321,19 +357,40 @@ test_doc_gen <- function() {
          author = "John Doe",
          date = Sys.Date(),
          subtitle = "This is a test document")
+
     sec("# Introduction")
-    par("This is a test paragraph in the introduction section.")
-    lst()
+
+    para("This is a test paragraph in the introduction section.")
+    ulst()
     item("First item in the list")
     item("Second item in the list")
-    lst("old")
+    olst()
     item("First item in the ordered list")
     item("Second item in the ordered list")
-    end()
-    end()
+    elst()
+    elst()
+
+    sec("# Results")
+
+    sec("## The Iris Dataset")
+    tbl(df = iris,
+        name = "table-iris",
+        caption = "Iris Dataset")
+
+    sec("## Scatter Plot of Sepal Length vs. Sepal Width")
+    fig(expr = plot(iris$Sepal.Length, iris$Sepal.Width),
+        name = "figure-iris",
+        caption = "Scatter plot of Sepal Length vs. Sepal Width"
+    )
+
     sec("# Conclusion")
-    par("This is a test paragraph in the conclusion section.")
+
+    para("This is a test paragraph in the conclusion section.")
     doc.write("This is a test document generated by the `test_doc_gen()` function.")
-    doc.show()
+
+
+    # doc.show()
+    doc.save()
+    doc.fetch()
     doc.off()
 }
