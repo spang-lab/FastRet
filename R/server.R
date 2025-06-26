@@ -212,7 +212,7 @@ init_download_handlers <- function(SE) {
         },
         content = function(file) {
             frm <- SE$RV$trainedFRM
-            xlsx::write.xlsx(frm$df, file, row.names = FALSE)
+            openxlsx::write.xlsx(frm$df, file, rowNames = FALSE)
         }
     )
     SE$DLH$dbSaveModel <- downloadHandler(
@@ -230,7 +230,7 @@ init_download_handlers <- function(SE) {
             sprintf("fastret-k-%s-clustering.xlsx", SE$input$niK)
         },
         content = function(file) {
-            xlsx::write.xlsx(SE$RV$cluster_calc$clustering, file, row.names = FALSE)
+            openxlsx::write.xlsx(SE$RV$cluster_calc$clustering, file, rowNames = FALSE)
         }
     )
     SE$DLH$dbSavePred <- downloadHandler(
@@ -238,7 +238,7 @@ init_download_handlers <- function(SE) {
             "predictions.xlsx"
         },
         content = function(file) {
-            xlsx::write.xlsx(SE$RV$tblPredResults, file, row.names = FALSE)
+            openxlsx::write.xlsx(SE$RV$tblPredResults, file, rowNames = FALSE)
         }
     )
     SE$DLH$dbSaveAdjModel <- downloadHandler(
@@ -277,7 +277,7 @@ init_upload_handlers <- function(SE) {
         tryCatch({
             xlsx <- SE$input$ubInpXlsx$datapath
             catf("Reading and validating %s", xlsx)
-            inpDf <- readxl::read_excel(xlsx, sheet = 1)
+            inpDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
             inpDf <- validate_inputdata(inpDf, min_cds = 0)
             catf("Validation successful. Updating: SE$RV$inpDf and SE$output$toInpXlsxError.")
             SE$RV$inpDf <- inpDf
@@ -293,7 +293,7 @@ init_upload_handlers <- function(SE) {
         tryCatch({
             xlsx <- SE$input$ubPredXlsx$datapath
             catf("Reading and validating %s", xlsx)
-            pred_df <- as.data.frame(readxl::read_excel(xlsx, sheet = 1))
+            pred_df <- openxlsx::read.xlsx(xlsx, sheet = 1)
             pred_df <- validate_inputdata(pred_df, require = c("NAME", "SMILES"), min_cds = 0)
             catf("Validation successful. Updating: SE$RV$predDf and SE$output$toPredXlsxError.")
             SE$RV$predDf <- pred_df
@@ -309,7 +309,7 @@ init_upload_handlers <- function(SE) {
         tryCatch({
             xlsx <- SE$input$ubAdjXlsx$datapath
             catf("Reading and validating %s", xlsx)
-            adjDf <- readxl::read_excel(xlsx, sheet = 1)
+            adjDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
             adjDf <- validate_inputdata(adjDf, min_cds = 0)
             catf("Validation successful. Updating: SE$RV$adjDf and SE$output$toAdjXlsxError.")
             SE$RV$adjDf <- adjDf

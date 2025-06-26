@@ -29,7 +29,7 @@ Before starting our analysis lets save some example data just as you might have 
 ```{r data}
 data(RP)
 print(tibble::as_tibble(RP))
-xlsx::write.xlsx(as.data.frame(RP), file = "~/RP_data.xlsx", row.names = FALSE)
+openxlsx::write.xlsx(as.data.frame(RP), file="~/RP_data.xlsx", rowNames=FALSE)
 ```
 
 Starting the interface is done with one line of code. From now on there is no need to use R anymore.
