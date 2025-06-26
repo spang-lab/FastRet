@@ -223,7 +223,7 @@ save_mockdata <- function(obj, name, xlsx = FALSE) {
     saveRDS(obj, rdspath)
     if (xlsx) {
         catf("Saving %s", xlsxpath)
-        xlsx::write.xlsx(obj, xlsxpath, row.names = FALSE)
+        openxlsx::write.xlsx(obj, xlsxpath, rowNames = FALSE)
     }
 }
 

@@ -43,7 +43,7 @@ To print the file path of this excel file and a preview of its contents, enter t
 ```{r example-file, eval = TRUE}
 path <- system.file("extdata", "RP.xlsx", package = "FastRet")
 cat(path, "\n", sep = "")
-df <- xlsx::read.xlsx(path, 1)
+df <- openxlsx::read.xlsx(path, 1)
 head(df)
 ```
 
