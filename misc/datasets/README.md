@@ -1,41 +1,4 @@
-# Files sorted by Category
-
-## Problems
-
-- Number of metabolites given for HILIC is different between paper (364) and excel (392).
-- Excel file for RP-AXMM column is not available.
-- Number of metabolites given for RP is different between paper (401) and excel (442).
-
-## Full Training Datasets (~ 400 Metabolites)
-
-- HILIC-Retip: availble through R function `FastRet::read_retip_hilic_data()`
-- HILIC: [20210702_RT_Prediction_Hilic_Library_FF.xlsx]
-- RP-AXMM: [RP-AXMM_FastRet_Input.xlsx]
-- RP: [RP.xlsx]
-
-## Model Adjustment Datasets (Subset of 25 Metabolites)
-
-- Combined: sheet 'R8_RT_Medoids' of [20211022_R8_dif_conditions_Medoids_validSet.xlsx]
-- Archived:
-    - RP-Steep: [archived/R8P_Medoids_input_Steeper gradient.xlsx]
-    - RP-Flat: [archived/R8P_Medoids_input_Flatter gradient.xlsx]
-    - RP-T25: [archived/R8P_Medoids_input_Lower Temperature 25.xlsx]
-    - RP-FR25: [archived/R8P_Medoids_input_Lower flow rate 025.xlsx]
-    - RP-T25-FR25  [archived/R8P_Medoids_input_Lower Temperature 25 + Lower Flow rate 025.xlsx]
-    - RP-T25-Fr25-Steep: [archived/R8P_Medoids_input_Steeper gradient+lower Temperature 25+Lower Flow rate 025.xlsx]
-
-## Validation Data Sets (New set of 22 Metabolites)
-
-- Combined: sheet 'R8_RT_Validation' of [20211022_R8_dif_conditions_Medoids_validSet.xlsx]
-- Archived:
-    - RP-Steep-Val: [archived/ValidSet_Steeper gradient.xlsx]
-    - RP-Flat-Val: [archived/ValidSet_Flatter gradient.xlsx]
-    - RP-T25-Val: [archived/ValidSet_Lower Temperature 25.xlsx]
-    - RP-FR25-Val: [archived/ValidSet_Lower flow rate 025.xlsx]
-    - RP-T25-FR25-Val: [archived/ValidSet_Lower Temperature 25 + Lower Flow rate 025.xlsx]
-    - RP-T25-Fr25-Steep-Val: [archived/ValidSet_Steeper gradient+lower Temperature 25+Lower Flow rate 025.xlsx]
-
-# Files sorted alphabetically
+# Raw Files sorted alphabetically
 
 ## RP.xlsx
 
@@ -64,9 +27,9 @@
 - Description: 392 Metabolites measured on in-house HILIC column
 - Dimensions: 393 x 5 (row one contains colnames)
 - Columns:
-    - Code: To be described by Fadi. Example values: e.g. '7B3' or '7E3'. (TODO: VERIFY)
+    - Code: Specifies position on "vendor plate" (i.e. the plate that was sent by the vendor where molecules were ordered). Example values: e.g. '7B3' or '7E3'.
     - NAME: Name of measured metabolite, e.g. 'MENAQUINONE' or 'PHYLLOQUINONE'
-    - InChlKey: Not used
+    - InChlKey: Not used, i.e. all entries are NA.
     - SMILES: SMILES representation of metabolite, e.g. 'C1CCCCC1' or 'C=1CC1'
     - RT: Measured retention times in minutes, e.g. '0.91' or '10.2'
 - Keep: yes
@@ -78,7 +41,7 @@
 - Description: Retention times for "Medoid Metabolites" measured on the original RP column under six different chromatographic conditions
 - Dimensions: 25 x 16 (row one contains colnames)
 - Columns:
-    - PLATE, NROW, NCOL, CODE, M+H, M-H: To be described by Fadi.
+    - PLATE, NROW, NCOL, CODE, M+H, M-H: Specifies position on "vendor plate".
     - CNAME, SMILES, FORMULA, HMDB: Identifier for measured Molecule.
     - RT, Steeper, Flatter, T25, FR025, T25_FR025, T25_FR025_Steeper: Retention time of medoid subset measured on Reversed Phase column (see [RP.xlsx]) under varying chromatographic conditions.
 - Keep: yes
@@ -93,6 +56,35 @@
     - SMILES, Name: Identifiers for measured Molecule.
     - RT Normal, RT Steep, RT Flatter, T25, FR025, T25_FR025, T25_FR025_Steeper: Retention time of validation set metabolites measured on Reversed Phase column (see [RP.xlsx] under varying chromatographic conditions.
 - Symbol: `RP_Val`
+
+## 20250623_IROA_Library.xlsx
+
+- Link: [20250623_IROA_Library.xlsx]
+- Description: List of Metabolites in "In House Library" of Institute of functional Genomics. Created manually.
+- Dimensions: 25 x 16 (row one contains colnames)
+- Columns:
+    - PLATE: Plate identifier of "vendor plate" where metabolite is located.
+    - NROW: Row number on the plate.
+    - NCOL: Column number on the plate.
+    - CNAME: Compound name.
+    - SMILES: SMILES representation of the metabolite structure.
+    - FORMULA: Chemical formula of the metabolite.
+    - MW (as put into the well): Molecular weight as used for well preparation.
+    - µmol in well: Amount (micromoles) of compound in the well.
+    - µM in 200 uL: Concentration (micromolar) in 200 microliters.
+    - Stock dil uM: Stock dilution concentration in micromolar.
+    - Formula (as seen in MS): Chemical formula as detected in mass spectrometry.
+    - Neutral mass: Neutral (uncharged) mass of the compound.
+    - M+H: Mass-to-charge ratio for the protonated molecule ([M+H]+).
+    - M-H: Mass-to-charge ratio for the deprotonated molecule ([M-H]−).
+    - CHARGE: Charge state of the molecule.
+    - PARENT_CID: PubChem Compound ID of the parent compound.
+    - CAS: CAS Registry Number.
+    - CHEBI: ChEBI (Chemical Entities of Biological Interest) identifier.
+    - HMDB: Human Metabolome Database identifier.
+    - PC_CID: PubChem Compound ID.
+    - PC_SID: PubChem Substance ID.
+    - METLIN_ID: METLIN metabolite database identifier.
 
 # Archived Files sorted alphabetically
 
@@ -168,13 +160,85 @@ reference.
     - pred_RT: Predicted Retention Time in minutes, e.g. '0.91' or '10.2'
 - Description: same as Sheet 'R8_RT_Validation set' of [20211022_R8_dif_conditions_Medoids_validSet.xlsx] but without the measured Retention times and split into seperate files so they can be used as input for the FastRet GUI. They predicted retention times observed in 2022 are included as well.
 
+# Files sorted by Category
+
+## Full Training Datasets (~ 400 Metabolites)
+
+- HILIC-Retip: availble through R function `FastRet::read_retip_hilic_data()`
+- HILIC: [20210702_RT_Prediction_Hilic_Library_FF.xlsx]
+- RP-AXMM: [RP-AXMM_FastRet_Input.xlsx]
+- RP: [RP.xlsx]
+
+## Model Adjustment Datasets (Subset of 25 Metabolites)
+
+- Combined: sheet 'R8_RT_Medoids' of [20211022_R8_dif_conditions_Medoids_validSet.xlsx]
+- Archived:
+    - RP-Steep: [archived/R8P_Medoids_input_Steeper gradient.xlsx]
+    - RP-Flat: [archived/R8P_Medoids_input_Flatter gradient.xlsx]
+    - RP-T25: [archived/R8P_Medoids_input_Lower Temperature 25.xlsx]
+    - RP-FR25: [archived/R8P_Medoids_input_Lower flow rate 025.xlsx]
+    - RP-T25-FR25  [archived/R8P_Medoids_input_Lower Temperature 25 + Lower Flow rate 025.xlsx]
+    - RP-T25-Fr25-Steep: [archived/R8P_Medoids_input_Steeper gradient+lower Temperature 25+Lower Flow rate 025.xlsx]
+
+## Validation Data Sets (New set of 22 Metabolites)
+
+- Combined: sheet 'R8_RT_Validation' of [20211022_R8_dif_conditions_Medoids_validSet.xlsx]
+- Archived:
+    - RP-Steep-Val: [archived/ValidSet_Steeper gradient.xlsx]
+    - RP-Flat-Val: [archived/ValidSet_Flatter gradient.xlsx]
+    - RP-T25-Val: [archived/ValidSet_Lower Temperature 25.xlsx]
+    - RP-FR25-Val: [archived/ValidSet_Lower flow rate 025.xlsx]
+    - RP-T25-FR25-Val: [archived/ValidSet_Lower Temperature 25 + Lower Flow rate 025.xlsx]
+    - RP-T25-Fr25-Steep-Val: [archived/ValidSet_Steeper gradient+lower Temperature 25+Lower Flow rate 025.xlsx]
+
+# How Measurements are done
+
+Note: The following is a general description of the experimental
+workflow for measuring metabolite retention times using LC-MS.
+Details may vary depending on laboratory protocols and
+instrumentation.
+
+1. Compound Acquisition: Metabolite standards are ordered from a
+   vendor. They are typically delivered in plates (e.g., 96-well
+   or 384-well format), with each well containing a single
+   metabolite. Each metabolite can be identified by a unique ID,
+   e.g. its HMDBID, CASID, CHEBID, PBCID or INCHIKEY.
+
+2. Preparation of Input Plate: Individual metabolites are
+   dissolved in an appropriate solvent to a defined concentration.
+   Aliquots of these solutions are transferred to a new plate (the
+   "input plate"), which is compatible with the LC-MS autosampler.
+   Each well of the input plate contains either a single
+   metabolite or a defined mixture, depending on the experimental
+   design.
+
+3. LC-MS Analysis: The input plate is loaded into the LC-MS
+   system. The autosampler injects samples from each well into the
+   liquid chromatography (LC) column, where metabolites are
+   separated based on their physicochemical properties. As each
+   metabolite elutes from the column, it enters the mass
+   spectrometer (MS), which records a mass spectrum for each
+   elution event.
+
+4. Data Processing: For each injection, the LC-MS system generates
+   chromatograms and mass spectra. For each compound, the average
+   retention time is written in a xlsx sheet. If multiple
+   compounds are present in a well, they are distinguished based
+   on their unique m/z values.
+
+# Problems
+
+- Number of metabolites given for HILIC is different between paper (364) and excel (392).
+- Excel file for RP-AXMM column is not available.
+- Number of metabolites given for RP is different between paper (401) and excel (442).
 
 <!-- Active Dataset Links -->
 
-[RP.xlsx]: RP.xlsx
-[RP-AXMM_FastRet_Input.xlsx]: RP-AXMM_FastRet_Input.xlsx
-[20210702_RT_Prediction_Hilic_Library_FF.xlsx]: 20210702_RT_Prediction_Hilic_Library_FF.xlsx
-[20211022_R8_dif_conditions_Medoids_validSet.xlsx]: 20211022_R8_dif_conditions_Medoids_validSet.xlsx
+[RP.xlsx]: raw/RP.xlsx
+[RP-AXMM_FastRet_Input.xlsx]: raw/RP-AXMM_FastRet_Input.xlsx
+[20210702_RT_Prediction_Hilic_Library_FF.xlsx]: raw/20210702_RT_Prediction_Hilic_Library_FF.xlsx
+[20211022_R8_dif_conditions_Medoids_validSet.xlsx]: raw/20211022_R8_dif_conditions_Medoids_validSet.xlsx
+[20250623_IROA_Library.xlsx]: raw/20250623_IROA_Library.xlsx
 
 <!-- Heading Links -->
 
