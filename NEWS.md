@@ -1,18 +1,16 @@
-# FastRet 1.2.0 <!-- Commit Date: 2025-06-11 -->
+# FastRet 1.1.5 <!-- Commit Date: 2025-06-26 -->
 
-- Added datasets `HILIC`, `RP_Mod` and `RP_Val` datasets
-
-- Improved `read_retip_hilic_data()`: the dataset is now only downloaded from GitHub if the package is not installed. If it is installed, the dataset is loaded directly.
+- Improved `read_retip_hilic_data()`:
+  the dataset is now only downloaded from GitHub if the package is not installed.
+  If it is installed, the dataset is loaded directly.
 
 - Internal Changes:
   - Removed TODOS.md
-  - Bumbed version to 1.2.0
+  - Bumped version to 1.1.5
   - Moved all data related functions from `util.R` to `data.R`
   - Added a README to `misc/datasets`
-  - Added private functions for reading `misc/datasets/*.xlsx` files
-  - Added tests for lazy loaded data sets in `test-data.R`
-  - Added a new `paper.R` for paper related functions
   - Added functions `load_all()` and `document()` to `util.R`
+  - Replaced `xlsx` and `readxl` packages with `openxlsx`
 
 # FastRet 1.1.4 <!-- Commit Date: 2025-02-08 -->
 
