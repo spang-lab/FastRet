@@ -11,7 +11,8 @@ An object of class \code{character} of length 241.
 CDFeatures
 }
 \description{
-Vectors containing the feature names of the chemical descriptors listed in \link{CDNames}.
+Vectors containing the feature names of the chemical descriptors listed in
+\link{CDNames}.
 }
 \seealso{
 \link{CDNames}

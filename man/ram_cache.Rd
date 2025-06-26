@@ -7,8 +7,10 @@
 \format{
 An environment with the following elements:
 \itemize{
-\item \code{CDs}: A data frame. The column names of \code{CDs} are the chemical descriptors listed in \link{CDFeatures}. The rownames in \code{CDs} are SMILES strings.
-\item \code{CDRowNr}: A list. The names of the list elements equal the rownames of \code{CDs}. The values are the indices of the rows in the \code{CDs} data frame.
+\item \code{CDs}: A data frame. The column names of \code{CDs} are the chemical descriptors
+listed in \link{CDFeatures}. The rownames in \code{CDs} are SMILES strings.
+\item \code{CDRowNr}: A list. The names of the list elements equal the rownames of
+\item \code{CDs}. The values are the indices of the rows in the \code{CDs} data frame.
 }
 }
 \usage{
@@ -18,7 +20,11 @@ ram_cache
 An environment used for caching data in RAM.
 }
 \details{
-This environment is used by \code{\link[=getCDsFor1Molecule]{getCDsFor1Molecule()}} to store the results of previous calculations to speed up subsequent calls. It gets initalized upon the first call of \code{\link[=getCDsFor1Molecule]{getCDsFor1Molecule()}} with the chemical descriptors for all molecules available in the \link{RP} dataset and the \code{HILIC} dataset of the \href{https://www.retip.app/}{Retip} package.
+This environment is used by \code{\link[=getCDsFor1Molecule]{getCDsFor1Molecule()}} to store the results of
+previous calculations to speed up subsequent calls. It gets initalized upon
+the first call of \code{\link[=getCDsFor1Molecule]{getCDsFor1Molecule()}} with the chemical descriptors for
+all molecules available in the \link{RP} dataset and the \code{HILIC} dataset of the
+\href{https://www.retip.app/}{Retip} package.
 }
 \examples{
 dim(ram_cache$CDs) # 0 241
@@ -28,6 +34,9 @@ ram_cache$CDRowNr[["COC1=C(C=CC(=C1)CCN)O"]] # 2
 ram_cache$CDs[1:10, 1:3]
 }
 \references{
-Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
+Retip: Retention Time Prediction for Compound Annotation in Untargeted
+Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar
+Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI:
+10.1021/acs.analchem.9b05765
 }
 \keyword{internal}
