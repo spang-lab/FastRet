@@ -1,21 +1,38 @@
 # Public #####
 
 #' @title Train a new FastRet model (FRM) for retention time prediction
-#' @description Trains a new model from molecule SMILES to predict retention times (RT) using the specified method.
-#' @param df A dataframe with columns "NAME", "RT", "SMILES" and optionally a set of chemical descriptors. If no chemical descriptors are provided, they are calculated using the function [preprocess_data()].
-#' @param method A string representing the prediction algorithm. Either "lasso", "ridge" or "gbtree".
-#' @param verbose A logical value indicating whether to print progress messages.
-#' @param nfolds An integer representing the number of folds for cross validation.
-#' @param nw An integer representing the number of workers for parallel processing.
-#' @param degree_polynomial An integer representing the degree of the polynomial. Polynomials up to the specified degree are included in the model.
-#' @param interaction_terms A logical value indicating whether to include interaction terms in the model.
-#' @param rm_near_zero_var A logical value indicating whether to remove near zero variance predictors. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @param rm_na A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @param rm_ns A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset.
-#' @param seed An integer value to set the seed for random number generation to allow for reproducible results.
-#' @details Setting `rm_near_zero_var` and/or `rm_na` to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @return A trained FastRet model.
-#' @keywords public
+#' @description
+#' Trains a new model from molecule SMILES to predict retention times (RT) using
+#' the specified method.
+#' @param df
+#' A dataframe with columns "NAME", "RT", "SMILES" and optionally a set of
+#' chemical descriptors. If no chemical descriptors are provided, they are
+#' calculated using the function [preprocess_data()].
+#' @param method
+#' A string representing the prediction algorithm. Either "lasso", "ridge" or
+#' "gbtree".
+#' @param verbose
+#' A logical value indicating whether to print progress messages.
+#' @param nfolds
+#' An integer representing the number of folds for cross validation.
+#' @param nw
+#' An integer representing the number of workers for parallel processing.
+#' @param degree_polynomial
+#' An integer representing the degree of the polynomial. Polynomials up to the
+#' specified degree are included in the model.
+#' @param interaction_terms
+#' A logical value indicating whether to include interaction terms in the model.
+#' @param rm_near_zero_var,rm_na,rm_ns
+#' These argument are either deprecated or reserved for future use.
+#' Setting them to any value has NO effect.
+#' They may be removed in a future release.
+#' @param seed
+#' An integer value to set the seed for random number generation to allow for
+#' reproducible results.
+#' @return
+#' A trained FastRet model.
+#' @keywords
+#' public
 #' @examples
 #' system.time(m <- train_frm(RP[1:80, ], method = "lasso", nfolds = 2, nw = 1, verbose = 0))
 #' # For the sake of a short runtime, only the first 80 rows of the RP dataset
@@ -23,15 +40,19 @@
 #' # training dataset for model training.
 #' @export
 train_frm <- function(df,
+                      # Main function arguments
                       method = "lasso",
                       verbose = 1,
-                      nfolds = 5, # folds for cross validation
-                      nw = 1, # nr workers for parallel processing, also passed to preprocess_data()
-                      degree_polynomial = 1, # options for preprocess_data()
-                      interaction_terms = FALSE, # options for preprocess_data()
-                      rm_near_zero_var = TRUE, # options for preprocess_data()
-                      rm_na = TRUE, # options for preprocess_data()
+                      nfolds = 5,
+                      nw = 1,
+                      # Options for preprocess_data()
+                      degree_polynomial = 1,
+                      interaction_terms = FALSE,
+                      # Deprecated and no longer used
+                      rm_near_zero_var = TRUE,
+                      rm_na = TRUE,
                       rm_ns = FALSE,
+                      # Called at the beginning of the function to set the seed for reproducibility
                       seed = NULL
                       ) {
 
