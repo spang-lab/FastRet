@@ -11,7 +11,10 @@
 
 \item{df}{A data.frame with the same columns as the training data.}
 
-\item{adjust}{If \code{object} was adjusted using \code{\link[=adjust_frm]{adjust_frm()}}, it will contain a property \code{object$adj}. If \code{adjust} is TRUE, \code{object$adj} will be used to adjust predictions obtained from \code{object$model}. If FALSE \code{object$adj} will be ignored. If NULL, \code{object$model} will be used, if available.}
+\item{adjust}{If \code{object} was adjusted using \code{\link[=adjust_frm]{adjust_frm()}}, it will contain a property
+\code{object$adj}. If \code{adjust} is TRUE, \code{object$adj} will be used to adjust
+predictions obtained from \code{object$model}. If FALSE \code{object$adj} will be
+ignored. If NULL, \code{object$model} will be used, if available.}
 
 \item{verbose}{A logical value indicating whether to print progress messages.}
 

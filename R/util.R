@@ -1,25 +1,14 @@
 # Imports (Private) #####
-
-# Standard Lib Imports
+#
 #' @import graphics
 #' @import grDevices
 #' @import parallel
 #' @import stats
 #' @import utils
-
-# External Imports
-#' @import ggplot2
-#' @import rcdk
-#' @import shiny
-#' @import shinybusy
-#' @import shinyhelper
-#' @import xgboost
-#' @import glmnet
-# Note: xgboost and glmnet must be imported because we use their S3 methods for predict. If we remove the imports, we need to use :: to access their predict explicitly.
-
-# Globals (Private) #####
-
-globalVariables(".data") # to avoid warnings about NSE in ggplot2 calls (https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html)
+#
+# IMPORTANT: Only ever import packages shipped with R, as these are loaded
+# anyways. Loading 3rd party packages can significantly slow down package
+# loading. E.g. glmnet or xgboost both take almost 1s to load.
 
 # Colors (Private) #####
 
@@ -81,22 +70,26 @@ collect <- function(xx) {
     `names<-`(ret, ns)
 }
 
-# Caching (Public) #####
+# Misc (Private) #####
 
-#' @export
-#' @title Get cache directory
-#' @description Creates and returns the cache directory for the FastRet package.
-#' @param subdir Optional subdirectory within the cache directory.
-#' @return The path to the cache directory or subdirectory.
-#' @keywords internal
-#' @examples
-#' path <- get_cache_dir()
-get_cache_dir <- function(subdir = NULL) {
-    cache_dir <- tools::R_user_dir("FastRet", which = "cache")
-    if (!is.null(subdir)) cache_dir <- file.path(cache_dir, subdir)
-    if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
-    normalizePath(cache_dir, winslash = "/", mustWork = FALSE)
+#' @noRd
+#' @title Null Function
+#' @description A function that always returns invisibly NULL, ignoring all arguments.
+null <- function(...) {
+    invisible(NULL)
 }
+
+#' @noRd
+#' @title Not In Operator
+#' @description Inverse of the %in% operator.
+#' @param x Vector of values to test
+#' @param y Vector of values to test against
+#' @return Logical vector indicating which elements of x are not in y
+`%notin%` <- function(x, y) {
+    !(x %in% y)
+}
+
+# Caching (Public) #####
 
 #' @export
 #' @title Get package file
@@ -249,9 +242,10 @@ rm_cachedir_if_empty <- function(...) {
 }
 
 .onLoad <- function(libname, pkgname) {
-  reg.finalizer(
-    e = environment(rm_cachedir_if_empty),
-    f = rm_cachedir_if_empty,
-    onexit = TRUE
-  )
+    rc_init()
+    reg.finalizer(
+        e = environment(rm_cachedir_if_empty),
+        f = rm_cachedir_if_empty,
+        onexit = TRUE
+    )
 }

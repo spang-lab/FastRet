@@ -16,7 +16,12 @@ reference:
   desc: FastRet's Public User Interface
   contents: [has_keyword("public")]
 - title: Internal
-  desc: "Internal helper functions. Although exported, they should not be used directly. They are only exported to speed up cluster creation during parallel calculations, as this would require explicit function exporting of every required private function. Additionally, exporting these functions allows them to be referenced in the documentation of public API functions."
+  desc: |
+    Internal helper functions. Although exported, they should not be used
+    directly. They are only exported to speed up cluster creation during
+    parallel calculations, as this would require explicit function exporting of
+    every required private function. Additionally, exporting these functions
+    allows them to be referenced in the documentation of public API functions.
   contents: [has_keyword("internal")]
 - title: Datasets
   desc: "Datasets used in FastRet's examples and vignettes."

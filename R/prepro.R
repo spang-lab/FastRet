@@ -1,15 +1,44 @@
 # Public #####
 
 #' @export
-#' @title Preprocess data
-#' @description Preprocess data so they can be used as input for [train_frm()].
-#' @param data dataframe with columns RT, NAME, SMILES
-#' @param degree_polynomial defines how many polynomials get added (if 3 quadratic and cubic terms get added)
-#' @param interaction_terms if TRUE all interaction terms get added to data set
-#' @param verbose 0 == no output, 1 == show progress, 2 == show progress and warnings
-#' @param nw number of workers to use for parallel processing
-#' @return A dataframe with the preprocessed data
 #' @keywords public
+#'
+#' @title Preprocess data
+#'
+#' @description
+#' Preprocess data so they can be used as input for [train_frm()].
+#'
+#' @param data
+#' Dataframe with columns RT, NAME, SMILES
+#'
+#' @param degree_polynomial
+#' Defines how many polynomials get added (if 3 quadratic and cubic terms get
+#' added).
+#'
+#' @param interaction_terms
+#' If TRUE all interaction terms get added to data set.
+#'
+#' @param verbose
+#' 0 == no output, 1 == show progress, 2 == show progress and warnings
+#'
+#' @param nw
+#' number of workers to use for parallel processing
+#'
+#' @param rm_near_zero_var
+#' A logical value indicating whether to remove near zero variance predictors.
+#' Setting this to TRUE can cause the CV results to be overoptimistic, as the
+#' variance filtering is done on the whole dataset, i.e. information from the
+#' test folds is used for feature selection.
+#'
+#' @param rm_na
+#' A logical value indicating whether to remove NA values. Setting this to TRUE
+#' can cause the CV results to be overoptimistic, as the filtering is done on
+#' the whole dataset, i.e. information from the test folds is used for feature
+#' selection.
+#'
+#' @return
+#' A dataframe with the preprocessed data
+#'
 #' @examples
 #' data <- head(RP, 3) # Only use first three rows to speed up example runtime
 #' pre <- preprocess_data(data, verbose = 0)
@@ -17,7 +46,9 @@ preprocess_data <- function(data,
                             degree_polynomial = 1,
                             interaction_terms = FALSE,
                             verbose = 1,
-                            nw = 1) {
+                            nw = 1,
+                            rm_near_zero_var = TRUE,
+                            rm_na = TRUE) {
     if (verbose == 0) catf <- function(...) invisible()
 
     if ("preprocess_data" %in% getOption("FastRet.mocks", c())) {
@@ -30,15 +61,24 @@ preprocess_data <- function(data,
     df_raw <- getCDs(data, verbose, nw) # nolint: object_usage_linter.
     catf("Resulting dataframe has dimension %d x %d", nrow(df_raw), ncol(df_raw))
 
-    catf("Removing columns with NAs")
-    has_nas <- apply(df_raw, 2, function(col) any(is.na(col)))
-    df_noNAs <- df_raw[, !has_nas]
-    catf("Resulting dataframe has dimension %d x %d", nrow(df_noNAs), ncol(df_noNAs))
+    if (rm_na) {
+        catf("Removing columns with NAs")
+        has_nas <- apply(df_raw, 2, function(col) any(is.na(col)))
+        df_noNAs <- df_raw[, !has_nas]
+        catf("Resulting dataframe has dimension %d x %d", nrow(df_noNAs), ncol(df_noNAs))
+    } else {
+        df_noNAs <- df_raw
+    }
 
-    catf("Removing columns with variance close to zero")
-    idx_zeroVar <- caret::nearZeroVar(df_noNAs)
-    df <- df_noNAs[, -idx_zeroVar]
-    catf("Resulting dataframe has dimension %d x %d", nrow(df), ncol(df))
+    if (rm_near_zero_var) {
+        catf("Removing columns with variance close to zero")
+        idx_zeroVar <- caret::nearZeroVar(df_noNAs)
+        nzv <- length(idx_zeroVar)
+        df <- if (nzv == 0) df_noNAs else df_noNAs[, -idx_zeroVar]
+        catf("Resulting dataframe has dimension %d x %d", nrow(df), ncol(df))
+    } else {
+        df <- df_noNAs
+    }
 
     if (degree_polynomial >= 2 || interaction_terms) {
         catf("Moving columns RT, NAME, SMILES into a seperate dataframe")
@@ -77,6 +117,7 @@ preprocess_data <- function(data,
     }
 
     catf("Preprocessing finished")
+    browser()
     return(df)
 }
 

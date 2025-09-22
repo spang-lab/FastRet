@@ -3,7 +3,7 @@
 \docType{data}
 \name{CDFeatures}
 \alias{CDFeatures}
-\title{Chemical Descriptors}
+\title{Chemical Descriptor Features}
 \format{
 An object of class \code{character} of length 241.
 }
@@ -11,7 +11,7 @@ An object of class \code{character} of length 241.
 CDFeatures
 }
 \description{
-Vectors containing the feature names of the chemical descriptors listed in
+Vector containing the feature names of the chemical descriptors listed in
 \link{CDNames}.
 }
 \seealso{

@@ -4,15 +4,27 @@
 \alias{getCDsFor1Molecule}
 \title{Get Chemical Descriptors for a single molecule}
 \usage{
-getCDsFor1Molecule(smi = "O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 1)
+getCDsFor1Molecule(
+  smi,
+  cache = TRUE,
+  verbose = 1,
+  read_ram = cache,
+  write_ram = cache,
+  read_disk = cache,
+  write_disk = cache,
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{smi}{SMILES string of the molecule.}
 
-\item{cache}{If TRUE, the results are cached in RAM and on disk at directory
-\verb{~/.cache/FastRet/getCDsFor1Molecule/} to speed up subsequent calls.}
+\item{cache}{Shortcut for setting all four cache parameters to the same value.
+Set \code{read_ram}, \code{write_ram}, \code{read_disk} or \code{write_disk} individually to
+finetune the caching behaviour.}
 
 \item{verbose}{Verbosity. 0: no output, 1: show progress.}
+
+\item{read_ram, write_ram, read_disk, write_disk}{Whether to read from or write to the RAM or disk cache.}
 }
 \value{
 A dataframe of dimension 1 x 241. The rowname is the input SMILES string. The
@@ -36,7 +48,8 @@ Calculating descriptors molecule by molecule also enables parallelization in
 \code{\link[=getCDs]{getCDs()}}.
 }
 \examples{
-cds <- getCDsFor1Molecule("O=C(O)CCCCCCCCCO", cache = TRUE, verbose = 0)
+smi <- "O=C(O)CCCCCCCCCO"
+cds <- getCDsFor1Molecule(smi)
 }
 \seealso{
 \code{\link[=getCDs]{getCDs()}}, \link{CDFeatures}

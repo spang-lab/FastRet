@@ -20,5 +20,6 @@
 ^(?i)r*cmd*check.log$
 ^(?i)r*cmd*check.md$
 ^(?i)reports$
+^(?i)test\.log$
 ^(?i)todos.md$
 ^(?i)vignettes$

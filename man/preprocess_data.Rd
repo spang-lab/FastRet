@@ -9,19 +9,32 @@ preprocess_data(
   degree_polynomial = 1,
   interaction_terms = FALSE,
   verbose = 1,
-  nw = 1
+  nw = 1,
+  rm_near_zero_var = TRUE,
+  rm_na = TRUE
 )
 }
 \arguments{
-\item{data}{dataframe with columns RT, NAME, SMILES}
+\item{data}{Dataframe with columns RT, NAME, SMILES}
 
-\item{degree_polynomial}{defines how many polynomials get added (if 3 quadratic and cubic terms get added)}
+\item{degree_polynomial}{Defines how many polynomials get added (if 3 quadratic and cubic terms get
+added).}
 
-\item{interaction_terms}{if TRUE all interaction terms get added to data set}
+\item{interaction_terms}{If TRUE all interaction terms get added to data set.}
 
 \item{verbose}{0 == no output, 1 == show progress, 2 == show progress and warnings}
 
 \item{nw}{number of workers to use for parallel processing}
+
+\item{rm_near_zero_var}{A logical value indicating whether to remove near zero variance predictors.
+Setting this to TRUE can cause the CV results to be overoptimistic, as the
+variance filtering is done on the whole dataset, i.e. information from the
+test folds is used for feature selection.}
+
+\item{rm_na}{A logical value indicating whether to remove NA values. Setting this to TRUE
+can cause the CV results to be overoptimistic, as the filtering is done on
+the whole dataset, i.e. information from the test folds is used for feature
+selection.}
 }
 \value{
 A dataframe with the preprocessed data

@@ -4,7 +4,7 @@
 \alias{getCDs}
 \title{Get Chemical Descriptors for a list of molecules}
 \usage{
-getCDs(df, verbose = 1, nw = 1)
+getCDs(df, verbose = 1, nw = 1, force_nw = FALSE)
 }
 \arguments{
 \item{df}{dataframe with two mandatory columns: "NAME" and "SMILES"}
@@ -12,6 +12,10 @@ getCDs(df, verbose = 1, nw = 1)
 \item{verbose}{0: no output, 1: progress, 2: more progress and warnings}
 
 \item{nw}{number of workers for parallel processing}
+
+\item{force_nw}{If TRUE, the specified number of workers \code{nw} will be used even for small
+inputs. Default is FALSE, which automatically falls back to sequential
+processing for less than 20 SMILES.}
 }
 \value{
 A dataframe with the chemical descriptor values appended as columns to the
@@ -22,6 +26,6 @@ Calculate Chemical Descriptors for a list of molecules. Molecules can appear
 multiple times in the list.
 }
 \examples{
-cds <- getCDs(head(RP, 3), verbose = 1, nw = 1)
+cds <- getCDs(df = head(RP, 3), verbose = 1, nw = 1)
 }
 \keyword{public}

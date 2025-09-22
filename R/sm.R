@@ -54,6 +54,7 @@ selective_measuring <- function(raw_data,
                                 verbose = 1,
                                 seed = NULL) {
 
+
     if (!is.null(seed)) set.seed(seed)
 
     # Configure logging behaviours

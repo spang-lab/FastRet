@@ -25,7 +25,7 @@ start_gui <- function(port = 8080,
     on.exit(future::plan(oldplan), add = TRUE)
     catf("Starting FastRet GUI")
     app <- fastret_app(port, host, reload, nsw)
-    runApp(app)
+    shiny::runApp(app)
 }
 
 #' @export
@@ -45,7 +45,7 @@ fastret_app <- function(port = 8080,
                         host = "0.0.0.0",
                         reload = FALSE,
                         nsw = 1) {
-    shinyApp(
+    shiny::shinyApp(
         ui = function(req) fastret_ui(req),
         server = function(input, output, session) fastret_server(input, output, session, nsw),
         options = list(port = port, host = host, quiet = TRUE, launch.browser = FALSE, reload = reload),
@@ -55,15 +55,25 @@ fastret_app <- function(port = 8080,
 
 # Private #####
 
-mocklist <- c("inpFRM", "inpDf", "adjDf", "btnTrain", "cluster_calc", "tiPredSmiles", "getCDs", "preprocess_data", "train_frm", "selective_measuring")
+mocklist <- c(
+    "inpFRM", "inpDf", "adjDf", "btnTrain", "cluster_calc",
+    "tiPredSmiles", "getCDs", "preprocess_data", "train_frm",
+    "selective_measuring"
+)
 strategies <- c("sequential", "multicore", "multisession")
 startModes <- c("Train new Model", "Predict Retention Times", "Selective Measuring", "Adjust existing Model")
 
 #' @noRd
 #' @title Start the FastRet GUI in development mode
+#'
 #' @description Starts the FastRet GUI in development mode
-#' @param strategy The strategy to use for parallel processing. Can be one of "sequential", "multicore", "multisession"
-#' @param mocks A character vector of mocks to be used. The following mocks are available:
+#'
+#' @param strategy
+#' The strategy to use for parallel processing. Can be one of "sequential",
+#' "multicore", "multisession"
+#'
+#' @param mocks
+#' A character vector of mocks to be used. The following mocks are available:
 #' * Shiny mocks
 #'   * `inpFRM`: inits `RV$ubInpFRM`
 #'   * `inpDf`: inits `RV$inpDf`
@@ -76,40 +86,66 @@ startModes <- c("Train new Model", "Predict Retention Times", "Selective Measuri
 #'   * `preprocess_data`: mocks [preprocess_data()]
 #'   * `train_frm`: mocks [train_frm()]
 #'   * `selective_measuring`: mocks [selective_measuring()]
-#' @param startMode The start mode to use. Can be one of "Train new Model", "Predict Retention Times", "Selective Measuring", "Adjust existing Model"
-#' @return NULL. Called for side effects.
-#' @details By using no subworkers and multicore or sequential, we can ensure that all processes are forked from the current R session and therefore use the functions loaded via devtools. If we use multisession and or subworkers, these processes will use the installed version of FastRet instead. ==> If we work on the UI part, we can use multisession and/or subworkers, because the UI part is handled by the main process, BUT, If we develop train/predict/plot functions, we must use multicore or sequential and NO subworkers! In particular, to use `browser()` in these functions, we must use sequential.
+#'
+#' @param startMode
+#' The start mode to use. Can be one of "Train new Model", "Predict Retention
+#' Times", "Selective Measuring", "Adjust existing Model"
+#'
+#' @return
+#' NULL. Called for side effects.
+#'
+#' @details
+#' By using no subworkers and multicore or sequential, we can ensure that all
+#' processes are forked from the current R session and therefore use the
+#' functions loaded via devtools. If we use multisession and or subworkers,
+#' these processes will use the installed version of FastRet instead. ==> If we
+#' work on the UI part, we can use multisession and/or subworkers, because the
+#' UI part is handled by the main process, BUT, If we develop train/predict/plot
+#' functions, we must use multicore or sequential and NO subworkers! In
+#' particular, to use `browser()` in these functions, we must use sequential.
 start_gui_in_devmode <- function(strategy = "sequential",
                                  mocks = mocklist,
-                                 startMode = "Train new Model") {
+                                 startMode = "Train new Model",
+                                 patch_autoreload = FALSE) {
 
     catf("Checking args")
     startMode <- match.arg(startMode, startModes)
     strategy <- match.arg(strategy, strategies)
-    if (!all(mocks %in% mocklist)) stop("mocks must be a subset of: ", paste(mocklist, collapse = ", "))
-
-    catf("Patching shiny and pkgload")
-    patch_file <- pkg_file("misc/scripts/patch-shiny.R")
-    if (file.exists(patch_file)) { # I.e. the package is loaded from source via `devtools::load_all()`.
-        patch_env <- new.env()
-        source(patch_file, local = patch_env, echo = FALSE)
-        patch_env$patch_shiny()
-        patch_env$patch_pkgload()
-    } else { # I.e. the package was installed and loaded e.g. via `library(FastRet)`. This code part shouldn't be reached, because the function is not exported, but we print a message just in case.
-        catf("No patch file found. Autoreload will not work.")
+    if (!all(mocks %in% mocklist)) {
+        stop("mocks must be a subset of: ", paste(mocklist, collapse = ", "))
     }
 
+    if (patch_autoreload) {
+        catf("Patching shiny and pkgload")
+        patch_file <- pkg_file("misc/scripts/patch-shiny.R")
+        if (file.exists(patch_file)) {
+            # I.e. the package is loaded from source via `devtools::load_all()`.
+            patch_env <- new.env()
+            source(patch_file, local = patch_env, echo = FALSE)
+            patch_env$patch_shiny()
+            patch_env$patch_pkgload()
+        } else {
+            # I.e. the package was installed and loaded e.g. via
+            # `library(FastRet)`. This code part shouldn't be reached, because
+            # the function is not exported, but we print a message just in case.
+            catf("No patch file found. Autoreload will not work.")
+        }
+    }
 
     catf("Reloading FastRet")
     devtools::load_all() # needs to be called once with updated function
 
     catf("Setting development options")
-    opts <- options(shiny.autoreload = TRUE, FastRet.mocks = mocks, FastRet.UI.startMode = startMode, warn = 1)
-    on.exit(expr = {catf("Resetting development options"); options(opts)}, add = TRUE)
+    withr::local_options(list(
+        shiny.autoreload = TRUE,
+        FastRet.mocks = mocks,
+        FastRet.UI.startMode = startMode,
+        warn = 1
+    ))
 
     catf("Initializing cluster")
     oldplan <- future::plan(strategy)
-    on.exit(expr = {catf("Deleting cluster"); future::plan(oldplan)}, add = TRUE, after = FALSE)
+    on.exit(future::plan(oldplan), add = TRUE, after = FALSE)
 
     catf("Starting FastRet GUI in development mode")
     pkg_root <- dirname(system.file("DESCRIPTION", package = "FastRet"))
@@ -117,10 +153,10 @@ start_gui_in_devmode <- function(strategy = "sequential",
 }
 
 check_cdk_version <- function() {
-    if (rcdk::cdk.version() != "2.9") {
+    if (rcdk::cdk.version() < "2.9") {
         msg <- paste(
             sep = "\n",
-            "FastRet requires CDK Version 2.9, but the installed version is %s.",
+            "FastRet requires CDK Version 2.9 or greater, but the installed version is %s.",
             "For details about the installation process see https://github.com/CDK-R/rcdklibs."
         )
         msgf <- sprintf(msg, rcdk::cdk.version())

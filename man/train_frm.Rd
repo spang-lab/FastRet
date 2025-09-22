@@ -19,9 +19,12 @@ train_frm(
 )
 }
 \arguments{
-\item{df}{A dataframe with columns "NAME", "RT", "SMILES" and optionally a set of chemical descriptors. If no chemical descriptors are provided, they are calculated using the function \code{\link[=preprocess_data]{preprocess_data()}}.}
+\item{df}{A dataframe with columns "NAME", "RT", "SMILES" and optionally a set of
+chemical descriptors. If no chemical descriptors are provided, they are
+calculated using the function \code{\link[=preprocess_data]{preprocess_data()}}.}
 
-\item{method}{A string representing the prediction algorithm. Either "lasso", "ridge" or "gbtree".}
+\item{method}{A string representing the prediction algorithm. Either "lasso", "ridge" or
+"gbtree".}
 
 \item{verbose}{A logical value indicating whether to print progress messages.}
 
@@ -29,26 +32,34 @@ train_frm(
 
 \item{nw}{An integer representing the number of workers for parallel processing.}
 
-\item{degree_polynomial}{An integer representing the degree of the polynomial. Polynomials up to the specified degree are included in the model.}
+\item{degree_polynomial}{An integer representing the degree of the polynomial. Polynomials up to the
+specified degree are included in the model.}
 
 \item{interaction_terms}{A logical value indicating whether to include interaction terms in the model.}
 
-\item{rm_near_zero_var}{A logical value indicating whether to remove near zero variance predictors. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.}
+\item{rm_near_zero_var}{A logical value indicating whether to remove near zero variance predictors.
+Setting this to TRUE can cause the CV results to be overoptimistic, as the
+variance filtering is done on the whole dataset, i.e. information from the
+test folds is used for feature selection.}
 
-\item{rm_na}{A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.}
+\item{rm_na}{A logical value indicating whether to remove NA values. Setting this to TRUE
+can cause the CV results to be overoptimistic, as the filtering is done on
+the whole dataset, i.e. information from the test folds is used for feature
+selection.}
 
-\item{rm_ns}{A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset.}
+\item{rm_ns}{A logical value indicating whether to remove chemical descriptors that were
+considered as not suitable for linear regression based on a previous analysis
+of an independent dataset. Currently not used.}
 
-\item{seed}{An integer value to set the seed for random number generation to allow for reproducible results.}
+\item{seed}{An integer value to set the seed for random number generation to allow for
+reproducible results.}
 }
 \value{
 A trained FastRet model.
 }
 \description{
-Trains a new model from molecule SMILES to predict retention times (RT) using the specified method.
-}
-\details{
-Setting \code{rm_near_zero_var} and/or \code{rm_na} to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
+Trains a new model from molecule SMILES to predict retention times (RT) using
+the specified method.
 }
 \examples{
 system.time(m <- train_frm(RP[1:80, ], method = "lasso", nfolds = 2, nw = 1, verbose = 0))
