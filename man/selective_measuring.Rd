@@ -4,36 +4,52 @@
 \alias{selective_measuring}
 \title{Selective Measuring}
 \usage{
-selective_measuring(raw_data, k_cluster = 25, verbose = 1)
+selective_measuring(raw_data, k_cluster = 25, verbose = 1, seed = NULL)
 }
 \arguments{
-\item{raw_data}{The raw data to be processed. Must be a dataframe with columns NAME, RT and SMILES.}
+\item{raw_data}{The raw data to be processed.
+Must be a dataframe with columns NAME, RT and SMILES.}
 
 \item{k_cluster}{The number of clusters for PAM clustering.}
 
 \item{verbose}{The level of verbosity.}
+
+\item{seed}{An optional random seed for reproducibility, set at the beginning of the
+function.}
 }
 \value{
 A list containing the following elements:
 \itemize{
-\item \code{clustering}: a data frame with raw data, cluster assignments, and medoid indicators
-\item \code{clobj}: the PAM clustering object
-\item \code{coefs}: the coefficients from the Ridge Regression model
-\item \code{model}: the Ridge Regression model
-\item \code{df}: the preprocessed data
-\item \code{dfz}: the standardized features
-\item \code{dfzb}: the features scaled by coefficients of the Ridge Regression model
+\item \code{clustering}: A data frame with columns RT, SMILES, NAME, CLUSTER and
+IS_MEDOID.
+\item \code{clobj}: The clustering object. The object returned by the clustering
+function. Depends on the \code{method} parameter.
+\item \code{coefs}: The coefficients from the Ridge Regression model.
+\item \code{model}: The Ridge Regression model.
+\item \code{df}: The preprocessed data.
+\item \code{dfz}: The standardized features.
+\item \code{dfzb}: The features scaled by the coefficients (betas) of the Ridge
+Regression model.
 }
 }
 \description{
-The function \code{\link[=adjust_frm]{adjust_frm()}} is used to modify existing FastRet models based on changes in chromatographic conditions. It requires a set of molecules with measured retention times on both the original and new column. This function selects a sensible subset of molecules from the original dataset for re-measurement. The selection process includes:
+The function \code{\link[=adjust_frm]{adjust_frm()}} is used to modify existing FastRet models based
+on changes in chromatographic conditions. It requires a set of molecules with
+measured retention times on both the original and new column. This function
+selects a sensible subset of molecules from the original dataset for
+re-measurement. The selection process includes:
 \enumerate{
-\item Generating chemical descriptors from the SMILES strings of the molecules. These are the features used by \code{\link[=train_frm]{train_frm()}} and \code{\link[=adjust_frm]{adjust_frm()}}.
+\item Generating chemical descriptors from the SMILES strings of the molecules.
+These are the features used by \code{\link[=train_frm]{train_frm()}} and \code{\link[=adjust_frm]{adjust_frm()}}.
 \item Standardizing chemical descriptors to have zero mean and unit variance.
-\item Training a Ridge Regression model with the standardized chemical descriptors as features and the retention times as the target variable.
-\item Scaling the chemical descriptors by coefficients of the Ridge Regression model.
-\item Applying PAM clustering on the entire dataset, which includes the scaled chemical descriptors and the retention times.
-\item Returning the clustering results, which include the cluster assignments, the medoid indicators, and the raw data.
+\item Training a Ridge Regression model with the standardized chemical
+descriptors as features and the retention times as the target variable.
+\item Scaling the chemical descriptors by coefficients of the Ridge Regression
+model.
+\item Clustering the entire dataset, which includes the scaled chemical
+descriptors and the retention times.
+\item Returning the clustering results, which include the cluster assignments,
+the medoid indicators, and the raw data.
 }
 }
 \examples{
@@ -41,5 +57,6 @@ x <- selective_measuring(RP[1:50, ], k = 5, verbose = 0)
 # For the sake of a short runtime, only the first 50 rows of the RP dataset
 # were used in this example. In practice, you should always use the entire
 # dataset to find the optimal subset for re-measurement.
+
 }
 \keyword{public}

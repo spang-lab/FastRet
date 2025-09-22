@@ -22,6 +22,7 @@ file and then read from there.
 }
 \examples{
 df <- read_retip_hilic_data(verbose = 0)
+
 }
 \references{
 Retip: Retention Time Prediction for Compound Annotation in Untargeted

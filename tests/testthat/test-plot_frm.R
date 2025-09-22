@@ -1,9 +1,7 @@
 library(testthat)
 
 test_that("plot_frm works for not-adjusted models", {
-    opts <- options(FastRet.mocks = c("train_frm"))
-    on.exit(options(opts), add = TRUE)
-    frm <- train_frm(df = RP, method = "lasso", seed = 123, nfolds = 2, nw = 1)
+    frm <- train_frm(df = RP[1:20, ], method = "lasso", seed = 123, nfolds = 2, nw = 1, verbose = 0)
     testthat::expect_no_error(object = {
         plot_frm(frm = frm, type = "scatter.cv")
         plot_frm(frm = frm, type = "scatter.train")
@@ -19,10 +17,8 @@ test_that("plot_frm works for not-adjusted models", {
 })
 
 test_that("plot_frm works for adjusted models", {
-    opts <- options(FastRet.mocks = c("train_frm"))
-    on.exit(options(opts), add = TRUE)
-    frm <- train_frm(df = RP, method = "lasso", seed = 123, nfolds = 4, nw = 2)
-    frmadj <- adjust_frm(frm, new_data = read_rpadj_xlsx())
+    frm <- readRDS(pkg_file("extdata/RP_lasso_model.rds"))
+    frmadj <- adjust_frm(frm, new_data = read_rpadj_xlsx(), predictors = 1:2, verbose = 0)
     testthat::expect_no_error(object = {
         plot_frm(frm = frmadj, type = "scatter.cv")
         plot_frm(frm = frmadj, type = "scatter.train")

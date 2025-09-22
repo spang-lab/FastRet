@@ -4,7 +4,7 @@
 \alias{getCDs}
 \title{Get Chemical Descriptors for a list of molecules}
 \usage{
-getCDs(df, verbose = 1, nw = 1)
+getCDs(df, verbose = 1, nw = 1, keepdf = TRUE)
 }
 \arguments{
 \item{df}{dataframe with two mandatory columns: "NAME" and "SMILES"}
@@ -12,16 +12,19 @@ getCDs(df, verbose = 1, nw = 1)
 \item{verbose}{0: no output, 1: progress, 2: more progress and warnings}
 
 \item{nw}{number of workers for parallel processing}
+
+\item{keepdf}{If TRUE, \code{cbind(df, CDs)} is returned. Else \code{CDs}.}
 }
 \value{
-A dataframe with the chemical descriptor values appended as columns to the
-input dataframe.
+A dataframe with all input columns (if \code{keepdf} is TRUE) and chemical
+descriptors as remaining columns.
 }
 \description{
-Calculate Chemical Descriptors for a list of molecules. Molecules can appear
-multiple times in the list.
+Calculate Chemical Descriptors (CDs) for a list of molecules. Molecules can
+appear multiple times in the list.
 }
 \examples{
 cds <- getCDs(head(RP, 3), verbose = 1, nw = 1)
+
 }
 \keyword{public}

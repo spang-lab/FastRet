@@ -1,3 +1,17 @@
+# FastRet 1.2.0 (Development) <!-- Branch: improve115 -->
+
+- Added `seed` parameter to `selective_measuring()` function for reproducible
+  clustering results
+- Enhanced documentation for `train_frm()` function
+- Removed `digest` and `shinybusy` dependencies
+- Major refactoring of caching system and related functions
+- Removed mock files from `inst/mockdata/`
+- Removed objects: `getCDsFor1Molecule()`, `get_cache_dir()`, `ram_cache` (these
+  were exported, but declared as internal)
+- Added private function `parLapply2`
+- Added comprehensive GitHub Copilot instructions file
+- Improved code organization and documentation across multiple R files
+
 # FastRet 1.1.5 <!-- Commit Date: 2025-06-26 -->
 
 - Improved `read_retip_hilic_data()`:
@@ -5,7 +19,7 @@
   If it is installed, the dataset is loaded directly.
 
 - Internal Changes:
-  - Removed TODOS.md
+  - Removed `TODOS.md`
   - Bumped version to 1.1.5
   - Moved all data related functions from `util.R` to `data.R`
   - Added a README to `misc/datasets`
@@ -81,7 +95,7 @@
   `extendedTask()`, `selective_measuring()`, `train_frm()`, `adjust_frm()`,
   `get_predictors()`
 - Improved lots of existing examples
-- Added additionalo logging messages at various places
+- Added additional logging messages at various places
 - Submitted to CRAN, but rejected because the following examples
   caused at least one of the following notes on the CRAN testing
   machines: (1) "CPU time > 5s", (2) "CPU time > 2.5 times elapsed
@@ -161,9 +175,7 @@ Completely refactored source code, e.g.:
 
 - Initial version.
 
-  Copy of commit cd243aa82a56df405df8060b84535633cf06b692 of
-  [Christian Amesöders
-  Repository](https://github.com/ChristianAmes/FastRet.git).
-  (Christian wrote this initial version of FastRet as part of his
-  master thesis at the Institute of functional Genomics,
-  University of Regensburg).
+  Copy of commit `cd243aa82a56df405df8060b84535633cf06b692` of [Christian
+  Amesöders Repository](https://github.com/ChristianAmes/FastRet.git).
+  (Christian wrote this initial version of FastRet as part of his master thesis
+  at the Institute of functional Genomics, University of Regensburg).

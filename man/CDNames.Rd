@@ -27,6 +27,7 @@ excluded.
 }
 \examples{
 str(CDNames)
+
 }
 \seealso{
 \code{\link[=analyzeCDNames]{analyzeCDNames()}}, \link{CDFeatures}

@@ -1,6 +1,6 @@
 Package: FastRet
 Title: Retention Time Prediction in Liquid Chromatography
-Version: 1.1.5
+Version: 1.2.0
 Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cph"), email = "christian-amesoeder@web.de", comment = c(ORCID = "0000-0002-1668-8351")),
     person(given = "Marian", family = "Schoen", role = c("aut", "cph"), email = "marian.schoen@klinik.uni-regensburg.de"),
@@ -30,7 +30,6 @@ Imports:
     caret,
     cluster,
     data.table,
-    digest,
     DT,
     future,
     ggplot2,
@@ -39,10 +38,11 @@ Imports:
     openxlsx,
     promises,
     rcdk,
+    rlang,
     shiny (>= 1.8.1),
-    shinybusy,
     shinyhelper,
     shinyjs,
+    withr,
     xgboost
 Suggests:
     cli,
@@ -53,14 +53,12 @@ Suggests:
     pkgdown,
     pkgbuild,
     pkgload,
-    rlang,
     rmarkdown,
     servr,
     tibble,
     testthat (>= 3.0.0),
     toscutil,
-    usethis,
-    withr
+    usethis
 LazyData: true
 Config/testthat/edition: 3
 Config/testthat/parallel: true
@@ -70,7 +68,6 @@ Config/testthat/start-first:
     preprocess_data,
     read_rp_xlsx,
     fit_gbtree,
-    getCDsFor1Molecule,
     plot_frm,
     adjust_frm,
     read_rpadj_xlsx

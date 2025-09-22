@@ -1,10 +1,20 @@
 # Private #####
 
 #' @noRd
-#' @description Create boxplots for up to 4 models to compare their performance measures
-#' @param models A list of objects of class `frm` as returned by [train_frm()].
-#' @param ptype A string specifying the plot type. Options are: "base" (default) and "ggplot2".
+#'
+#' @description
+#' Create boxplots for up to 4 models to compare their performance measures
+#'
+#' @param models
+#' A list of objects of class `frm` as returned by [train_frm()].
+#'
+#' @param ptype
+#' A string specifying the plot type. Options are: "base" (default) and "ggplot2".
+#'
 plot_boxplot <- function(model = train_frm(), ptype = "base") {
+    .data <- rlang::.data # (1)
+    # (1) To avoid warnings about NSE in ggplot2 calls
+    # (https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html)
     ptype <- match.arg(ptype, c("base", "ggplot2"))
     stats <- as.data.frame(collect(model$cv$stats))
     p <- if (ptype == "base") {
@@ -12,44 +22,81 @@ plot_boxplot <- function(model = train_frm(), ptype = "base") {
         on.exit(par(opar), add = TRUE)
         boxplot(stats, main = "CV Performance across folds", xlab = "", ylab = "", cex.axis = 0.8)
     } else {
-        stats_lf <- reshape(stats, varying = names(stats), v.names = "Value", timevar = "Measure", times = names(stats), direction = "long")
-        p <- ggplot(data = stats_lf, mapping = aes(x = .data$Measure, y = .data$Value))
-        p <- p + geom_boxplot()
-        p <- p + ggtitle("CV Performance across folds")
-        p <- p + theme_minimal()
-        p <- p + theme(
-            axis.title = element_blank(),
-            plot.title = element_text(hjust = 0.5)
+        stats_lf <- reshape(
+            stats,
+            varying = names(stats), v.names = "Value", timevar = "Measure",
+            times = names(stats), direction = "long"
+        )
+        p <- ggplot2::ggplot(
+            data = stats_lf,
+            mapping = ggplot2::aes(x = .data$Measure, y = .data$Value)
+        )
+        p <- p + ggplot2::geom_boxplot()
+        p <- p + ggplot2::ggtitle("CV Performance across folds")
+        p <- p + ggplot2::theme_minimal()
+        p <- p + ggplot2::theme(
+            axis.title = ggplot2::element_blank(),
+            plot.title = ggplot2::element_text(hjust = 0.5)
         )
     }
 }
 
 #' @noRd
-#' @description Plot predictions of a FastRet Model (FRM) for its training data. If the FRM was adjusted, the original and adjusted predictions are plotted.
-#' @param frm An object of class `frm` as returned by [train_frm()].
-#' @param type A string specifying the plot type. Options are:
+#' @description
+#' Plot predictions of a FastRet Model (FRM) for its training data. If the FRM
+#' was adjusted, the original and adjusted predictions are plotted.
+#'
+#' @param frm
+#' An object of class `frm` as returned by [train_frm()].
+#'
+#' @param type
+#' A string specifying the plot type. Options are:
+#'
 #' - "scatter.cv": Cross-validation predictions for the full training set
 #' - "scatter.cv.adj": Cross-validation predictions for the adjustment set
 #' - "scatter.train": Model predictions for the training set
 #' - "scatter.train.adj": Adjusted model predictions for the adjustment set
-#' @param trafo A string specifying the transformation to apply to the data before plotting. Options are:
+#'
+#' @param trafo
+#' A string specifying the transformation to apply to the data before plotting. Options are:
+#'
 #' - "identity": No transformation
 #' - "log2": Apply the log2 transformation
+#'
 plot_frm <- function(frm = train_frm(verbose = 1),
                      type = "scatter.cv", # c("scatter.cv", "scatter.cv.adj", "scatter.train", "scatter.train.adj")
                      trafo = "identity" # c("identity", "log2")
-                     ) {
+) {
     # Check args
     type <- match.arg(type, c("scatter.cv", "scatter.cv.adj", "scatter.train", "scatter.train.adj"))
-    if (grepl("adj", type) && is.null(frm$adj)) stop(sprintf("type is `%s`, but the model has not been adjusted yet.\nSee `?adjust_model` for information on how to Adjust existing Models.", type))
+    if (grepl("adj", type) && is.null(frm$adj)) {
+        fmt <- paste(sep = "\n",
+            "type is `%s`, but the model has not been adjusted yet.",
+            "See `?adjust_model` for information on how to Adjust existing Models."
+        )
+        stop(sprintf(fmt, type))
+    }
     trafo <- match.arg(trafo, c("identity", "log2"))
-    dotrafo <- switch(trafo, "identity" = identity, "log2" = log2)
+    dotrafo <- switch(trafo,
+        "identity" = identity,
+        "log2" = log2
+    )
 
     # Prepare data for plotting
-    title <- switch(type, "scatter.cv" = "CV predictions for training data", "scatter.cv.adj" = "CV predictions for adjustment data", "scatter.train" = "Model predictions for training data", "scatter.train.adj" = "Adjusted model predictions for adjustment data")
+    title <- switch(type,
+        "scatter.cv" = "CV predictions for training data",
+        "scatter.cv.adj" = "CV predictions for adjustment data",
+        "scatter.train" = "Model predictions for training data",
+        "scatter.train.adj" = "Adjusted model predictions for adjustment data"
+    )
     df <- if (grepl("adj", type)) frm$adj$df else frm$df
     x <- df$RT
-    y <- switch(type, "scatter.cv" = frm$cv$preds, "scatter.cv.adj" = frm$adj$cv$preds, "scatter.train" = predict(frm, df, adjust = FALSE), "scatter.train.adj" = predict(frm, df, adjust = TRUE))
+    y <- switch(type,
+        "scatter.cv" = frm$cv$preds,
+        "scatter.cv.adj" = frm$adj$cv$preds,
+        "scatter.train" = predict(frm, df, adjust = FALSE),
+        "scatter.train.adj" = predict(frm, df, adjust = TRUE)
+    )
     is_within_1min <- (y > x - 1 & y < x + 1)
     is_min_outlier <- (y < (min(x) - mean(x)))
     is_max_outlier <- (y > (max(x) + mean(x)))
@@ -62,8 +109,11 @@ plot_frm <- function(frm = train_frm(verbose = 1),
     R <- cor(x, y)
     MSE <- mean((x - y)^2)
     MAE <- mean(abs(x - y))
-    x <- dotrafo(x) # Important: do the transformation after calculating the performance measures, as we only want to SHOW the transformed data, but not use it for calculations
+    x <- dotrafo(x) # (1)
     y <- dotrafo(y)
+    # (1) Important: do the transformation after calculating the performance
+    # measures, as we only want to SHOW the transformed data, but not use it for
+    # calculations
 
     # Plot data
     plot(

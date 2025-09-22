@@ -1,39 +1,90 @@
 # Public #####
 
-#' @title Train a new FastRet model (FRM) for retention time prediction
-#' @description Trains a new model from molecule SMILES to predict retention times (RT) using the specified method.
-#' @param df A dataframe with columns "NAME", "RT", "SMILES" and optionally a set of chemical descriptors. If no chemical descriptors are provided, they are calculated using the function [preprocess_data()].
-#' @param method A string representing the prediction algorithm. Either "lasso", "ridge" or "gbtree".
-#' @param verbose A logical value indicating whether to print progress messages.
-#' @param nfolds An integer representing the number of folds for cross validation.
-#' @param nw An integer representing the number of workers for parallel processing.
-#' @param degree_polynomial An integer representing the degree of the polynomial. Polynomials up to the specified degree are included in the model.
-#' @param interaction_terms A logical value indicating whether to include interaction terms in the model.
-#' @param rm_near_zero_var A logical value indicating whether to remove near zero variance predictors. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @param rm_na A logical value indicating whether to remove NA values. Setting this to TRUE can cause the CV results to be overoptimistic, as the variance filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @param rm_ns A logical value indicating whether to remove chemical descriptors that were considered as not suitable for linear regression based on previous analysis of an independent dataset.
-#' @param seed An integer value to set the seed for random number generation to allow for reproducible results.
-#' @details Setting `rm_near_zero_var` and/or `rm_na` to TRUE can cause the CV results to be overoptimistic, as the predictor filtering is done on the whole dataset, i.e. information from the test folds is used for feature selection.
-#' @return A trained FastRet model.
+#' @export
 #' @keywords public
+#'
+#' @title Train a new FastRet model (FRM) for retention time prediction
+#'
+#' @description
+#' Trains a new model from molecule SMILES to predict retention times (RT) using
+#' the specified method.
+#'
+#' @param df
+#' A dataframe with columns "NAME", "RT", "SMILES" and optionally a set of
+#' chemical descriptors. If no chemical descriptors are provided, they are
+#' calculated using the function [preprocess_data()].
+#'
+#' @param method
+#' A string representing the prediction algorithm. Either "lasso", "ridge" or
+#' "gbtree".
+#'
+#' @param verbose
+#' A logical value indicating whether to print progress messages.
+#'
+#' @param nfolds
+#' An integer representing the number of folds for cross validation.
+#'
+#' @param nw
+#' An integer representing the number of workers for parallel processing.
+#'
+#' @param degree_polynomial
+#' An integer representing the degree of the polynomial. Polynomials up to the
+#' specified degree are included in the model.
+#'
+#' @param interaction_terms
+#' A logical value indicating whether to include interaction terms in the model.
+#'
+#' @param rm_near_zero_var
+#' A logical value indicating whether to remove near zero variance predictors.
+#' Setting this to TRUE can cause the CV results to be overoptimistic, as the
+#' variance filtering is done on the whole dataset, i.e. information from the
+#' test folds is used for feature selection.
+#'
+#' @param rm_na
+#' A logical value indicating whether to remove NA values. Setting this to TRUE
+#' can cause the CV results to be overoptimistic, as the filtering is done on
+#' the whole dataset, i.e. information from the test folds is used for feature
+#' selection.
+#'
+#' @param rm_ns
+#' A logical value indicating whether to remove chemical descriptors that were
+#' considered as not suitable for linear regression based on a previous analysis
+#' of an independent dataset. Currently not used.
+#'
+#' @param seed
+#' An integer value to set the seed for random number generation to allow for
+#' reproducible results.
+#'
+#' @return
+#' A trained FastRet model.
+#'
 #' @examples
 #' system.time(m <- train_frm(RP[1:80, ], method = "lasso", nfolds = 2, nw = 1, verbose = 0))
 #' # For the sake of a short runtime, only the first 80 rows of the RP dataset
 #' # are used in this example. In practice, you should always use the entire
 #' # training dataset for model training.
-#' @export
 train_frm <- function(df,
+                      # Main function arguments
                       method = "lasso",
                       verbose = 1,
-                      nfolds = 5, # folds for cross validation
-                      nw = 1, # nr workers for parallel processing, also passed to preprocess_data()
-                      degree_polynomial = 1, # options for preprocess_data()
-                      interaction_terms = FALSE, # options for preprocess_data()
-                      rm_near_zero_var = TRUE, # options for preprocess_data()
-                      rm_na = TRUE, # options for preprocess_data()
+                      nfolds = 5,
+                      nw = 1,
+                      # Options for preprocess_data
+                      degree_polynomial = 1,
+                      interaction_terms = FALSE,
+                      rm_near_zero_var = TRUE,
+                      rm_na = TRUE,
+                      # Reserved for future use
                       rm_ns = FALSE,
+                      # Misc
                       seed = NULL
                       ) {
+
+    if (method == "gbtree") {
+        withr::local_package("xgboost")
+    } else {
+        withr::local_package("glmnet")
+    }
 
     # Configure logging and check arguments
     if (verbose == 0) catf <- function(...) {}
@@ -45,28 +96,34 @@ train_frm <- function(df,
         nw <- 1
     }
 
-    # Return pregenerated results if mocking is enabled for this function
-    if ("train_frm" %in% getOption("FastRet.mocks", c())) {
-        mockfile <- sprintf("mockdata/%s_model.rds", method)
-        catf("Mocking is enabled. Returning '%s'", mockfile)
-        return(readRDS(pkg_file(mockfile)))
-    }
-
     catf("Preprocessing data")
     folds <- caret::createFolds(y = df$RT, k = nfolds)
-    df <- preprocess_data(df, degree_polynomial, interaction_terms, verbose, nw)
+    df <- preprocess_data(
+        df,
+        degree_polynomial,
+        interaction_terms,
+        verbose,
+        nw,
+        rm_near_zero_var,
+        rm_na
+    )
 
     nw <- max(min(nw, nfolds), 1)
     catf("Estimating model performance in cross validation using %d workers", nw)
     fit <- c(lasso = fit_lasso, ridge = fit_ridge, gbtree = fit_gbtree)[[method]]
-    tmp <- mclapply(seq_along(folds), mc.cores = nw, function(i) {
-        catf("Evaluating fold %d of %d", i, nfolds)
-        train <- unname(unlist(folds[-i]))
-        test <- folds[[i]]
-        model <- fit(df[train, ], verbose = 0)
-        stats <- get_stats(df = df[test, ], model = model)
-        list(model, stats)
-    })
+    tmp <- parLapply2(
+        NW = nw,
+        ITERABLE = seq_along(folds),
+        EXPORT = c("df", "folds", "fit", "get_stats", "CDFeatures", "verbose"),
+        FUN = function(i) {
+            catf("Evaluating fold %d of %d", i, nfolds)
+            train <- unname(unlist(folds[-i]))
+            test <- folds[[i]]
+            model <- fit(df[train, ], verbose = 0)
+            stats <- get_stats(df = df[test, ], model = model)
+            list(model, stats)
+        }
+    )
 
     catf("Collecting results from cross validation")
     cv <- list(
@@ -83,33 +140,56 @@ train_frm <- function(df,
 
     catf("Training final model on whole data set")
     model <- fit(df, verbose = 0)
-    RT_pred <- stats::predict(model, as.matrix(df[, colnames(df) %in% CDFeatures]))
+    RT_pred <- predict(model, as.matrix(df[, colnames(df) %in% CDFeatures]))
 
     catf("Finished model training. Returning frm object")
     frm <- list(model = model, df = df, cv = cv, seed = seed, version = packageVersion("FastRet"))
     frm <- structure(frm, class = "frm")
 }
 
-#' @title Adjust an existing FastRet model for use with a new column
-#' @description The goal of this function is to train a model that predicts RT_ADJ (retention time measured on a new, adjusted column) from RT (retention time measured on the original column) and to attach this "adjustmodel" to an existing FastRet model.
-#' @param frm An object of class `frm` as returned by [train_frm()].
-#' @param new_data Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of chemical descriptors.
-#' @param predictors Numeric vector specifying which predictors to include in the model in addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT), 6=sqrt(RT).
-#' @param nfolds An integer representing the number of folds for cross validation.
-#' @param verbose A logical value indicating whether to print progress messages.
+#' @export
 #' @keywords public
-#' @examples
-#' frm <- read_rp_lasso_model_rds()
-#' new_data <- read_rpadj_xlsx()
-#' frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
-#' @return An object of class `frm`, which is a list with the following elements:
+#'
+#' @title Adjust an existing FastRet model for use with a new column
+#'
+#' @description
+#' The goal of this function is to train a model that predicts RT_ADJ (retention
+#' time measured on a new, adjusted column) from RT (retention time measured on
+#' the original column) and to attach this "adjustmodel" to an existing FastRet
+#' model.
+#'
+#' @param frm
+#' An object of class `frm` as returned by [train_frm()].
+#'
+#' @param new_data
+#' Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of
+#' chemical descriptors.
+#'
+#' @param predictors
+#' Numeric vector specifying which predictors to include in the model in
+#' addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
+#' 5=exp(RT), 6=sqrt(RT).
+#'
+#' @param nfolds
+#' An integer representing the number of folds for cross validation.
+#'
+#' @param verbose
+#' A logical value indicating whether to print progress messages.
+#'
+#' @return
+#' An object of class `frm`, which is a list with the following elements:
+#'
 #' * `model`: A list containing details about the original model.
 #' * `df`: The data frame used for training the model.
 #' * `cv`: A list containing the cross validation results.
 #' * `seed`: The seed used for random number generation.
 #' * `version`: The version of the FastRet package used to train the model.
 #' * `adj`: A list containing details about the adjusted model.
-#' @export
+#'
+#' @examples
+#' frm <- read_rp_lasso_model_rds()
+#' new_data <- read_rpadj_xlsx()
+#' frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
 adjust_frm <- function(frm = train_frm(),
                        new_data = read_rpadj_xlsx(),
                        predictors = 1:6,
@@ -146,11 +226,15 @@ adjust_frm <- function(frm = train_frm(),
     for (i in seq_along(cv$folds)) {
         train <- unname(unlist(cv$folds[-i]))
         cv$models[[i]] <- lm(formula = fm, data = df[train, ])
-        # First create adjusted predictions using the true RT from the original column. This allows us to see how the adjustment model would perform if we could predict RT's for the original column with 100% accuracy.
+        # First create adjusted predictions using the true RT from the original
+        # column. This allows us to see how the adjustment model would perform
+        # if we could predict RT's for the original column with 100% accuracy.
         test <- cv$folds[[i]]
         testdf <- df[test, ]
         cv$preds_adjonly[test] <- predict(cv$models[[i]], testdf)
-        # Now create adjusted predictions using the RT values predicted from the orginal model. This is the scenario we will encounter for future data as well.
+        # Now create adjusted predictions using the RT values predicted from the
+        # orginal model. This is the scenario we will encounter for future data
+        # as well.
         testdf$RT <- predict(frm, testdf, adjust = FALSE, verbose = 0)
         cv$preds[test] <- predict(cv$models[[i]], testdf)
     }
@@ -163,22 +247,49 @@ adjust_frm <- function(frm = train_frm(),
     frm
 }
 
-#' @title Predict retention times using a FastRet Model
-#' @description Predict retention times for new data using a FastRet Model (FRM).
-#' @param object An object of class `frm` as returned by [train_frm()].
-#' @param df A data.frame with the same columns as the training data.
-#' @param adjust If `object` was adjusted using [adjust_frm()], it will contain a property `object$adj`. If `adjust` is TRUE, `object$adj` will be used to adjust predictions obtained from `object$model`. If FALSE `object$adj` will be ignored. If NULL, `object$model` will be used, if available.
-#' @param verbose A logical value indicating whether to print progress messages.
-#' @param ... Not used. Required to match the generic signature of `predict()`.
-#' @return A numeric vector with the predicted retention times.
-#' @keywords public
-#' @seealso [train_frm()], [adjust_frm()]
-#' @examples
-#' frm <- read_rp_lasso_model_rds()
-#' newdata <- head(RP)
-#' yhat <- predict(frm, newdata)
 #' @export
+#' @keywords public
+#'
+#' @title Predict retention times using a FastRet Model
+#'
+#' @description
+#' Predict retention times for new data using a FastRet Model (FRM).
+#'
+#' @param object
+#' An object of class `frm` as returned by [train_frm()].
+#'
+#' @param df
+#' A data.frame with the same columns as the training data.
+#'
+#' @param adjust
+#' If `object` was adjusted using [adjust_frm()], it will contain a property
+#' `object$adj`. If `adjust` is TRUE, `object$adj` will be used to adjust
+#' predictions obtained from `object$model`. If FALSE `object$adj` will be
+#' ignored. If NULL, `object$model` will be used, if available.
+#'
+#' @param verbose
+#' A logical value indicating whether to print progress messages.
+#'
+#' @param ...
+#' Not used. Required to match the generic signature of `predict()`.
+#'
+#' @return
+#' A numeric vector with the predicted retention times.
+#'
+#' @seealso [train_frm()], [adjust_frm()]
+#'
+#' @examples
+#' object <- read_rp_lasso_model_rds()
+#' df <- head(RP)
+#' yhat <- predict(object, df)
 predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, verbose = 0, ...) {
+
+    if (inherits(object$model, "glmnet")) {
+        withr::local_package("glmnet")
+    } else {
+        withr::local_package("xgboost")
+    }
+
     if (verbose == 0) catf <- function(...) {}
     predictors <- get_predictors(object)
     if (isTRUE(adjust) && is.null(object$adj)) {
@@ -250,7 +361,9 @@ get_stats <- function(df, model) {
     round(measures, 2)
 }
 
-validate_inputdata <- function(df, require = c("RT", "SMILES", "NAME"), min_cds = 1) {
+validate_inputdata <- function(df,
+                               require = c("RT", "SMILES", "NAME"),
+                               min_cds = 1) {
     missing_cols <- setdiff(require, colnames(df))
     if (length(missing_cols) > 0) stop(sprintf("missing columns: %s", paste(missing_cols, collapse = ", ")))
     n_cds <- sum(colnames(df) %in% CDFeatures)
@@ -297,7 +410,7 @@ fit_glmnet <- function(df = preprocess_data(), verbose = 1, alpha = 1) {
     Y <- as.matrix(df[, !cds])
     y <- df[, "RT"]
     if (verbose) catf("Fitting %s model", if (alpha == 1) "Lasso" else "Ridge")
-    cvobj <- glmnet::cv.glmnet(X, y, alpha = alpha, standardize = TRUE, family = "gaussian", type.measure = "mse", )
+    cvobj <- glmnet::cv.glmnet(X, y, alpha = alpha, standardize = TRUE, family = "gaussian", type.measure = "mse", grouped = FALSE)
     model <- glmnet::glmnet(X, y, alpha = alpha, standardize = TRUE, family = "gaussian", lambda = cvobj$lambda.min)
     # model$traindata <- list(X = X, Y = Y, y = y) # store traindata for later model analysis and/or potential data imputation into testdata
     if (verbose) catf("End training")
@@ -394,16 +507,29 @@ fit_gbtree_grid <- function(df = preprocess_data(),
     nw <- min(nw, nparams)
 
     catf(sprintf("Evaluating %d paramater combinations in %d-fold cross validation using %d workers", nparams, nfolds, nw))
-    cv_results_tmp <- mclapply(mc.cores = min(nw, nparams), seq_len(nparams), function(i) {
-        catf(sprintf("Evaluating parameter set %d/%d", i, nparams))
-        params <- c(param_grid[i, ])
-        cv_obj <- xgboost::xgb.cv(params = params, data = data, nrounds = nrounds, folds = foldids, early_stopping_rounds = 20, objective = "reg:squarederror", verbose = (if (verbose == 2) TRUE else FALSE))
-        nround_best <- cv_obj$best_iteration
-        rmse_best <- cv_obj$evaluation_log$test_rmse_mean[nround_best]
-        rmse_std <- cv_obj$evaluation_log$test_rmse_std[nround_best]
-        cv_result <- c(nround_best = nround_best, rmse_best = rmse_best, rmse_std = rmse_std)
-        cv_result
-    })
+    cv_results_tmp <- parLapply2(
+        NW = min(nw, nparams),
+        ITERABLE = seq_len(nparams),
+        EXPORT = c("data", "foldids", "nrounds", "verbose", "param_grid"),
+        FUN = function(i) {
+            catf(sprintf("Evaluating parameter set %d/%d", i, nparams))
+            params <- c(param_grid[i, ])
+            cv_obj <- xgboost::xgb.cv(
+                params = params,
+                data = data,
+                nrounds = nrounds,
+                folds = foldids,
+                early_stopping_rounds = 20,
+                objective = "reg:squarederror",
+                verbose = if (verbose == 2) TRUE else FALSE
+            )
+            nround_best <- cv_obj$best_iteration
+            rmse_best <- cv_obj$evaluation_log$test_rmse_mean[nround_best]
+            rmse_std <- cv_obj$evaluation_log$test_rmse_std[nround_best]
+            cv_result <- c(nround_best = nround_best, rmse_best = rmse_best, rmse_std = rmse_std)
+            cv_result
+        }
+    )
     cv_results <- data.frame(do.call(rbind, cv_results_tmp))
 
     catf("Finding optimal parameters from CV and training final model")
@@ -442,8 +568,8 @@ plot_gbtree_performance <- function(x = fit_gbtree_grid(),
     cols <- c("max_depth", "eta", "gamma", "colsample_bytree", "subsample", "min_child_weight")
     ggdf[, cols] <- lapply(ggdf[, cols], as.factor)
     plots <- lapply(cols, function(col) {
-        ggplot(ggdf, aes_string(x = col, y = "rmse_best")) +
-            if (type == "violin") geom_violin(trim = FALSE) else geom_boxplot()
+        ggplot2::ggplot(ggdf, ggplot2::aes_string(x = col, y = "rmse_best")) +
+            if (type == "violin") ggplot2::geom_violin(trim = FALSE) else ggplot2::geom_boxplot()
     })
     if (!is.null(pdfpath)) {
         pdf(pdfpath, width = 7, height = 3.5)

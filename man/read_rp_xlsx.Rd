@@ -21,6 +21,7 @@ as a dataframe in the package; to access it directly, use \link{RP}.
 \examples{
 x <- read_rp_xlsx()
 all.equal(x, RP)
+
 }
 \seealso{
 RP

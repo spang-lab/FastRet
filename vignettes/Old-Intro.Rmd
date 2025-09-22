@@ -40,7 +40,7 @@ FastRet()
 
 All objects are additionally explained in more detail if you click on the question mark.
 
-![](Old-Intro/01.png){width=70%}
+![FastRet GUI main interface showing the train new model mode with file upload section and model training options](Old-Intro/01.png){width=70%}
 
 ## Train new Model
 
@@ -48,8 +48,8 @@ Staying in the mode "Train new Model" we can upload our previously saved excel f
 
 Once the training is complete, a boxplot with performance measures as well as a scatterplot of predicted~actual retention time is shown. This can be used to get a first impression of the performance that can be expected.
 
-![](Old-Intro/02.png){width=49%}
-![](Old-Intro/03.png){width=49%}
+![Boxplot showing cross-validation performance measures with R-squared and error metrics for the trained retention time model](Old-Intro/02.png){width=49%}
+![Scatterplot of predicted versus actual retention times showing model fit quality with diagonal reference line](Old-Intro/03.png){width=49%}
 
 If you want to utilize the trained model on new data, you have to first save the model and then reload it again in the "Utilize Model" category. The model you download is trained on the whole data set without a validation set. All performance measures of the boxplot are evaluated using cross validation.
 
@@ -57,14 +57,14 @@ If you want to utilize the trained model on new data, you have to first save the
 
 In this mode your previously saved model can be used to predict on new data. This data can be either provided with the input of a single SMILES or a whole .xlsx file which.
 
-![](Old-Intro/04.png){width=80%}
+![FastRet GUI in utilize model mode showing options for uploading models and entering SMILES for prediction](Old-Intro/04.png){width=80%}
 
 
 ### Adjusting measurements using a linear model
 
 If you have measured some metabolites on your new experiment setup that were also measured on the original setup, you can use this method to adjust the models prediction with a linear model. Simply check "Use measured metabolites to adjust Prediction" and upload an Excel file with the corresponding SMILES/retention time data. After you click on "Analyze Linear Model" a scatter plot will be shown, displaying the old vs the new retention times of your measured metabolites. This plot helps you decide which components of the linear model to select.
 
-![](Old-Intro/05.png){width=49%}
+![Scatterplot showing correlation between old and new retention times for model adjustment, with linear regression line](Old-Intro/05.png){width=49%}
 
 ## Selective Measuring
 

@@ -2,8 +2,8 @@
 
 fastret_ui <- function(req = NULL) {
     shiny::tagList(
-        tags$head(
-            tags$style(HTML(
+        shiny::tags$head(
+            shiny::tags$style(shiny::HTML(
                 "#shiny-notification-panel {
                     top: 0;
                     right: 0;
@@ -22,7 +22,7 @@ fastret_ui <- function(req = NULL) {
                 "
             ))
         ),
-        navbarPage(
+        shiny::navbarPage(
             title = "FastRet",
             ui_home(),
             ui_privacy_policy(),
@@ -37,9 +37,9 @@ fastret_ui <- function(req = NULL) {
 # Pages (Private) #####
 
 ui_home <- function() {
-    tabPanel(
+    shiny::tabPanel(
         title = "Home",
-        sidebarLayout(
+        shiny::sidebarLayout(
             ui_sidebar(),
             ui_main()
         )
@@ -47,10 +47,10 @@ ui_home <- function() {
 }
 
 ui_privacy_policy <- function() {
-    tabPanel(
+    shiny::tabPanel(
         title = "Privacy Policy",
-        fluidPage(
-            HTML(
+        shiny::fluidPage(
+            shiny::HTML(
                 "<div class='mainpanel'>",
                 "    <h3>Cookies</h3>",
                 "    <div>This website does not use cookies.</div>",
@@ -76,10 +76,10 @@ ui_privacy_policy <- function() {
 }
 
 ui_contact <- function() {
-    tabPanel(
+    shiny::tabPanel(
         title = "Contact",
-        fluidPage(
-            HTML(
+        shiny::fluidPage(
+            shiny::HTML(
                 "<div class='mainpanel'>",
                 "    <h3>Contact</h3>",
                 "    <div>",
@@ -100,23 +100,23 @@ ui_contact <- function() {
 }
 
 ui_about <- function() {
-    tabPanel(
+    shiny::tabPanel(
         title = "About",
-        fluidPage(
-            div(
-                h3("Purpose"),
-                p("FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI)."),
-                p("The package's key features include the ability to:"),
-                tags$ul(
-                    tags$li("Train new predictive models specific for your own chromatography column"),
-                    tags$li("Use pre-trained models to predict retention times of molecules"),
-                    tags$li("Adjust pre-trained models to accommodate modifications in chromatography columns")
+        shiny::fluidPage(
+            shiny::div(
+                shiny::h3("Purpose"),
+                shiny::tags$p("FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI)."),
+                shiny::tags$p("The package's key features include the ability to:"),
+                shiny::tags$ul(
+                    shiny::tags$li("Train new predictive models specific for your own chromatography column"),
+                    shiny::tags$li("Use pre-trained models to predict retention times of molecules"),
+                    shiny::tags$li("Adjust pre-trained models to accommodate modifications in chromatography columns")
                 ),
-                p("For further details see FastRets ", a(href = "https://spang-lab.github.io/FastRet/", "documentation site"))
+                shiny::tags$p("For further details see FastRets ", shiny::tags$a(href = "https://spang-lab.github.io/FastRet/", "documentation site"))
             ),
-            div(
-                h3("Version Info"),
-                pre(paste(capture.output(sessionInfo()), collapse = "\n"))
+            shiny::div(
+                shiny::h3("Version Info"),
+                shiny::pre(paste(capture.output(sessionInfo()), collapse = "\n"))
             )
         )
     )
@@ -125,7 +125,7 @@ ui_about <- function() {
 # Homepage Sidebar (Private) #####
 
 ui_sidebar <- function() {
-    sidebarPanel(
+    shiny::sidebarPanel(
         ui_mode_selection(),
         ui_data_upload(),
         ui_model_upload(),
@@ -138,7 +138,7 @@ ui_sidebar <- function() {
 
 ui_mode_selection <- function() {
     with_helptext(
-        selectInput(
+        shiny::selectInput(
             inputId = "siMode",
             label = "Mode",
             choices = c("Train new Model", "Predict Retention Times", "Selective Measuring", "Adjust existing Model"),
@@ -167,10 +167,10 @@ ui_mode_selection <- function() {
 }
 
 ui_data_upload <- function() {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "input.siMode == 'Selective Measuring' || input.siMode == 'Train new Model'",
         with_helptext(
-            fileInput(
+            shiny::fileInput(
                 inputId = "ubInpXlsx",
                 label = "Data as xlsx file",
                 accept = ".xlsx"
@@ -187,15 +187,15 @@ ui_data_upload <- function() {
                 "</ul>"
             )
         ),
-        div(textOutput("toInpXlsxError"), style = "color: red;")
+        shiny::div(shiny::textOutput("toInpXlsxError"), style = "color: red;")
     )
 }
 
 ui_model_upload <- function() {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "input.siMode == 'Predict Retention Times' || input.siMode == 'Adjust existing Model'",
         with_helptext(
-            fileInput(
+            shiny::fileInput(
                 inputId = "ubInpFRM",
                 label = "Upload a pretrained Model",
                 accept = c(".rds", ".RDS")
@@ -215,28 +215,28 @@ ui_model_upload <- function() {
                 "</p>"
             )
         ),
-        div(textOutput("toInpFRMError"), style = "color: red;")
+        shiny::div(shiny::textOutput("toInpFRMError"), style = "color: red;")
     )
 }
 
 ui_train_controls <- function() {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "input.siMode == 'Train new Model'",
         htmltools::tags$label("Settings"),
-        checkboxInput(
+        shiny::checkboxInput(
             inputId = "ciShowAdvSettings",
             label = "Show advanced settings",
             value = FALSE
         ),
-        checkboxInput(
+        shiny::checkboxInput(
             inputId = "ciShowTrainLogs",
             label = "Show console logs",
             value = FALSE
         ),
-        conditionalPanel(
+        shiny::conditionalPanel(
             condition = "input.siMode == 'Train new Model' && input.ciShowAdvSettings == true",
             with_helptext(
-                radioButtons(
+                shiny::radioButtons(
                     inputId = "rbMethod",
                     label = "Method",
                     choices = list("XGBoost (recommended)" = 2, "Lasso" = 1),
@@ -263,7 +263,7 @@ ui_train_controls <- function() {
                 )
             ),
             with_helptext(
-                checkboxGroupInput(
+                shiny::checkboxGroupInput(
                     inputId = "frm_opts",
                     label = "Preprocessing Options",
                     choices = list(
@@ -291,7 +291,7 @@ ui_train_controls <- function() {
                 )
             ),
             with_helptext(
-                numericInput(
+                shiny::numericInput(
                     inputId = "seed",
                     label = "Seed",
                     value = as.integer(Sys.time())
@@ -306,19 +306,19 @@ ui_train_controls <- function() {
             id = "btnTrain",
             label = "Train Model",
             type = "default",
-            icon = icon("play")
+            icon = shiny::icon("play")
         ),
-        downloadButton(
+        shiny::downloadButton(
             outputId = "dbSaveModel",
             label = "Save Model",
             style = "display: none;"
         ),
-        downloadButton(
+        shiny::downloadButton(
             outputId = "dbSavePredictorSet",
             label = "Save Predictor Set",
             style = "display: none;"
         ),
-        conditionalPanel(
+        shiny::conditionalPanel(
             condition = "input.ciShowTrainLogs == true",
             consoleOutput(
                 divID = "divTrainLogs",
@@ -329,10 +329,10 @@ ui_train_controls <- function() {
 }
 
 ui_sm_controls <- function() {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "input.siMode == 'Selective Measuring'",
         with_helptext(
-            numericInput(
+            shiny::numericInput(
                 inputId = "niK", # niK for "numeric input K"
                 label = "k Cluster",
                 value = 25
@@ -347,7 +347,7 @@ ui_sm_controls <- function() {
             label = "Calculate clusters and medoids",
             type = "default"
         ),
-        downloadButton(
+        shiny::downloadButton(
             outputId = "dbSaveCluster",
             label = "Download clustering as xlsx",
             style = "display: none;"
@@ -356,22 +356,22 @@ ui_sm_controls <- function() {
 }
 
 ui_predict_controls <- function() {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "input.siMode == 'Predict Retention Times'",
         with_helptext(
-            textInput(
+            shiny::textInput(
                 inputId = "tiPredSmiles",
                 label = "Input SMILES",
-                value = if ("input_smiles" %in% .Options$FastRet.mocks) "C(CC(=O)O)CN" else ""
+                value = ""
             ),
             content = paste(
                 "<h2 id='single-prediction'>Single Prediction</h1>",
                 "<p>Here you can input a single SMILES string to predict the retention time of a molecule. The SMILES string has to be in the same format as the SMILES strings in the training data set. The prediction will be done with the model you uploaded.</p>"
             )
         ),
-        div(textOutput("toPredSmilesError"), style = "color: red;"),
+        shiny::div(shiny::textOutput("toPredSmilesError"), style = "color: red;"),
         with_helptext(
-            fileInput(
+            shiny::fileInput(
                 inputId = "ubPredXlsx",
                 label = "Upload SMILES as xlsx",
                 accept = ".xlsx"
@@ -381,8 +381,8 @@ ui_predict_controls <- function() {
                 "<p>This file input has to be an excel file with columns NAME and SMILES</p>"
             )
         ),
-        div(textOutput("toPredXlsxError"), style = "color: red;"),
-        checkboxInput(
+        shiny::div(shiny::textOutput("toPredXlsxError"), style = "color: red;"),
+        shiny::checkboxInput(
             inputId = "ciShowPredLogs",
             label = "Show console logs",
             value = FALSE
@@ -392,12 +392,12 @@ ui_predict_controls <- function() {
             label = "Predict",
             type = "default"
         ),
-        downloadButton(
+        shiny::downloadButton(
             outputId = "dbSavePred",
             label = "Save predictions",
             style = "display: none;"
         ),
-        conditionalPanel(
+        shiny::conditionalPanel(
             condition = "input.ciShowPredLogs == true",
             consoleOutput(
                 divID = "divPredLogs",
@@ -408,22 +408,22 @@ ui_predict_controls <- function() {
 }
 
 ui_adjust_controls <- function() {
-    conditionalPanel(
+    shiny::conditionalPanel(
         condition = "input.siMode == 'Adjust existing Model'",
         with_helptext(
-            fileInput(
+            shiny::fileInput(
                 inputId = "ubAdjXlsx",
                 label = "Data for prediction adustment as xlsx file",
                 accept = ".xlsx"
             ),
             content = paste(
-                "<h2>Adjustment data</h1>",
+                "<h2>Adjustment data</h2>",
                 "<p>This file input has to be an excel file with columns RT, NAME and SMILES</p>"
             )
         ),
-        div(textOutput("toAdjXlsxError"), style = "color: red;"),
+        shiny::div(shiny::textOutput("toAdjXlsxError"), style = "color: red;"),
         with_helptext(
-            checkboxGroupInput(
+            shiny::checkboxGroupInput(
                 inputId = "ciPredictors",
                 label = "Components of linear model",
                 choices = list("RT" = 1, "RT^2" = 2, "RT^3" = 3, "log(RT)" = 4, "exp(RT)" = 5, "sqrt(RT)" = 6),
@@ -435,7 +435,7 @@ ui_adjust_controls <- function() {
                 "<p>Model adjustment is achieved by training a linear model that predicts the Retention Times of a new column based on the Retention Times from an existing column. The model should always use the retention time (RT) as a predictor. However, it might also make sense to include additional predictors such as RT^2, RT^3, log(RT), exp(RT), and sqrt(RT). Use the checkboxes in this section to specify the predictors you wish to include in the model.</p>"
             )
         ),
-        checkboxInput(
+        shiny::checkboxInput(
             inputId = "ciShowAdjLogs",
             label = "Show console logs",
             value = FALSE
@@ -445,12 +445,12 @@ ui_adjust_controls <- function() {
             label = "Adjust Model",
             type = "default"
         ),
-        downloadButton(
+        shiny::downloadButton(
             outputId = "dbSaveAdjModel",
             label = "Save adjusted model",
             style = "display: none;"
         ),
-        conditionalPanel(
+        shiny::conditionalPanel(
             condition = "input.ciShowAdjLogs == true",
             consoleOutput(
                 divID = "divAdjLogs",
@@ -463,17 +463,16 @@ ui_adjust_controls <- function() {
 # Homepage Main Area (Private) #####
 
 ui_main <- function() {
-    mainPanel(
-        # shinybusy::add_busy_spinner(spin = "fading-circle"),
-        uiOutput("ui_train_results"),
-        uiOutput("ui_sm_results"),
-        uiOutput("ui_predict_results"),
-        uiOutput("ui_adjust_results")
+    shiny::mainPanel(
+        shiny::uiOutput("ui_train_results"),
+        shiny::uiOutput("ui_sm_results"),
+        shiny::uiOutput("ui_predict_results"),
+        shiny::uiOutput("ui_adjust_results")
     )
 }
 
 ui_train_results <- function(SE) {
-    req(SE$RV$tblTrainResults, SE$input$siMode == "Train new Model")
+    shiny::req(SE$RV$tblTrainResults, SE$input$siMode == "Train new Model")
     htmltools::div(
         id = "ui_train_results",
         shiny::tabsetPanel(
@@ -491,7 +490,7 @@ ui_train_results <- function(SE) {
 }
 
 ui_sm_results <- function(SE) {
-    req(SE$RV$cluster_calc, SE$input$siMode == "Selective Measuring")
+    shiny::req(SE$RV$cluster_calc, SE$input$siMode == "Selective Measuring")
     htmltools::div(
         id = "ui_sm_results",
         htmltools::h3("Medoids"),
@@ -532,7 +531,7 @@ with_helptext <- function(..., content) {
 }
 
 consoleOutput <- function(divID, vtoID) {
-    vto <- verbatimTextOutput(outputId = vtoID)
+    vto <- shiny::verbatimTextOutput(outputId = vtoID)
     vto$attribs$style <- "
         display: block;
         line-height: 1.5em;
@@ -543,9 +542,9 @@ consoleOutput <- function(divID, vtoID) {
         word-wrap: break-word;
         overflow-wrap: break-word;
         word-break: break-all;
-        white-space: pre-wrap;
+        white-space: shiny::pre-wrap;
     "
-    div(
+    shiny::div(
         id = divID,
         style = "margin-top: 15px; margin-bottom: 15px;",
         htmltools::tags$label("Console Log", class = "control-label"),

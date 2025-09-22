@@ -13,11 +13,10 @@ fastret_app(port = 8080, host = "0.0.0.0", reload = FALSE, nsw = 1)
 
 \item{reload}{Whether to reload the application when the source code changes}
 
-\item{nsw}{The number of subworkers each worker is allowed to start. The higher this number, the faster individual tasks like model fitting can be processed.}
+\item{nsw}{The number of subworkers each worker is allowed to start. The higher this
+number, the faster individual tasks like model fitting can be processed.}
 }
 \value{
-A shiny app. This function returns a shiny app that can be run to interact with the model.
-
 An object of class \code{shiny.appobj}.
 }
 \description{

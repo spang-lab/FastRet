@@ -17,5 +17,6 @@ Checks if a string ends with a newline character. If not, a newline character is
 }
 \examples{
 cat(withLineEnd("Hello"))
+
 }
 \keyword{internal}
