@@ -1,3 +1,17 @@
+# FastRet 1.2.0 (Development) <!-- Branch: improve115 -->
+
+- Added `seed` parameter to `selective_measuring()` function for reproducible
+  clustering results
+- Enhanced documentation for `train_frm()` function
+- Removed `digest` and `shinybusy` dependencies
+- Major refactoring of caching system and related functions
+- Removed mock files from `inst/mockdata/`
+- Removed objects: `getCDsFor1Molecule()`, `get_cache_dir()`, `ram_cache` (these
+  were exported, but declared as internal)
+- Added private function `parLapply2`
+- Added comprehensive GitHub Copilot instructions file
+- Improved code organization and documentation across multiple R files
+
 # FastRet 1.1.5 <!-- Commit Date: 2025-06-26 -->
 
 - Improved `read_retip_hilic_data()`:
