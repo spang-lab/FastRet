@@ -80,6 +80,12 @@ train_frm <- function(df,
                       seed = NULL
                       ) {
 
+    if (object$type == "gbtree") {
+        withr::local_package("xgboost")
+    } else {
+        withr::local_package("glmnet")
+    }
+
     # Configure logging and check arguments
     if (verbose == 0) catf <- function(...) {}
     catf("Starting training of a %s model", method)
@@ -278,7 +284,11 @@ adjust_frm <- function(frm = train_frm(),
 #' yhat <- predict(frm, newdata)
 predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, verbose = 0, ...) {
 
-    requireNamespace(c("glmnet", "xgboost"), quietly = TRUE)
+    if (object$type == "gbtree") {
+        withr::local_package("xgboost")
+    } else {
+        withr::local_package("glmnet")
+    }
 
     if (verbose == 0) catf <- function(...) {}
     predictors <- get_predictors(object)
