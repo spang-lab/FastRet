@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,20 +68,31 @@
 
 
 <dt id="arg-nw">nw<a class="anchor" aria-label="anchor" href="#arg-nw"></a></dt>
-<dd><p>The number of worker processes started. The first worker always listens for user input from the GUI. The other workers are used for handling long running tasks like model fitting or clustering. If <code>nw</code> is 1, the same process is used for both tasks, which means that the GUI will become unresponsive during long running tasks.</p></dd>
+<dd><p>The number of worker processes started. The first worker always listens for
+user input from the GUI. The other workers are used for handling long running
+tasks like model fitting or clustering. If <code>nw</code> is 1, the same process is
+used for both tasks, which means that the GUI will become unresponsive during
+long running tasks.</p></dd>
 
 
 <dt id="arg-nsw">nsw<a class="anchor" aria-label="anchor" href="#arg-nsw"></a></dt>
-<dd><p>The number of subworkers each worker is allowed to start. The higher this number, the faster individual tasks like model fitting can be processed. A value of 1 means that all subprocesses will run sequentially.</p></dd>
+<dd><p>The number of subworkers each worker is allowed to start. The higher this
+number, the faster individual tasks like model fitting can be processed. A
+value of 1 means that all subprocesses will run sequentially.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A shiny app. This function returns a shiny app that can be run to interact with the model.</p>
+    <p>A shiny app. This function returns a shiny app that can be run to interact
+with the model.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If you set <code>nw = 3</code> and <code>nsw = 4</code>, you should have at least 16 cores, one core for the shiny main process. Three cores for the three worker processes and 12 cores (3 * 4) for the subworkers. For the default case, <code>nworkers = 2</code> and <code>nsw = 1</code>, you only need 3 cores, as <code>nsw = 1</code> means that all subprocesses will run sequentially.</p>
+    <p>If you set <code>nw = 3</code> and <code>nsw = 4</code>, you should have at least 16 cores, one
+core for the shiny main process. Three cores for the three worker processes
+and 12 cores (3 * 4) for the subworkers. For the default case, <code>nworkers = 2</code>
+and <code>nsw = 1</code>, you only need 3 cores, as <code>nsw = 1</code> means that all
+subprocesses will run sequentially.</p>
     </div>
 
     <div class="section level2">

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,12 +42,28 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="fastret-120-development-">FastRet 1.2.0 (Development) <!-- Branch: improve115 -->
+<a class="anchor" aria-label="anchor" href="#fastret-120-development-"></a></h2>
+<ul><li>Added <code>seed</code> parameter to <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code> function for reproducible clustering results</li>
+<li>Enhanced documentation for <code><a href="../reference/train_frm.html">train_frm()</a></code> function</li>
+<li>Removed <code>digest</code> and <code>shinybusy</code> dependencies</li>
+<li>Major refactoring of caching system and related functions</li>
+<li>Removed mock files from <code>inst/mockdata/</code>
+</li>
+<li>Removed objects: <code>getCDsFor1Molecule()</code>, <code>get_cache_dir()</code>, <code>ram_cache</code> (these were exported, but declared as internal)</li>
+<li>Added private function <code>parLapply2</code>
+</li>
+<li>Added comprehensive GitHub Copilot instructions file</li>
+<li>Improved code organization and documentation across multiple R files</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.5" id="fastret-115-">FastRet 1.1.5 <!-- Commit Date: 2025-06-26 -->
 <a class="anchor" aria-label="anchor" href="#fastret-115-"></a></h2>
 <ul><li><p>Improved <code><a href="../reference/read_retip_hilic_data.html">read_retip_hilic_data()</a></code>: the dataset is now only downloaded from GitHub if the package is not installed. If it is installed, the dataset is loaded directly.</p></li>
 <li>
 <p>Internal Changes:</p>
-<ul><li>Removed TODOS.md</li>
+<ul><li>Removed <code>TODOS.md</code>
+</li>
 <li>Bumped version to 1.1.5</li>
 <li>Moved all data related functions from <code>util.R</code> to <code>data.R</code>
 </li>
@@ -96,9 +112,9 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.3" id="fastret-103-">FastRet 1.0.3 <!-- Commit Date: 2024-06-13 -->
 <a class="anchor" aria-label="anchor" href="#fastret-103-"></a></h2>
-<ul><li><p>Added examples to <code><a href="../reference/start_gui.html">start_gui()</a></code>, <code><a href="../reference/fastret_app.html">fastret_app()</a></code>, <code><a href="../reference/getCDsFor1Molecule.html">getCDsFor1Molecule()</a></code>, <code><a href="../reference/analyzeCDNames.html">analyzeCDNames()</a></code>, <code>check_lm_suitabilitym()</code>, <code>plot_lm_suitability()</code>, <code>extendedTask()</code>, <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code>, <code><a href="../reference/train_frm.html">train_frm()</a></code>, <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code>, <code><a href="../reference/get_predictors.html">get_predictors()</a></code></p></li>
+<ul><li><p>Added examples to <code><a href="../reference/start_gui.html">start_gui()</a></code>, <code><a href="../reference/fastret_app.html">fastret_app()</a></code>, <code>getCDsFor1Molecule()</code>, <code><a href="../reference/analyzeCDNames.html">analyzeCDNames()</a></code>, <code>check_lm_suitabilitym()</code>, <code>plot_lm_suitability()</code>, <code>extendedTask()</code>, <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code>, <code><a href="../reference/train_frm.html">train_frm()</a></code>, <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code>, <code><a href="../reference/get_predictors.html">get_predictors()</a></code></p></li>
 <li><p>Improved lots of existing examples</p></li>
-<li><p>Added additionalo logging messages at various places</p></li>
+<li><p>Added additional logging messages at various places</p></li>
 <li>
 <p>Submitted to CRAN, but rejected because the following examples caused at least one of the following notes on the CRAN testing machines: (1) “CPU time &gt; 5s”, (2) “CPU time &gt; 2.5 times elapsed time”. In this context, “CPU time” is calculated as the sum of the measured “user” and “system” times.</p>
 <table class="table"><thead><tr class="header"><th>function</th>
@@ -182,7 +198,7 @@
 <a class="anchor" aria-label="anchor" href="#fastret-0991-"></a></h2>
 <ul><li>
 <p>Initial version.</p>
-<p>Copy of commit cd243aa82a56df405df8060b84535633cf06b692 of <a href="https://github.com/ChristianAmes/FastRet.git" class="external-link">Christian Amesöders Repository</a>. (Christian wrote this initial version of FastRet as part of his master thesis at the Institute of functional Genomics, University of Regensburg).</p>
+<p>Copy of commit <code>cd243aa82a56df405df8060b84535633cf06b692</code> of <a href="https://github.com/ChristianAmes/FastRet.git" class="external-link">Christian Amesöders Repository</a>. (Christian wrote this initial version of FastRet as part of his master thesis at the Institute of functional Genomics, University of Regensburg).</p>
 </li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

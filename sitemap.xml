@@ -8,6 +8,7 @@
 <url><loc>https://spang-lab.github.io/FastRet/articles/Package-Internals.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/articles/index.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/authors.html</loc></url>
+<url><loc>https://spang-lab.github.io/FastRet/copilot-instructions.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/index.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/news/index.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/CDFeatures.html</loc></url>
@@ -19,8 +20,6 @@
 <url><loc>https://spang-lab.github.io/FastRet/reference/collect.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/fastret_app.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/getCDs.html</loc></url>
-<url><loc>https://spang-lab.github.io/FastRet/reference/getCDsFor1Molecule.html</loc></url>
-<url><loc>https://spang-lab.github.io/FastRet/reference/get_cache_dir.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/get_predictors.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/index.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/init_log_dir.html</loc></url>
@@ -28,7 +27,6 @@
 <url><loc>https://spang-lab.github.io/FastRet/reference/pkg_file.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/predict.frm.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/preprocess_data.html</loc></url>
-<url><loc>https://spang-lab.github.io/FastRet/reference/ram_cache.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/read_retip_hilic_data.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/read_rp_lasso_model_rds.html</loc></url>
 <url><loc>https://spang-lab.github.io/FastRet/reference/read_rp_xlsx.html</loc></url>

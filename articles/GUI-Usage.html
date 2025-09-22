@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,8 +84,9 @@ then run the following command in an interactive R terminal:</p>
 <p>in your R console. This means that the GUI is now running and you can
 access it via the URL <a href="http://localhost:8080" class="external-link uri">http://localhost:8080</a> in your browser. If your terminal
 supports it, you can also click on the displayed link.</p>
-<p><a href="GUI-Usage/start-page.png"><img src="GUI-Usage/start-page.png" width="45%"></a>
-<a href="GUI-Usage/mode-help.png"><img src="GUI-Usage/mode-help.png" width="45%"></a></p>
+<p><a href="GUI-Usage/start-page.png">
+<img src="GUI-Usage/start-page.png" alt="FastRet GUI start page showing the default 'Train new Model' mode with file upload options and training controls" width="45%"></a> <a href="GUI-Usage/mode-help.png">
+<img src="GUI-Usage/mode-help.png" alt="FastRet GUI help tooltips displayed when hovering over question mark symbols next to input fields" width="45%"></a></p>
 <p>By default, the GUI opens in mode <em>Train new Model</em>. To apply
 or adjust pretrained models, select mode <em>Predict Retention Time</em>
 or <em>Adjust existing Model</em> instead. For more information about
@@ -133,8 +134,8 @@ process. Upon completion, performance measures and a table of training
 dataset is shown. For further details about the training process and the
 performance measures, see section <a href="https://spang-lab.github.io/FastRet/articles/Package-Internals.html#model-training">Model-Training</a>
 of article <a href="https://spang-lab.github.io/FastRet/articles/Package-Internals.html">Package-Internals</a>.</p>
-<p><a href="GUI-Usage/model-training.png"><img src="GUI-Usage/model-training.png" width="45%"></a>
-<a href="GUI-Usage/model-performance.png"><img src="GUI-Usage/model-performance.png" width="45%"></a></p>
+<p><a href="GUI-Usage/model-training.png"><img src="GUI-Usage/model-training.png" alt="FastRet GUI model training interface showing training progress and console output" width="45%"></a>
+<a href="GUI-Usage/model-performance.png"><img src="GUI-Usage/model-performance.png" alt="FastRet GUI model performance results displaying validation metrics and performance plots" width="45%"></a></p>
 <p>To use the trained model to predict retention times for new
 molecules, you have to:</p>
 <ol style="list-style-type: decimal">
@@ -170,7 +171,10 @@ xlsx</em> and select an Excel file containing columns NAME and
 SMILES</li>
 <li>Click button <em>Predict</em> at the bottom of the side bar</li>
 </ol>
-<p><img src="Old-Intro/04.png" style="width:45.0%"></p>
+<div class="float">
+<img src="Old-Intro/04.png" style="width:45.0%" alt="Screenshot of FastRet GUI in ‘Predict Retention Times’ mode showing model upload and SMILES input options"><div class="figcaption">Screenshot of FastRet GUI in ‘Predict Retention
+Times’ mode showing model upload and SMILES input options</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="adjusting-existing-model">Adjusting existing model<a class="anchor" aria-label="anchor" href="#adjusting-existing-model"></a>
@@ -184,7 +188,11 @@ metabolites measured on your new column. The Excel file should contain
 columns NAME, SMILES and RT. After clicking the <em>Adjust Model</em>
 button, the model will be adjusted and you can use it to predict
 retention times for new molecules measured on your new column.</p>
-<p><img src="Old-Intro/05.png" style="width:45.0%"></p>
+<div class="float">
+<img src="Old-Intro/05.png" style="width:45.0%" alt="Screenshot of FastRet GUI in ‘Adjust existing Model’ mode showing model adjustment interface with file upload options"><div class="figcaption">Screenshot of FastRet GUI in ‘Adjust existing
+Model’ mode showing model adjustment interface with file upload
+options</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="selective-measuring">Selective Measuring<a class="anchor" aria-label="anchor" href="#selective-measuring"></a>

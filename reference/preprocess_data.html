@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,9 @@
 <span>  degree_polynomial <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  interaction_terms <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  nw <span class="op">=</span> <span class="fl">1</span></span>
+<span>  nw <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  rm_near_zero_var <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  rm_na <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -62,15 +64,16 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>dataframe with columns RT, NAME, SMILES</p></dd>
+<dd><p>Dataframe with columns RT, NAME, SMILES</p></dd>
 
 
 <dt id="arg-degree-polynomial">degree_polynomial<a class="anchor" aria-label="anchor" href="#arg-degree-polynomial"></a></dt>
-<dd><p>defines how many polynomials get added (if 3 quadratic and cubic terms get added)</p></dd>
+<dd><p>Defines how many polynomials get added (if 3 quadratic and cubic terms get
+added).</p></dd>
 
 
 <dt id="arg-interaction-terms">interaction_terms<a class="anchor" aria-label="anchor" href="#arg-interaction-terms"></a></dt>
-<dd><p>if TRUE all interaction terms get added to data set</p></dd>
+<dd><p>If TRUE all interaction terms get added to data set.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -79,6 +82,20 @@
 
 <dt id="arg-nw">nw<a class="anchor" aria-label="anchor" href="#arg-nw"></a></dt>
 <dd><p>number of workers to use for parallel processing</p></dd>
+
+
+<dt id="arg-rm-near-zero-var">rm_near_zero_var<a class="anchor" aria-label="anchor" href="#arg-rm-near-zero-var"></a></dt>
+<dd><p>A logical value indicating whether to remove near zero variance predictors.
+Setting this to TRUE can cause the CV results to be overoptimistic, as the
+variance filtering is done on the whole dataset, i.e. information from the
+test folds is used for feature selection.</p></dd>
+
+
+<dt id="arg-rm-na">rm_na<a class="anchor" aria-label="anchor" href="#arg-rm-na"></a></dt>
+<dd><p>A logical value indicating whether to remove NA values. Setting this to TRUE
+can cause the CV results to be overoptimistic, as the filtering is done on
+the whole dataset, i.e. information from the test folds is used for feature
+selection.</p></dd>
 
 </dl></div>
     <div class="section level2">
