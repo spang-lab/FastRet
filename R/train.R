@@ -80,7 +80,7 @@ train_frm <- function(df,
                       seed = NULL
                       ) {
 
-    if (object$type == "gbtree") {
+    if (method == "gbtree") {
         withr::local_package("xgboost")
     } else {
         withr::local_package("glmnet")
