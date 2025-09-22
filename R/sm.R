@@ -1,7 +1,10 @@
 # Public #####
 
 #' @export
+#' @keywords public
+#'
 #' @title Selective Measuring
+#'
 #' @description
 #' The function [adjust_frm()] is used to modify existing FastRet models based
 #' on changes in chromatographic conditions. It requires a set of molecules with
@@ -24,15 +27,20 @@
 #' @param raw_data
 #' The raw data to be processed.
 #' Must be a dataframe with columns NAME, RT and SMILES.
+#'
 #' @param k_cluster
 #' The number of clusters for PAM clustering.
+#'
 #' @param verbose
 #' The level of verbosity.
+#'
 #' @param seed
 #' An optional random seed for reproducibility, set at the beginning of the
 #' function.
+#'
 #' @return
 #' A list containing the following elements:
+#'
 #' - `clustering`: A data frame with columns RT, SMILES, NAME, CLUSTER and
 #'   IS_MEDOID.
 #' - `clobj`: The clustering object. The object returned by the clustering
@@ -43,12 +51,14 @@
 #' - `dfz`: The standardized features.
 #' - `dfzb`: The features scaled by the coefficients (betas) of the Ridge
 #'   Regression model.
-#' @keywords public
+#'
+#'
 #' @examples
 #' x <- selective_measuring(RP[1:50, ], k = 5, verbose = 0)
 #' # For the sake of a short runtime, only the first 50 rows of the RP dataset
 #' # were used in this example. In practice, you should always use the entire
 #' # dataset to find the optimal subset for re-measurement.
+#'
 selective_measuring <- function(raw_data,
                                 k_cluster = 25,
                                 verbose = 1,
@@ -60,12 +70,6 @@ selective_measuring <- function(raw_data,
     # Configure logging behaviours
     catf <- if (verbose >= 1) catf else function(...) {}
     catf("Starting Selective Measuring")
-
-    # Return pregenerated results if mocking is enabled for this function
-    if ("selective_measuring" %in% getOption("FastRet.mocks", c())) {
-        catf("Mocking is enabled. Returning 'mockdata/clustering.rds'")
-        return(readRDS(pkg_file("mockdata/clustering.rds")))
-    }
 
     catf("Preprocessing input data")
     validate_inputdata(raw_data, min_cds = 0)

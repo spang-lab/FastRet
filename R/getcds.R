@@ -1,165 +1,75 @@
 # Public #####
 
 #' @export
-#' @title Get Chemical Descriptors for a list of molecules
-#' @description
-#' Calculate Chemical Descriptors for a list of molecules. Molecules can appear
-#' multiple times in the list.
-#' @param df dataframe with two mandatory columns: "NAME" and "SMILES"
-#' @param verbose 0: no output, 1: progress, 2: more progress and warnings
-#' @param nw number of workers for parallel processing
-#' @param force_nw
-#' If TRUE, the specified number of workers `nw` will be used even for small
-#' inputs. Default is FALSE, which automatically falls back to sequential
-#' processing for less than 20 SMILES.
-#' @return
-#' A dataframe with the chemical descriptor values appended as columns to the
-#' input dataframe.
 #' @keywords public
+#'
+#' @title Get Chemical Descriptors for a list of molecules
+#'
+#' @description
+#' Calculate Chemical Descriptors (CDs) for a list of molecules. Molecules can
+#' appear multiple times in the list.
+#'
+#' @param df
+#' dataframe with two mandatory columns: "NAME" and "SMILES"
+#'
+#' @param verbose
+#' 0: no output, 1: progress, 2: more progress and warnings
+#'
+#' @param nw
+#' number of workers for parallel processing
+#'
+#' @param keepdf
+#' If TRUE, `cbind(df, CDs)` is returned. Else `CDs`.
+#'
+#' @return
+#' A dataframe with all input columns (if `keepdf` is TRUE) and chemical
+#' descriptors as remaining columns.
+#'
 #' @examples
-#' cds <- getCDs(df = head(RP, 3), verbose = 1, nw = 1)
-getCDs <- function(df, verbose = 1, nw = 1, force_nw = FALSE) {
-
-    # Configure logging behaviour
-    verbose01 <- if (verbose == 0) 0 else 1
+#' cds <- getCDs(head(RP, 3), verbose = 1, nw = 1)
+#'
+getCDs <- function(df,
+                   verbose = 1,
+                   nw = 1,
+                   keepdf = TRUE) {
     catf <- if (verbose >= 1) catf else null
-    spwarn <- if (verbose >= 2) force else suppressWarnings
-    opts <- options(warn = if (verbose >= 2) 1 else 0)
-    on.exit(options(opts), add = TRUE)
-
-    # Prepare fetching of chemical descriptors
     a <- Sys.time()
-    smiu <- df$SMILES %notin% rownames(ram_cache$CDs) # SMILES uncached
-
-    # Fetch chemical descriptors for uncached SMILES
-    catf("Obtaining chemical descriptors for %d SMILES (nw = %d)", nrow(df), nw)
-    cdsu_list <- parLapply2(
-        NW = nw, ITERABLE = smiu, FUN = getCDsFor1Molecule,
-        read_ram = FALSE, write_ram = FALSE, # (1)
-        read_disk = TRUE, write_disk = TRUE,
-        verbose = verbose01
-        # (1) Set write_ram to FALSE, as this function might be called in a
-        # subprocess if nw > 1
-    )
-    cdsu <- as.data.frame(data.table::rbindlist(cdsu_list, use.names = FALSE))
-    rc_set(smiu, cdsu) # Now populate RAM cache
-
-    # Return results
-    cds <- ram_cache$CDs[df$SMILES, ]
-    retdf <- cbind(df, cds)
+    smi <- unique(df$SMILES[df$SMILES %notin% rownames(pkgCDs)])
+    if (length(smi) > 0) {
+        catf("Computing CDs for %d new SMILES using rCDK", length(smi))
+        if (nw > 1) {
+            chunkids <- cut(seq_along(smi), nw, labels = FALSE)
+            DF <- split(data.frame(SMILES = smi), chunkids)
+            CDS <- parLapply2(nw, DF, getCDs, verbose = 0, nw = 1, keepdf = FALSE)
+            newCDs <- as.data.frame(data.table::rbindlist(CDS, use.names = TRUE))
+            rownames(newCDs) <- smi
+        } else {
+            objs <- withr::with_options(list(warn = 2), rcdk::parse.smiles(smi))
+            lapply(objs, rcdk::convert.implicit.to.explicit) # Add H atoms
+            lapply(objs, rcdk::generate.2d.coordinates) # Gen 2D coords
+            newCDs <- suppressWarnings(rcdk::eval.desc(objs, CDNames, verbose = FALSE))
+        }
+        pkgCDs <- rbind(pkgCDs, newCDs) # Local copy by intention.
+    }
+    cds <- pkgCDs[df$SMILES, ]
+    retdf <- if (keepdf) cbind(df, cds) else cds
     b <- Sys.time()
     catf("Finished calculating chemical descriptors in %s", format(b - a))
     invisible(retdf)
 }
 
+# Constants #####
+
+pkgCDs <- readRDS(system.file("cachedata/CDs.rds", package = "FastRet"))
+
 #' @export
 #' @keywords internal
 #'
-#' @title Get Chemical Descriptors for a single molecule
-#'
-#' @description
-#' Helper function for [getCDs()]. Calculates chemical descriptors for a single
-#' molecule, specified as
-#' [SMILES](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system)
-#' string. This function should NOT be used directly. It is only exported so
-#' [getCDs()] can easily spawn background worker processes that are able to call
-#' this function.
-#'
-#' @details
-#' Chemical descriptors in [getCDs()] are calculated individually for each
-#' molecule. This is due to the inconsistent ordering of output dataframes when
-#' a list of `IAtomContainer` objects is provided to `rcdk::eval.desc`. Although
-#' the input SMILES are set as rownames, they don't match the original input
-#' SMILES due to an unclear transformation, making mapping non-trivial.
-#' Calculating descriptors molecule by molecule also enables parallelization in
-#' [getCDs()].
-#'
-#' @param smi
-#' SMILES string of the molecule.
-#'
-#' @param cache
-#' Shortcut for setting all four cache parameters to the same value.
-#' Set `read_ram`, `write_ram`, `read_disk` or `write_disk` individually to
-#' finetune the caching behaviour.
-#'
-#' @param read_ram,write_ram,read_disk,write_disk
-#' Whether to read from or write to the RAM or disk cache.
-#'
-#' @param verbose Verbosity. 0: no output, 1: show progress.
-#'
-#' @return
-#' A dataframe of dimension 1 x 241. The rowname is the input SMILES string. The
-#' colnames are the chemical descriptor features specified by [CDFeatures].
-#'
-#' @seealso [getCDs()], [CDFeatures]
-#'
-#' @examples
-#' smi <- "O=C(O)CCCCCCCCCO"
-#' cds <- getCDsFor1Molecule(smi)
-getCDsFor1Molecule <- function(smi,
-                               cache = TRUE,
-                               verbose = 1,
-                               read_ram = cache,
-                               write_ram = cache,
-                               read_disk = cache,
-                               write_disk = cache,
-                               overwrite = FALSE) {
-    if (verbose == 0) catf <- null
-    cds <- (if (read_ram) rc_get(smi, catf)) %||%
-        (if (read_disk) dc_get(smi, catf)) %||%
-        (getCDsFromCDK(smi, catf))
-    if (write_ram) rc_set(smi, cds, catf)
-    if (write_disk) dc_set(smi, cds, catf, overwrite)
-    cds
-}
-
-# Helpers #####
-
-#' @noRd
-#' @title Get Chemical Descriptors
-#' @description
-#' Calculate chemical descriptors for a vector of SMILES strings using the rCDK package.
-#' @param smi SMILES string
-#' @param logf Function for logging messages
-#' @param spwarn Function for warning suppression
-#' @param explicit Whether to convert implicit hydrogens to explicit ones
-#' @param coords Whether to generate 2D coordinates
-#' @param nw Number of workers for parallel processing. Don't use for less than 20 SMILES or runtime will increase.
-#' @return Data frame with chemical descriptors
-#' @examples
-#' smi <- sample(RP$SMILES, 10)
-getCDsFromCDK <- function(smi,
-                    logf = null,
-                    spwarn = suppressWarnings,
-                    explicit = TRUE,
-                    coords = TRUE,
-                    nw = 1) {
-    fmt <- "Calculating chemical descriptors using rCDK (nSMILES = %d, nw = %d)"
-    logf(fmt, length(smi), nw)
-    if (nw > 1) {
-        SMI <- split(smi, cut(seq_along(smi), nw, labels = FALSE))
-        CDS <- parLapply2(
-            NW = nw, ITERABLE = SMI, FUN = getCDsFromCDK,
-            logf = logf, spwarn = spwarn,
-            explicit = explicit, coords = coords,
-            nw = 1 # very important or we will call ourselves recursively
-        )
-        cds <- as.data.frame(data.table::rbindlist(CDS, use.names = FALSE))
-        rownames(cds) <- smi
-    } else {
-        objs <- withr::with_options(list(warn = 2), rcdk::parse.smiles(smi)) # List of 'jobjRef'
-        if (explicit) lapply(objs, rcdk::convert.implicit.to.explicit) # Add H atoms
-        if (coords) lapply(objs, rcdk::generate.2d.coordinates) # Gen 2D coords
-        cds <- spwarn(rcdk::eval.desc(objs, CDNames, verbose = FALSE)) # n x 241 data.frame
-    }
-    cds
-}
-
-# Constants #####
-
-#' @export
 #' @title Chemical Descriptors Names
-#' @description This object contains the names of various chemical descriptors.
+#'
+#' @description
+#' This object contains the names of various chemical descriptors.
+#'
 #' @details
 #' One descriptor can be associated with multiple features, e.g. the BCUT
 #' descriptor corresponds to the following features: BCUTw.1l, BCUTw.1h,
@@ -173,10 +83,12 @@ getCDsFromCDK <- function(smi,
 #' `rcdk::bpdata$SMILES[200]`) when using `OpenJDK Runtime Environment (build
 #' 11.0.23+9-post-Ubuntu-1ubuntu122.04.1)`. Therefore, this descriptor is also
 #' excluded.
+#'
+#' @seealso [analyzeCDNames()], [CDFeatures]
+#'
 #' @examples
 #' str(CDNames)
-#' @seealso [analyzeCDNames()], [CDFeatures]
-#' @keywords internal
+#'
 CDNames <- c(
     "org.openscience.cdk.qsar.descriptors.molecular.FractionalCSP3Descriptor",
     "org.openscience.cdk.qsar.descriptors.molecular.SmallRingDescriptor",
@@ -241,24 +153,34 @@ update_CDNames <- function() {
 }
 
 #' @export
+#' @keywords internal
+#'
 #' @title Analyze Chemical Descriptors Names
+#'
 #' @description
 #' Analyze the chemical descriptor names and return a dataframe with their names
 #' and a boolean column indicating if all values are NA.
+#'
 #' @details
 #' This function is used to analyze the chemical descriptor names and to
 #' identify which descriptors produce only NAs in the test datasets. The
 #' function is used to generate the CDNames object.
-#' @param df dataframe with two mandatory columns: "NAME" and "SMILES"
-#' @param descriptors vector of chemical descriptor names
-#' @keywords internal
-#' @examples
-#' X <- analyzeCDNames(df = head(RP, 2), descriptors = CDNames[1:2])
+#'
+#' @param df
+#' dataframe with two mandatory columns: "NAME" and "SMILES"
+#'
+#' @param descriptors
+#' Vector of chemical descriptor names
+#'
 #' @return
 #' A dataframe with two columns `descriptor` and `all_na`. Column `descriptor`
 #' contains the names of the chemical descriptors. Column `all_na` contains a
 #' boolean value indicating if all values obtained for the corresponding
 #' descriptor are NA.
+#'
+#' @examples
+#' X <- analyzeCDNames(df = head(RP, 2), descriptors = CDNames[1:2])
+#'
 analyzeCDNames <- function(df, descriptors = rcdk::get.desc.names(type = "all")) {
     n <- nrow(df)
     k <- length(descriptors)
@@ -278,12 +200,16 @@ analyzeCDNames <- function(df, descriptors = rcdk::get.desc.names(type = "all"))
 }
 
 #' @export
+#' @keywords internal
+#'
 #' @title Chemical Descriptor Features
+#'
 #' @description
 #' Vector containing the feature names of the chemical descriptors listed in
 #' [CDNames].
-#' @keywords internal
+#'
 #' @seealso [CDNames]
+#'
 CDFeatures <- c(
     "Fsp3", "nSmallRings", "nAromRings", "nRingBlocks",
     "nAromBlocks", "nRings3", "nRings4", "nRings5", "nRings6", "nRings7",
@@ -442,19 +368,37 @@ CDFeatures_v2.9 <- c(
 )
 
 #' @noRd
+#' @keywords internal
+#'
 #' @title Wrapper for parallel apply operations
+#'
 #' @description
 #' Helper function that provides a unified interface for parallel processing,
 #' automatically choosing between cluster-based parallelization (for multiple
 #' workers) and sequential processing (for single worker). This function handles
 #' cluster creation, package loading, and cleanup automatically.
-#' @param NW Number of workers. If > 1, creates a cluster; if <= 1, uses sequential processing
-#' @param ITERABLE Vector or list to apply the function over
-#' @param EXPORT Character vector of object names to export to cluster workers
-#' @param ENVIR Environment from which to export objects
-#' @param BENCHMARK Logical indicating whether to return timing information
-#' @param FUN Function to apply to each element of ITERABLE
+#'
+#' @param NW
+#' Number of workers. If > 1, creates a cluster; if <= 1, uses sequential
+#' processing
+#'
+#' @param ITERABLE
+#' Vector or list to apply the function over
+#'
+#' @param EXPORT
+#' Character vector of object names to export to cluster workers
+#'
+#' @param ENVIR
+#' Environment from which to export objects
+#'
+#' @param BENCHMARK
+#' Logical indicating whether to return timing information
+#'
+#' @param FUN
+#' Function to apply to each element of ITERABLE
+#'
 #' @param ... Additional arguments passed to FUN
+#'
 #' @details
 #' When NW > 1:
 #' - Creates a cluster with makeCluster()
@@ -469,18 +413,19 @@ CDFeatures_v2.9 <- c(
 #'
 #' This approach ensures that parallel workers have access to all FastRet functions
 #' without requiring explicit exports or complex namespace management.
+#'
 #' @return List containing the results of applying FUN to each element of ITERABLE.
 #' If BENCHMARK=TRUE, includes timing attributes.
-#' @keywords internal
+#'
 parLapply2 <- function( NW,
                         ITERABLE,
+                        FUN,
+                        ...,
                         EXPORT = character(),
                         ENVIR = parent.frame(),
                         BENCHMARK = FALSE,
                         ATTACHPE = TRUE,
-                        ATTACHPNS = TRUE,
-                        FUN,
-                        ...) {
+                        ATTACHPNS = TRUE) {
     timestamps <- rep(Sys.time(), 6)
     if (NW <= 1) {
         RETOBJ <- lapply(X = ITERABLE, FUN = FUN, ...)

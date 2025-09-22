@@ -57,5 +57,6 @@ x <- selective_measuring(RP[1:50, ], k = 5, verbose = 0)
 # For the sake of a short runtime, only the first 50 rows of the RP dataset
 # were used in this example. In practice, you should always use the entire
 # dataset to find the optimal subset for re-measurement.
+
 }
 \keyword{public}

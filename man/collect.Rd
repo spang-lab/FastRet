@@ -10,13 +10,18 @@ collect(xx)
 \item{xx}{A list of lists where each inner list has the same names.}
 }
 \value{
-A list where each element corresponds to a name of the inner list that is extracted from each inner list.
+A list where each element corresponds to a name of the inner list that is
+extracted from each inner list.
 }
 \description{
-Takes a list of lists where each inner list has the same names. It returns a list where each element corresponds to a name of the inner list that is extracted from each inner list. Especially useful for collecting results from lapply.
+Takes a list of lists where each inner list has the same names. It returns a
+list where each element corresponds to a name of the inner list that is
+extracted from each inner list. Especially useful for collecting results from
+lapply.
 }
 \examples{
 xx <- lapply(1:3, function(i) list(a = i, b = i^2, c = i^3))
 ret <- collect(xx)
+
 }
 \keyword{internal}

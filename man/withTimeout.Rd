@@ -22,12 +22,10 @@ withTimeout(
      cat("This works\n"),
      timeout = 0.2
 )
-try(
-     withTimeout(
-         expr = {Sys.sleep(0.2); cat("This fails\n")},
-         timeout = 0.1
-     ),
-     silent = TRUE
-)
+try(silent = TRUE, withTimeout(
+    expr = {Sys.sleep(0.2); cat("This fails\n")},
+    timeout = 0.1
+))
+
 }
 \keyword{internal}

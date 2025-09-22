@@ -57,7 +57,7 @@ The error message `JAVA_HOME cannot be determined from the Registry` indicates t
 This can cause further errors such as `ERROR: lazy loading failed for package 'FastRet'` when trying to load FastRet.
 See [rJava installation fails](#rjava-installation-fails) for possible solutions.
 
-<a href="Installation/error_JAVA_HOME_not_found.png"><img src="Installation/error_JAVA_HOME_not_found.png" width="49%"/></a>
+<a href="Installation/error_JAVA_HOME_not_found.png"><img src="Installation/error_JAVA_HOME_not_found.png" alt="R console error message showing 'JAVA_HOME cannot be determined from the Registry' indicating rJava cannot find Java installation" width="49%"/></a>
 
 ## rJava installation fails
 

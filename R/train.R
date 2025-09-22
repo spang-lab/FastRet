@@ -90,13 +90,6 @@ train_frm <- function(df,
         nw <- 1
     }
 
-    # Return pregenerated results if mocking is enabled for this function
-    if ("train_frm" %in% getOption("FastRet.mocks", c())) {
-        mockfile <- sprintf("mockdata/%s_model.rds", method)
-        catf("Mocking is enabled. Returning '%s'", mockfile)
-        return(readRDS(pkg_file(mockfile)))
-    }
-
     catf("Preprocessing data")
     folds <- caret::createFolds(y = df$RT, k = nfolds)
     df <- preprocess_data(
@@ -407,7 +400,7 @@ fit_glmnet <- function(df = preprocess_data(), verbose = 1, alpha = 1) {
     Y <- as.matrix(df[, !cds])
     y <- df[, "RT"]
     if (verbose) catf("Fitting %s model", if (alpha == 1) "Lasso" else "Ridge")
-    cvobj <- glmnet::cv.glmnet(X, y, alpha = alpha, standardize = TRUE, family = "gaussian", type.measure = "mse", )
+    cvobj <- glmnet::cv.glmnet(X, y, alpha = alpha, standardize = TRUE, family = "gaussian", type.measure = "mse", grouped = FALSE)
     model <- glmnet::glmnet(X, y, alpha = alpha, standardize = TRUE, family = "gaussian", lambda = cvobj$lambda.min)
     # model$traindata <- list(X = X, Y = Y, y = y) # store traindata for later model analysis and/or potential data imputation into testdata
     if (verbose) catf("End training")

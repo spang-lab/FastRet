@@ -5,7 +5,7 @@
   If it is installed, the dataset is loaded directly.
 
 - Internal Changes:
-  - Removed TODOS.md
+  - Removed `TODOS.md`
   - Bumped version to 1.1.5
   - Moved all data related functions from `util.R` to `data.R`
   - Added a README to `misc/datasets`
@@ -81,7 +81,7 @@
   `extendedTask()`, `selective_measuring()`, `train_frm()`, `adjust_frm()`,
   `get_predictors()`
 - Improved lots of existing examples
-- Added additionalo logging messages at various places
+- Added additional logging messages at various places
 - Submitted to CRAN, but rejected because the following examples
   caused at least one of the following notes on the CRAN testing
   machines: (1) "CPU time > 5s", (2) "CPU time > 2.5 times elapsed
@@ -161,9 +161,7 @@ Completely refactored source code, e.g.:
 
 - Initial version.
 
-  Copy of commit cd243aa82a56df405df8060b84535633cf06b692 of
-  [Christian Amesöders
-  Repository](https://github.com/ChristianAmes/FastRet.git).
-  (Christian wrote this initial version of FastRet as part of his
-  master thesis at the Institute of functional Genomics,
-  University of Regensburg).
+  Copy of commit `cd243aa82a56df405df8060b84535633cf06b692` of [Christian
+  Amesöders Repository](https://github.com/ChristianAmes/FastRet.git).
+  (Christian wrote this initial version of FastRet as part of his master thesis
+  at the Institute of functional Genomics, University of Regensburg).

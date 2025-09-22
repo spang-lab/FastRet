@@ -1,9 +1,16 @@
 # Private #####
 
 #' @noRd
-#' @description Create boxplots for up to 4 models to compare their performance measures
-#' @param models A list of objects of class `frm` as returned by [train_frm()].
-#' @param ptype A string specifying the plot type. Options are: "base" (default) and "ggplot2".
+#'
+#' @description
+#' Create boxplots for up to 4 models to compare their performance measures
+#'
+#' @param models
+#' A list of objects of class `frm` as returned by [train_frm()].
+#'
+#' @param ptype
+#' A string specifying the plot type. Options are: "base" (default) and "ggplot2".
+#'
 plot_boxplot <- function(model = train_frm(), ptype = "base") {
     .data <- rlang::.data # (1)
     # (1) To avoid warnings about NSE in ggplot2 calls

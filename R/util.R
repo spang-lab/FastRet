@@ -22,14 +22,25 @@ RESET <- "\033[0m"
 # Misc (Public) #####
 
 #' @export
-#' @title now function
-#' @description Returns the current system time formatted according to the provided format string.
-#' @param format A string representing the desired time format. Default is "%Y-%m-%d %H:%M:%OS2".
-#' @return A string representing the current system time in the specified format.
 #' @keywords internal
+#'
+#' @title now
+#'
+#' @description
+#' Returns the current system time formatted according to the provided format
+#' string.
+#'
+#' @param format
+#' A string representing the desired time format. Default is "%Y-%m-%d
+#' %H:%M:%OS2".
+#'
+#' @return
+#' A string representing the current system time in the specified format.
+#'
 #' @examples
 #' now()            # e.g. "2024-06-12 16:09:32.41"
 #' now("%H:%M:%S")  # e.g. "16:09:32"
+#'
 now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
     format(Sys.time(), format)
 }
@@ -56,14 +67,27 @@ catf <- function(...,
 }
 
 #' @export
+#' @keywords internal
+#'
 #' @title Collect elements from a list of lists
-#' @description Takes a list of lists where each inner list has the same names. It returns a list where each element corresponds to a name of the inner list that is extracted from each inner list. Especially useful for collecting results from lapply.
-#' @param xx A list of lists where each inner list has the same names.
-#' @return A list where each element corresponds to a name of the inner list that is extracted from each inner list.
+#'
+#' @description
+#' Takes a list of lists where each inner list has the same names. It returns a
+#' list where each element corresponds to a name of the inner list that is
+#' extracted from each inner list. Especially useful for collecting results from
+#' lapply.
+#'
+#' @param xx
+#' A list of lists where each inner list has the same names.
+#'
+#' @return
+#' A list where each element corresponds to a name of the inner list that is
+#' extracted from each inner list.
+#'
 #' @examples
 #' xx <- lapply(1:3, function(i) list(a = i, b = i^2, c = i^3))
 #' ret <- collect(xx)
-#' @keywords internal
+#'
 collect <- function(xx) {
     ns <- names(xx[[1]])
     ret <- lapply(ns, function(n) sapply(xx, function(x) x[[n]]))
@@ -170,58 +194,12 @@ make_docs <- function(reload = TRUE) {
     }
 }
 
-update_mockdata <- function(getCD = FALSE,
-                            preprocess_data = FALSE,
-                            train_frm = FALSE,
-                            selective_measuring = FALSE,
-                            all = FALSE) {
-    options(FastRet.mocks = c()) # reset all mocks
-    if (getCD || all) {
-        getCDs <- TRUE
-        preprocess_data <- TRUE
-        train_frm <- TRUE
-        cds <- getCDs(verbose = 1, nw = 4)
-        save_mockdata(cds, "RPCD")
-    }
-    if (preprocess_data || all) {
-        options(FastRet.mocks = c("getCDs")) # mock getCDs to speed up below calls
-        df <- preprocess_data()
-        save_mockdata(df, "RPCD_prepro")
-    }
-    if (train_frm || all) {
-        options(FastRet.mocks = c("preprocess_data")) # mock preprocess_data to speed up below calls
-        df <- preprocess_data()
-        ridge_model <- train_frm(df, method = "ridge", nw = 5)
-        lasso_model <- train_frm(df, method = "lasso", nw = 5)
-        gbtree_model <- train_frm(df, method = "gbtree", nw = 5)
-        save_mockdata(ridge_model, "ridge_model")
-        save_mockdata(lasso_model, "lasso_model")
-        save_mockdata(gbtree_model, "gbtree_model")
-    }
-    if (selective_measuring || all) {
-        options(FastRet.mocks = c("preprocess_data")) # mock preprocess_data to speed up below calls
-        obj <- selective_measuring(raw_data = read_rp_xlsx(), k_cluster = 25)
-        save_mockdata(obj, "clustering")
-    }
-}
-
-save_mockdata <- function(obj, name, xlsx = FALSE) {
-    mockdatapath <- system.file("mockdata", package = "FastRet")
-    rdspath <- file.path(mockdatapath, paste0(name, ".rds"))
-    xlsxpath <- file.path(mockdatapath, paste0(name, ".xlsx"))
-    callstr <- deparse(substitute(obj))
-    catf("Evaluating %s", callstr)
-    obj <- force(obj)
-    catf("Saving %s", rdspath)
-    saveRDS(obj, rdspath)
-    if (xlsx) {
-        catf("Saving %s", xlsxpath)
-        openxlsx::write.xlsx(obj, xlsxpath, rowNames = FALSE)
-    }
-}
-
 #' @noRd
-#' @description To enable either call add "eval(.Options$FastRet.onFuncEntry)" at the beginning of each function or call `trace(f, quote(eval(.Options$FastRet.onFuncEntry)))` for each function `f` you want to trace.
+#' @description
+#' To enable either call add "eval(.Options$FastRet.onFuncEntry)" at the
+#' beginning of each function or call `trace(f,
+#' quote(eval(.Options$FastRet.onFuncEntry)))` for each function `f` you want to
+#' trace.
 enable_function_tracing <- function() {
     onFuncEntry <- quote({
         funcname <- as.character(sys.call(-2))
@@ -229,23 +207,4 @@ enable_function_tracing <- function() {
         on.exit(cat(sprintf("Exit: %s\n", funcname)), add = TRUE)
     })
     options(FastRet.onFuncEntry = onFuncEntry)
-}
-
-# Package Hooks (Private) #####
-
-rm_cachedir_if_empty <- function(...) {
-    cache_dir <- get_cache_dir()
-    cache_files <- dir(cache_dir, all.files = TRUE) # includes . and ..
-    if (length(cache_files) <= 2) {
-        unlink(cache_dir, recursive = TRUE)
-    }
-}
-
-.onLoad <- function(libname, pkgname) {
-    rc_init()
-    reg.finalizer(
-        e = environment(rm_cachedir_if_empty),
-        f = rm_cachedir_if_empty,
-        onexit = TRUE
-    )
 }

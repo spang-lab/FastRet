@@ -9,7 +9,7 @@ analyzeCDNames(df, descriptors = rcdk::get.desc.names(type = "all"))
 \arguments{
 \item{df}{dataframe with two mandatory columns: "NAME" and "SMILES"}
 
-\item{descriptors}{vector of chemical descriptor names}
+\item{descriptors}{Vector of chemical descriptor names}
 }
 \value{
 A dataframe with two columns \code{descriptor} and \code{all_na}. Column \code{descriptor}
@@ -28,5 +28,6 @@ function is used to generate the CDNames object.
 }
 \examples{
 X <- analyzeCDNames(df = head(RP, 2), descriptors = CDNames[1:2])
+
 }
 \keyword{internal}

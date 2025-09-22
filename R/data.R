@@ -1,44 +1,59 @@
 # Read From Disk (Public) #####
 
 #' @export
+#' @keywords dataset
+#'
 #' @title Read retention times (RT) measured on a reverse phase (RP) column
+#'
 #' @description
 #' Reads retention times from a reverse phase liquid chromatography experiment,
 #' performed at 35\eqn{^\circ}C and a flow rate of 0.3 mL/min. The data is also available
 #' as a dataframe in the package; to access it directly, use [RP].
+#'
 #' @return
 #' A dataframe of 442 metabolites with columns `RT`, `SMILES` and `NAME`.
-#' @keywords dataset
+#'
 #' @source
 #' Measured by the Institute of Functional Genomics at the University of
 #' Regensburg.
+#'
 #' @seealso RP
+#'
 #' @examples
 #' x <- read_rp_xlsx()
 #' all.equal(x, RP)
+#'
 read_rp_xlsx <- function() {
     openxlsx::read.xlsx(pkg_file("extdata/RP.xlsx"), 1)
 }
 
 #' @export
+#' @keywords dataset
+#'
 #' @title Read the HILIC dataset from the Retip package
+#'
 #' @description
 #' If the [Retip](https://www.retip.app/) package is installed, its HILIC
 #' dataset is read from its installation directory. If not, the dataset is
 #' downloaded from
 #' `https://github.com/oloBion/Retip/raw/master/data/HILIC.RData` to a temporary
 #' file and then read from there.
+#'
 #' @param verbose Verbosity level. Set to 1 to enable progress messages,
 #' 0 to suppress them.
-#' @return A data frame containing the Retip HILIC dataset.
-#' @examples
-#' df <- read_retip_hilic_data(verbose = 0)
+#'
+#' @return
+#' A data frame containing the Retip HILIC dataset.
+#'
 #' @references
 #' Retip: Retention Time Prediction for Compound Annotation in Untargeted
 #' Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar
 #' Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI:
 #' 10.1021/acs.analchem.9b05765
-#' @keywords dataset
+#'
+#' @examples
+#' df <- read_retip_hilic_data(verbose = 0)
+#'
 read_retip_hilic_data <- function(verbose = 1) {
     if (eval(parse(text = "requireNamespace('Retip', quietly = TRUE)"))) {
         return(eval(parse(text = "Retip::HILIC")))
@@ -57,26 +72,33 @@ read_retip_hilic_data <- function(verbose = 1) {
 }
 
 #' @export
+#' @keywords dataset
+#'
 #' @title Hypothetical retention times
+#'
 #' @description
 #' Subset of the data from [read_rp_xlsx()] with some slight modifications to
 #' simulate changes in temperature and/or flowrate.
+#'
 #' @return
 #' A dataframe with 25 rows (metabolites) and 3 columns: RT, SMILES and NAME.
+#'
 #' @examples \donttest{
 #' x <- read_rpadj_xlsx()
 #' }
-#' @keywords dataset
 read_rpadj_xlsx <- function() {
     openxlsx::read.xlsx(pkg_file("extdata/RP_adj.xlsx"), 1)
 }
 
 #' @export
+#' @keywords dataset
 #' @title LASSO Model trained on RP dataset
+#'
 #' @description
 #' Read a LASSO model trained on the [RP] dataset using [train_frm()].
+#'
 #' @return A `frm` object.
-#' @keywords dataset
+#'
 #' @examples
 #' frm <- read_rp_lasso_model_rds()
 read_rp_lasso_model_rds <- function() {
@@ -88,7 +110,10 @@ read_rp_lasso_model_rds <- function() {
 
 ## RP #####
 
+#' @keywords dataset
+#'
 #' @title Retention Times (RT) measured on a Reverse Phase (RP) Column
+#'
 #' @description
 #' Retention time data from a reverse phase liquid chromatography measured with
 #' a temperature of 35\eqn{^\circ}C and a flowrate of 0.3ml/min. The same data
@@ -100,10 +125,11 @@ read_rp_lasso_model_rds <- function() {
 #'   \item{SMILES}{SMILES notation of the metabolite}
 #'   \item{NAME}{Name of the metabolite}
 #' }
+#'
 #' @source
 #' Measured by the Institute of Functional Genomics at the University of
 #' Regensburg.
-#' @keywords dataset
+#'
 #' @seealso read_rp_xlsx
 "RP"
 

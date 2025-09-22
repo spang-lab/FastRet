@@ -362,7 +362,7 @@ ui_predict_controls <- function() {
             shiny::textInput(
                 inputId = "tiPredSmiles",
                 label = "Input SMILES",
-                value = if ("input_smiles" %in% .Options$FastRet.mocks) "C(CC(=O)O)CN" else ""
+                value = ""
             ),
             content = paste(
                 "<h2 id='single-prediction'>Single Prediction</h1>",

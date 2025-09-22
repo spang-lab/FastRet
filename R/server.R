@@ -1,14 +1,33 @@
 # Main (Public) #####
 
-#' @title Server function for the FastRet GUI
-#' @description This function initializes the server-side of the FastRet GUI. It sets up shiny::reactive values, initializes handlers for various events and tasks, and sets up observers and outputs.
-#' @param input List of input values from the Shiny application.
-#' @param output List of output values to be sent to the Shiny application.
-#' @param session The session object passed to function given to shinyServer.
-#' @param nsw The number of subprocesses each worker is allowed to start. The higher this number, the faster individual tasks like model fitting can be processed. Providing a value of 1 will disable parallel processing.
-#' @return No return value. The function is used for its side effect of setting up the server-side of the Shiny application.
-#'@keywords internal
 #' @noRd
+#' @keywords internal
+#'
+#' @title Server function for the FastRet GUI
+#'
+#' @description
+#' This function initializes the server-side of the FastRet GUI. It sets up
+#' shiny::reactive values, initializes handlers for various events and tasks,
+#' and sets up observers and outputs.
+#'
+#' @param input
+#' List of input values from the Shiny application.
+#'
+#' @param output
+#' List of output values to be sent to the Shiny application.
+#'
+#' @param session
+#' The session object passed to function given to shinyServer.
+#'
+#' @param nsw
+#' The number of subprocesses each worker is allowed to start. The higher this
+#' number, the faster individual tasks like model fitting can be processed.
+#' Providing a value of 1 will disable parallel processing.
+#'
+#' @return
+#' No return value. The function is used for its side effect of setting up the
+#' server-side of the Shiny application.
+#'
 fastret_server <- function(input, output, session, nsw = 1) {
     catf("Start: fastret_server (session$token == %s)", session$token)
     if (!is.numeric(nsw) || nsw < 1) stop("nsw must be a positive integer")
@@ -27,7 +46,6 @@ fastret_server <- function(input, output, session, nsw = 1) {
     init_table_output_handler(SE)
     init_plot_output_handler(SE)
     init_outputs(SE)
-    init_mocks(SE)
     init_download_handlers(SE)
     catf("Exit: fastret_server")
 }
@@ -184,7 +202,12 @@ init_input_handlers <- function(SE) {
                 SE$output$toPredSmilesError <- NULL
             } else {
                 catf("Validating SMILES string")
-                tmp <- try(suppressWarnings(getCDsFor1Molecule(smiles, verbose = 0)), silent = TRUE)
+                # Validate SMILES by trying to parse it with rCDK
+                tmp <- try({
+                    obj <- rcdk::parse.smiles(smiles)[[1]]
+                    rcdk::convert.implicit.to.explicit(obj)
+                    TRUE
+                }, silent = TRUE)
                 if (inherits(tmp, "try-error")) {
                     catf("Validation failed. Displaying 'Error: SMILES string is invalid'")
                     SE$RV$predSmiles <- NULL
@@ -380,15 +403,16 @@ init_observers <- function(SE) {
             },
             ignoreInit = TRUE
         )
-        bslib::bind_task_button(SE$ET[[x]], x) # 1)
-        # 1) Binds the given extended task to the input_task_button with ID `x`,
-        #    i.e. it gets disabled while the extended task is running. Note: for
-        #    the above to work, the extended task, the extended task handler and
-        #    the corresponding input_task_button must use the same ID.
+        bslib::bind_task_button(SE$ET[[x]], x) # (1)
+        # (1) Binds the given extended task to the input_task_button with ID
+        # `x`, i.e. it gets disabled while the extended task is running. Note:
+        # for the above to work, the extended task, the extended task handler
+        # and the corresponding input_task_button must use the same ID.
     })
 
     # Download Buttons Handler
-    # (must be stored inside `output` because that's where `shiny::downloadButton` looks for them)
+    # (must be stored inside `output` because that's where
+    # `shiny::downloadButton` looks for them)
     lapply(names(SE$DLH), function(x) {
         SE$output[[x]] <- SE$DLH[[x]]
     })
@@ -525,49 +549,35 @@ init_outputs <- function(SE) {
     # catf("Exit: init_outputs")
 }
 
-init_mocks <- function(SE) {
-    catf("Start: init_mocks")
-    mocks <- getOption("FastRet.mocks", c())
-    if (length(mocks) > 0) catf("Mocks enabled for: %s", paste(mocks, collapse = ", "))
-    if ("inpDf" %in% mocks) SE$RV$inpDf <- read_rp_xlsx()
-    if ("adjDf" %in% mocks) SE$RV$adjDf <- read_rpadj_xlsx()
-    if ("btnTrain" %in% mocks) shinyjs::click("btnTrain")
-    if ("inpFRM" %in% mocks) SE$RV$inpFRM <- readRDS(pkg_file("mockdata/lasso_model.rds"))
-    if ("cluster_calc" %in% mocks) {
-        smobj <- readRDS(pkg_file("mockdata/clustering.rds"))
-        mtbl <- smobj$clustering[smobj$clustering$IS_MEDOID, c("RT", "NAME", "CLUSTER", "SMILES")]
-        mtbl <- mtbl[order(mtbl$CLUSTER), ]
-        mtbl <- `colnames<-`(mtbl, c("RT", "NAME", "MEDOID", "SMILES"))
-        ctbl <- smobj$clustering[, c("RT", "NAME", "CLUSTER", "IS_MEDOID", "SMILES")]
-        SE$RV$cluster_calc <- smobj
-        SE$RV$tblMedoids <- mtbl
-        SE$RV$tblClustering <- ctbl
-        shinyjs::show("dbSaveCluster")
-    }
-    # catf("Exit: init_mocks")
-}
+# Inits (Private) #####
 
 
 # Helpers (Public) #####
 
 #' @export
-#' @title Execute an expression with a timeout
-#' @param expr The expression to execute
-#' @param timeout The timeout in seconds. Default is 2.
-#' @return The result of the expression
 #' @keywords internal
+#'
+#' @title Execute an expression with a timeout
+#'
+#' @param expr
+#' The expression to execute
+#'
+#' @param timeout
+#' The timeout in seconds. Default is 2.
+#'
+#' @return
+#' The result of the expression
+#'
 #' @examples
 #' withTimeout(
 #'      cat("This works\n"),
 #'      timeout = 0.2
 #' )
-#' try(
-#'      withTimeout(
-#'          expr = {Sys.sleep(0.2); cat("This fails\n")},
-#'          timeout = 0.1
-#'      ),
-#'      silent = TRUE
-#' )
+#' try(silent = TRUE, withTimeout(
+#'     expr = {Sys.sleep(0.2); cat("This fails\n")},
+#'     timeout = 0.1
+#' ))
+#'
 withTimeout <- function(expr, timeout = 2) {
     setTimeLimit(cpu = timeout, elapsed = timeout, transient = TRUE)
     on.exit(setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE), add = TRUE, after = FALSE)
@@ -575,11 +585,18 @@ withTimeout <- function(expr, timeout = 2) {
 }
 
 #' @export
-#' @title Execute an expression while redirecting output to a file
-#' @param expr The expression to execute
-#' @param logfile The file to redirect output to. Default is "tmp.txt".
-#' @return The result of the expression
 #' @keywords internal
+#'
+#' @title Execute an expression while redirecting output to a file
+#'
+#' @param expr
+#' The expression to execute
+#'
+#' @param logfile
+#' The file to redirect output to. Default is "tmp.txt".
+#'
+#' @return The result of the expression
+#'
 #' @examples
 #' logfile <- tempfile(fileext = ".txt")
 #' withSink(logfile = logfile, expr = {
@@ -587,6 +604,7 @@ withTimeout <- function(expr, timeout = 2) {
 #'   message("Goodbye")
 #' })
 #' readLines(logfile) == c("Helloworld", "Goodbye")
+#'
 withSink <- function(expr, logfile = tempfile(fileext = ".txt")) {
     zz <- file(logfile, open = "wt")
     on.exit(close(zz), add = TRUE, after = FALSE)
@@ -598,11 +616,19 @@ withSink <- function(expr, logfile = tempfile(fileext = ".txt")) {
 }
 
 #' @export
-#' @title Try expression with predefined error message
-#' @description Executes an expression and prints an error message if it fails
-#' @param expr The expression to execute
-#' @return The result of the expression
 #' @keywords internal
+#'
+#' @title Try expression with predefined error message
+#'
+#' @description
+#' Executes an expression and prints an error message if it fails
+#'
+#' @param expr
+#' The expression to execute
+#'
+#' @return
+#' The result of the expression
+#'
 #' @examples
 #' f <- function(expr) {
 #'   val <- try(expr, silent = TRUE)
@@ -612,6 +638,7 @@ withSink <- function(expr, logfile = tempfile(fileext = ".txt")) {
 #' }
 #' ret <- f(log("a")) # this error will not show up in the console
 #' ret <- f(withStopMessage(log("a"))) # this error will show up in the console
+#'
 withStopMessage <- function(expr) {
     tryCatch(expr, error = function(e) {
         message("Error in ", deparse(e$call), " : ", e$message)
@@ -620,15 +647,25 @@ withStopMessage <- function(expr) {
 }
 
 #' @export
-#' @title Initialize log directory
-#' @description Initializes the log directory for the session. It creates a new directory if it does not exist.
-#' @param SE A list containing session information.
-#' @return Updates the logdir element in the SE list with the path to the log directory.
 #' @keywords internal
+#'
+#' @title Initialize log directory
+#'
+#' @description
+#' Initializes the log directory for the session. It creates a new directory if
+#' it does not exist.
+#'
+#' @param SE
+#' A list containing session information.
+#'
+#' @return
+#' Updates the logdir element in the SE list with the path to the log directory.
+#'
 #' @examples
 #' SE <- as.environment(list(session = list(token = "asdf")))
 #' init_log_dir(SE)
 #' dir.exists(SE$logdir)
+#'
 init_log_dir <- function(SE) {
     catf("Start: init_log_dir")
     token <- SE$session$token
@@ -639,13 +676,22 @@ init_log_dir <- function(SE) {
 }
 
 #' @export
-#' @title Add line end
-#' @description Checks if a string ends with a newline character. If not, a newline character is appended.
-#' @param x A string.
-#' @return The input string with a newline character at the end if it was not already present.
 #' @keywords internal
+#'
+#' @title Add line end
+#'
+#' @description
+#' Checks if a string ends with a newline character. If not, a newline character is appended.
+#'
+#' @param x
+#' A string.
+#'
+#' @return
+#' The input string with a newline character at the end if it was not already present.
+#'
 #' @examples
 #' cat(withLineEnd("Hello"))
+#'
 withLineEnd <- function(x) {
     if (!grepl("\n$", x)) paste0(x, "\n") else x
 }
@@ -669,16 +715,28 @@ showError <- function(msg = NULL, expr = NULL, duration = 10) {
 
 #' @noRd
 #' @title Create an shiny::ExtendedTask Object
-#' @description This function wraps a given function in a [promises::future_promise()] and the result into a [shiny::ExtendedTask()] object.
-#' When the shiny::ExtendedTask Object is invoked, the function is executed asynchronously in a seperate process (assuming [future::plan()] has been called with strategy unequal "sequential").
-#' Normal output, messages, warnings and errors from that process get redirected to `logfile`.
-#' The status of the task can be checked via the `status()` method.
-#' As soon as `status()` returns `"success"`, the result can be retrieved via the `result()` method.
-#' If an error has occured, `status()` will return `"error"`.
-#' In this case, calling `result()` will reraise the error that occured while executing the task.
-#' Querying the status or value of the task requires a shiny::reactive context, e.g. via [shiny::reactive()], [shiny::observe()] or [shiny::reactiveConsole].
-#' @param func A function that accepts any number of arguments and returns a value.
-#' @return An shiny::ExtendedTask object that wraps the provided function. For further details see: [shiny::ExtendedTask()].
+#'
+#' @description
+#' This function wraps a given function in a [promises::future_promise()] and
+#' the result into a [shiny::ExtendedTask()] object. When the
+#' shiny::ExtendedTask Object is invoked, the function is executed
+#' asynchronously in a seperate process (assuming [future::plan()] has been
+#' called with strategy unequal "sequential"). Normal output, messages, warnings
+#' and errors from that process get redirected to `logfile`. The status of the
+#' task can be checked via the `status()` method. As soon as `status()` returns
+#' `"success"`, the result can be retrieved via the `result()` method. If an
+#' error has occured, `status()` will return `"error"`. In this case, calling
+#' `result()` will reraise the error that occured while executing the task.
+#' Querying the status or value of the task requires a shiny::reactive context,
+#' e.g. via [shiny::reactive()], [shiny::observe()] or [shiny::reactiveConsole].
+#'
+#' @param func
+#' A function that accepts any number of arguments and returns a value.
+#'
+#' @return
+#' An shiny::ExtendedTask object that wraps the provided function. For further
+#' details see: [shiny::ExtendedTask()].
+#'
 #' @examples
 #' shiny::reactiveConsole(enabled = TRUE)
 #' on.exit(shiny::reactiveConsole(enabled = FALSE), add = TRUE)
@@ -746,20 +804,47 @@ extendedTask <- function(func, logfile = tempfile(fileext = ".log"), timeout = 3
 
 #' @noRd
 #' @title Create an shiny::ExtendedTask Handler
-#' @description This function creates a handler for an shiny::ExtendedTask object. The handler checks the status of the task and executes the appropriate function based on the status. The status can be "error", "running", "success", or "initial".
-#' @param id The ID of the shiny::ExtendedTask object. This ID must be unique and must match the ID of an shiny::ExtendedTask object created via `init_extended_tasks()`.
-#' @param onSuccess A function that is executed when the task completes successfully. This function accepts a single argument `SE`, which must point to the environment of the corresponding shiny server function. I.e. inside `server` you should call `SE <- environment()` and pass `SE` to this function.
-#' @param onRunning A function that is executed when the task is still running. This function also accepts the session environment `SE` as an argument.
-#' @param onError A function that is executed when the task encounters an error. This function also accepts the session environment `SE` as an argument.
-#' @param displayError A boolean value that determines whether to display an error message to the user when the task encounters an error. The default value is TRUE.
-#' @return A function that checks the status of the shiny::ExtendedTask object and executes the appropriate function based on the status.
+#'
+#' @description
+#' This function creates a handler for an shiny::ExtendedTask object. The
+#' handler checks the status of the task and executes the appropriate function
+#' based on the status. The status can be "error", "running", "success", or
+#' "initial".
+#'
+#' @param id
+#' The ID of the shiny::ExtendedTask object. This ID must be unique and must
+#' match the ID of an shiny::ExtendedTask object created via
+#' `init_extended_tasks()`.
+#'
+#' @param onSuccess
+#' A function that is executed when the task completes successfully. This
+#' function accepts a single argument `SE`, which must point to the environment
+#' of the corresponding shiny server function. I.e. inside `server` you should
+#' call `SE <- environment()` and pass `SE` to this function.
+#'
+#' @param onRunning
+#' A function that is executed when the task is still running. This function
+#' also accepts the session environment `SE` as an argument.
+#'
+#' @param onError
+#' A function that is executed when the task encounters an error. This function
+#' also accepts the session environment `SE` as an argument.
+#'
+#' @param displayError
+#' A boolean value that determines whether to display an error message to the
+#' user when the task encounters an error. The default value is TRUE.
+#'
+#' @return
+#' A function that checks the status of the shiny::ExtendedTask object and
+#' executes the appropriate function based on the status.
+#'
 #' @examples
 #' logfile <- tempfile(fileext = ".log")
 #' f <- function(x) log(x)
 #' SE <- list(ET = list(task1 = extendedTask(f, logfile)))
 #' f <- function(SE) print("Task completed successfully!")
-#'
 #' extendedTaskHandler(id = "task1", onSuccess = f)
+#'
 extendedTaskHandler <- function(id,
                                 onSuccess = function(SE) {},
                                 onRunning = function(SE) {},

@@ -46,7 +46,6 @@ FastRet is an R package for predicting retention times in liquid chromatography.
 - **`inst/`** - Installed files
   - `extdata/` - Example datasets (RP.xlsx, RP_adj.xlsx, models)
   - `cachedata/` - Pre-computed chemical descriptors (CDs.rds)
-  - `mockdata/` - Test data for development and GUI mocking
 
 ### Documentation and Testing
 
@@ -154,7 +153,6 @@ FastRet is an R package for predicting retention times in liquid chromatography.
 ### Testing and Development
 
 - Comprehensive test coverage using `testthat`
-- Support mocking system for GUI development (`getOption("FastRet.mocks")`)
 - Use `pkg_file()` for package-relative file paths
 - Development mode support with `start_gui_in_devmode()`
 
@@ -190,7 +188,6 @@ Rscript -e "devtools::load_all(); devtools::test()" | tee test.log
 - **Speed requirement**: Tests must be as simple as possible and finish within a few milliseconds
 - **Performance comments**: If a test cannot be made faster, add an explanation comment explaining why
 - **Use subsets**: Use small data subsets (e.g., `RP[1:5, ]` instead of full dataset) for speed
-- **Mock when possible**: Use the mocking system (`getOption("FastRet.mocks")`) for expensive operations
 - **Test structure**: Follow the standard `testthat` pattern:
   ```r
   test_that("function_name works correctly", {
@@ -281,7 +278,6 @@ ram_cache$CDs[smi, ] <- cds
 - Use Extended Tasks for background processing
 - Support multiple workers for parallel operations
 - Implement progress indicators and console output
-- Enable mocking system for faster development
 - Handle user input validation and error display
 
 ## Key Classes and Objects

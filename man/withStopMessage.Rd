@@ -24,5 +24,6 @@ f <- function(expr) {
 }
 ret <- f(log("a")) # this error will not show up in the console
 ret <- f(withStopMessage(log("a"))) # this error will show up in the console
+
 }
 \keyword{internal}

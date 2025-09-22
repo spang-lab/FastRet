@@ -30,7 +30,6 @@ Imports:
     caret,
     cluster,
     data.table,
-    digest,
     DT,
     future,
     ggplot2,
@@ -69,7 +68,6 @@ Config/testthat/start-first:
     preprocess_data,
     read_rp_xlsx,
     fit_gbtree,
-    getCDsFor1Molecule,
     plot_frm,
     adjust_frm,
     read_rpadj_xlsx

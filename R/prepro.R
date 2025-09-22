@@ -51,15 +51,13 @@ preprocess_data <- function(data,
                             rm_na = TRUE) {
     if (verbose == 0) catf <- function(...) invisible()
 
-    if ("preprocess_data" %in% getOption("FastRet.mocks", c())) {
-        catf("Mocking is enabled for 'preprocess_data'. Returning 'mockdata/RPCD_prepro.rds'.")
-        return(readRDS(pkg_file("mockdata/RPCD_prepro.rds")))
-    }
     catf("Preprocessing dataframe with dimension %d x %d", nrow(data), ncol(data))
 
-    catf("Obtaining chemical descriptors using %d workers", nw)
-    df_raw <- getCDs(data, verbose, nw) # nolint: object_usage_linter.
-    catf("Resulting dataframe has dimension %d x %d", nrow(df_raw), ncol(df_raw))
+    if (TRUE) {
+        catf("Obtaining chemical descriptors using %d workers", nw)
+        df_raw <- getCDs(data, verbose, nw) # nolint: object_usage_linter.
+        catf("Resulting dataframe has dimension %d x %d", nrow(df_raw), ncol(df_raw))
+    }
 
     if (rm_na) {
         catf("Removing columns with NAs")
@@ -117,23 +115,38 @@ preprocess_data <- function(data,
     }
 
     catf("Preprocessing finished")
-    browser()
     return(df)
 }
 
 # Private #####
 
 #' @noRd
-#' @title Checks which chemical descriptors are suitable for linear models
-#' @description Checks which chemical descriptors are suitable for use in linear model. Chemical descriptors with missing values, near-zero variance or strong outlier values are considered as not suitable.
-#' @param df Input data for performing the analysis. Must be a data frame with columns NAME, RT and SMILES.
-#' @param verbose A logical value indicating whether to print verbose output.
-#' @param nw The number of workers to use for parallel processing.
-#' @return A data frame with the predictors and their suitability status.
-#' @seealso [plot_lm_suitability()]
 #' @keywords internal
+#'
+#' @title Checks which chemical descriptors are suitable for linear models
+#'
+#' @description
+#' Checks which chemical descriptors are suitable for use in linear model.
+#' Chemical descriptors with missing values, near-zero variance or strong
+#' outlier values are considered as not suitable.
+#' @param df
+#' Input data for performing the analysis. Must be a data frame with columns
+#' NAME, RT and SMILES.
+#'
+#' @param verbose
+#' A logical value indicating whether to print verbose output.
+#'
+#' @param nw
+#' The number of workers to use for parallel processing.
+#'
+#' @return
+#' A data frame with the predictors and their suitability status.
+#'
+#' @seealso [plot_lm_suitability()]
+#'
 #' @examples
 #' x <- check_lm_suitability(head(RP, 3), verbose = FALSE, nw = 1)
+#'
 check_lm_suitability <- function(df = read_retip_hilic_data(),
                                  verbose = FALSE,
                                  nw = 2) {
@@ -151,27 +164,49 @@ check_lm_suitability <- function(df = read_retip_hilic_data(),
 }
 
 #' @noRd
+#' @keywords internal
+#'
 #' @title Plot the suitability of predictors for linear models
-#' @description Creates one pdf page for every predictor inside `slist$X`. The pdf page consists of the following three plots shown next to each other:
+#'
+#' @description
+#' Creates one pdf page for every predictor inside `slist$X`. The pdf page
+#' consists of the following three plots shown next to each other:
+#'
 #' 1. Histogram
 #' 2. Density plot
 #' 3. Scatterplot against `slist$df$RT`
-#' The name of the predictor, its suitability, and the status of the checks for missing values, near-zero variance, and outliers are shown in the title of each plot.
-#' @param slist A list containing the data frame `df`, the matrix `X`, and the data frame `V` from [check_lm_suitability()].
-#' @param pdfpath The path to the pdf file to save the plots.
-#' @param descs Index of chemical descriptors to plot. Leave at NULL to plot all chemical descriptors.
-#' @return No return value. The function is used for its side effect of creating a pdf file with the plots.
+#'
+#' The name of the predictor, its suitability, and the status of the checks for
+#' missing values, near-zero variance, and outliers are shown in the title of
+#' each plot.
+#'
+#' @param slist
+#' A list containing the data frame `df`, the matrix `X`, and the data frame `V`
+#' from [check_lm_suitability()].
+#'
+#' @param pdfpath
+#' The path to the pdf file to save the plots.
+#'
+#' @param descs
+#' Index of chemical descriptors to plot. Leave at NULL to plot all chemical
+#' descriptors.
+#'
+#' @return
+#' No return value. The function is used for its side effect of creating a pdf
+#' file with the plots.
+#'
 #' @seealso [check_lm_suitability()]
-#' @keywords internal
+#'
 #' @examples
 #' df <- head(RP, 3)
 #' slist <- check_lm_suitability(df, verbose = FALSE, nw = 1)
 #' plot_lm_suitability(slist, descs = 1:5)
+#'
 plot_lm_suitability <- function(slist = check_lm_suitability(),
                                 pdfpath = tempfile("lm_suitability", fileext = ".pdf"),
                                 descs = NULL) {
     catf("Plotting suitability of predictors for linear models to file '%s'", pdfpath)
-    pdf(pdfpath, width = 9, height = 3)  # A4 size in inches
+    pdf(pdfpath, width = 9, height = 3) # A4 size in inches
     on.exit(dev.off(), add = TRUE)
     opar <- par(mfrow = c(1, 3), oma = c(2, 0, 2, 0), mar = c(1, 4, 1, 2))
     on.exit(par(opar), add = TRUE, after = FALSE)
@@ -188,20 +223,23 @@ plot_lm_suitability <- function(slist = check_lm_suitability(),
         reasons <- paste(reasons, collapse = ", ")
         if (reasons != "") reasons <- sprintf(" (%s)", reasons)
         title <- sprintf("%s: %s%s", name, state, reasons)
-        tryCatch({
-            hist(x, main = "", xlab = "", xaxt = "n")  # removed x-axis
-            plot(density(x), main = "", xlab = "", xaxt = "n")  # removed x-axis
-            plot(x, RT, main = "", xlab = "", ylab = "RT", xaxt = "n")  # removed x-axis
-            axis(
-                side = 1,
-                at = seq(min(x), max(x), length.out = 5),
-                labels = seq(min(x), max(x), length.out = 5),
-                outer = TRUE
-            )  # added single x-axis at the bottom
-            title(main = title, outer = TRUE)
-            catf("[%d/%d] %s (PLOTTED SUCCESSFULLY)", i, ncol(X), name)
-        }, error = function(e) {
-            catf("[%d/%d] %s (FAILED)", i, ncol(X), name)
-        })
+        tryCatch(
+            {
+                hist(x, main = "", xlab = "", xaxt = "n") # removed x-axis
+                plot(density(x), main = "", xlab = "", xaxt = "n") # removed x-axis
+                plot(x, RT, main = "", xlab = "", ylab = "RT", xaxt = "n") # removed x-axis
+                axis(
+                    side = 1,
+                    at = seq(min(x), max(x), length.out = 5),
+                    labels = seq(min(x), max(x), length.out = 5),
+                    outer = TRUE
+                ) # added single x-axis at the bottom
+                title(main = title, outer = TRUE)
+                catf("[%d/%d] %s (PLOTTED SUCCESSFULLY)", i, ncol(X), name)
+            },
+            error = function(e) {
+                catf("[%d/%d] %s (FAILED)", i, ncol(X), name)
+            }
+        )
     }
 }

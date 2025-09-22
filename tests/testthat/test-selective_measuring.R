@@ -1,8 +1,6 @@
 library(testthat)
 
 test_that("selective_measuring works", {
-    opts <- options(FastRet.mocks = c("preprocess_data"))
-    on.exit(options(opts), add = TRUE)
-    obj <- selective_measuring(raw_data = RP, k_cluster = 25)
+    obj <- selective_measuring(raw_data = RP[1:10, ], k_cluster = 5, verbose = 0)
     expect_true(all(names(obj) == c("clustering", "clobj", "coefs", "model", "df", "dfz", "dfzb")))
 })
