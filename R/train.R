@@ -279,15 +279,15 @@ adjust_frm <- function(frm = train_frm(),
 #' @seealso [train_frm()], [adjust_frm()]
 #'
 #' @examples
-#' frm <- read_rp_lasso_model_rds()
-#' newdata <- head(RP)
-#' yhat <- predict(frm, newdata)
+#' object <- read_rp_lasso_model_rds()
+#' df <- head(RP)
+#' yhat <- predict(object, df)
 predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, verbose = 0, ...) {
 
-    if (object$type == "gbtree") {
-        withr::local_package("xgboost")
-    } else {
+    if (inherits(object$model, "glmnet")) {
         withr::local_package("glmnet")
+    } else {
+        withr::local_package("xgboost")
     }
 
     if (verbose == 0) catf <- function(...) {}
