@@ -34,7 +34,11 @@ getCDs <- function(df,
                    keepdf = TRUE) {
     catf <- if (verbose >= 1) catf else null
     a <- Sys.time()
-    cachedCDs <- getOption("FastRet.cachedCDs", readRDS(pkg_file("cachedata/CDs.rds")))
+    cachedCDs <- getOption("FastRet.cachedCDs")
+    if (is.null(cachedCDs) || nrow(cachedCDs) < 1788) {
+        cachedCDs <- readRDS(pkg_file("cachedata/CDs.rds"))
+        options(FastRet.cachedCDs = cachedCDs)
+    }
     smi <- unique(df$SMILES[df$SMILES %notin% rownames(cachedCDs)])
     if (length(smi) > 0) {
         catf("Computing CDs for %d new SMILES using rCDK", length(smi))
@@ -81,7 +85,7 @@ updateCachedCDs <- function() {
     RPold <- openxlsx::read.xlsx(pkg_file("extdata/RP.xlsx"))[, cols]
     df <- rbind(hilic, meas8, RPold)
     df <- df[!duplicated(df$SMILES), ]
-    CDs <- getCDs(df, verbose = 1, nw = 8)
+    CDs <- getCDs(df, verbose = 1, nw = 8, keepdf = FALSE)
     cachedata_path <- pkg_file("cachedata")
     rdspath <- file.path(cachedata_path, "CDs.rds")
     saveRDS(CDs, rdspath)
