@@ -27,9 +27,9 @@ A numeric vector with the predicted retention times.
 Predict retention times for new data using a FastRet Model (FRM).
 }
 \examples{
-frm <- read_rp_lasso_model_rds()
-newdata <- head(RP)
-yhat <- predict(frm, newdata)
+object <- read_rp_lasso_model_rds()
+df <- head(RP)
+yhat <- predict(object, df)
 }
 \seealso{
 \code{\link[=train_frm]{train_frm()}}, \code{\link[=adjust_frm]{adjust_frm()}}
