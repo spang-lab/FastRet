@@ -1,4 +1,4 @@
-# FastRet 1.2.1 <!-- Branch: improve120-->
+# FastRet 1.2.1 <!-- Branch: 2025-09-23 -->
 
 - Add updated Measurements `Measurements_v8.xlsx` to `inst/extdata/`. The new
   list contains corrections to the old `RP` dataset plus 1660 new measurements
