@@ -34,7 +34,8 @@ getCDs <- function(df,
                    keepdf = TRUE) {
     catf <- if (verbose >= 1) catf else null
     a <- Sys.time()
-    smi <- unique(df$SMILES[df$SMILES %notin% rownames(pkgCDs)])
+    cachedCDs <- getOption("FastRet.cachedCDs", readRDS(pkg_file("cachedata/CDs.rds")))
+    smi <- unique(df$SMILES[df$SMILES %notin% rownames(cachedCDs)])
     if (length(smi) > 0) {
         catf("Computing CDs for %d new SMILES using rCDK", length(smi))
         if (nw > 1) {
@@ -49,9 +50,10 @@ getCDs <- function(df,
             lapply(objs, rcdk::generate.2d.coordinates) # Gen 2D coords
             newCDs <- suppressWarnings(rcdk::eval.desc(objs, CDNames, verbose = FALSE))
         }
-        pkgCDs <- rbind(pkgCDs, newCDs) # Local copy by intention.
+        cachedCDs <- rbind(cachedCDs, newCDs) # Add new CDs to already existing ones
+        options(FastRet.cachedCDs = cachedCDs) # Update cached CDs
     }
-    cds <- pkgCDs[df$SMILES, ]
+    cds <- cachedCDs[df$SMILES, ]
     retdf <- if (keepdf) cbind(df, cds) else cds
     b <- Sys.time()
     catf("Finished calculating chemical descriptors in %s", format(b - a))
@@ -60,7 +62,31 @@ getCDs <- function(df,
 
 # Constants #####
 
-pkgCDs <- readRDS(system.file("cachedata/CDs.rds", package = "FastRet"))
+#' @noRd
+#' @title Make cachedata/CDs.rds
+#' @description
+#' The FastRet package comes with a set of pre-calculated chemical descriptors
+#' for metabolites stored in cachedata/CDS.rds, allowing all examples, tests
+#' etc. to run much faster. This function creates cachedata/CDs.rds.
+#' @details
+#' Since this function is used to create the cachedata/CDs.rds file, that is
+#' shipped with the package, it MUST be called during package development, i.e.
+#' after cloning the package sources and invoking [devtools::load_all()]. It
+#' makes no sense to call if after installation and loading of the package via
+#' [library()].
+updateCachedCDs <- function() {
+    cols <- c("NAME", "SMILES", "RT")
+    hilic <- read_retip_hilic_data()[, cols]
+    meas8 <- openxlsx::read.xlsx(pkg_file("extdata/Measurements_v8.xlsx"))[, cols]
+    RPold <- openxlsx::read.xlsx(pkg_file("extdata/RP.xlsx"))[, cols]
+    df <- rbind(hilic, meas8, RPold)
+    df <- df[!duplicated(df$SMILES), ]
+    CDs <- getCDs(df, verbose = 1, nw = 8)
+    cachedata_path <- pkg_file("cachedata")
+    rdspath <- file.path(cachedata_path, "CDs.rds")
+    saveRDS(CDs, rdspath)
+}
+
 
 #' @export
 #' @keywords internal
@@ -137,7 +163,7 @@ CDNames <- c(
     "org.openscience.cdk.qsar.descriptors.molecular.AminoAcidCountDescriptor"
 )
 
-update_CDNames <- function() {
+updateCDNames <- function() {
     x <- rcdk::get.desc.names(type = "all")
     skipPattern <- paste0(
         "(WHIM",
