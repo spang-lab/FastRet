@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,25 +42,25 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.1" id="fastret-121-">FastRet 1.2.1 <!-- Branch: improve120-->
-<a class="anchor" aria-label="anchor" href="#fastret-121-"></a></h2>
-<ul><li>Add updated Measurements <code>Measurements_v8.xlsx</code> to <code>inst/extdata/</code>. The new list contains corrections to the old <code>RP</code> dataset plus 1660 new measurements measured on a total of 18 different chromatographic environments.</li>
-<li>Reintroduced RAM caching (although hugely simplified).</li>
+<h2 class="pkg-version" data-toc-text="1.2.2" id="fastret-122-">FastRet 1.2.2 <!-- Commit Date: 2025-11-05 -->
+<a class="anchor" aria-label="anchor" href="#fastret-122-"></a></h2>
+<ul><li>Improved <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code> by aligning glmnet coefficients to columns by name (more stable) and by including RT, scaled by <code>max(abs(coefs))</code>, in PAM clustering.</li>
+<li>Added <code>libwebp-dev</code> as dependency to Dockerfile.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.0" id="fastret-120-">FastRet 1.2.0 <!-- Commit Date: 2025-09-22 -->
-<a class="anchor" aria-label="anchor" href="#fastret-120-"></a></h2>
-<ul><li>Added <code>seed</code> parameter to <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code> function for reproducible clustering results</li>
-<li>Enhanced documentation for <code><a href="../reference/train_frm.html">train_frm()</a></code> function</li>
-<li>Removed <code>digest</code> and <code>shinybusy</code> dependencies</li>
-<li>Major refactoring of caching system and related functions</li>
-<li>Removed mock files from <code>inst/mockdata/</code>
-</li>
-<li>Removed objects: <code>getCDsFor1Molecule()</code>, <code>get_cache_dir()</code>, <code>ram_cache</code> (these were exported, but declared as internal)</li>
-<li>Added private function <code>parLapply2</code>
-</li>
-<li>Added comprehensive GitHub Copilot instructions file</li>
-<li>Improved code organization and documentation across multiple R files</li>
+<h2 class="pkg-version" data-toc-text="1.2.1" id="fastret-121-">FastRet 1.2.1 <!-- Branch: 2025-09-23 -->
+<a class="anchor" aria-label="anchor" href="#fastret-121-"></a></h2>
+<ul><li><p>Add updated Measurements <code>Measurements_v8.xlsx</code> to <code>inst/extdata/</code>. The new list contains corrections to the old <code>RP</code> dataset plus 1660 new measurements measured on a total of 18 different chromatographic environments.</p></li>
+<li><p>Reintroduced RAM caching (although hugely simplified). # FastRet 1.2.0 <!-- Commit Date: 2025-09-22 --></p></li>
+<li><p>Added <code>seed</code> parameter to <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code> function for reproducible clustering results</p></li>
+<li><p>Enhanced documentation for <code><a href="../reference/train_frm.html">train_frm()</a></code> function</p></li>
+<li><p>Removed <code>digest</code> and <code>shinybusy</code> dependencies</p></li>
+<li><p>Major refactoring of caching system and related functions</p></li>
+<li><p>Removed mock files from <code>inst/mockdata/</code></p></li>
+<li><p>Removed objects: <code>getCDsFor1Molecule()</code>, <code>get_cache_dir()</code>, <code>ram_cache</code> (these were exported, but declared as internal)</p></li>
+<li><p>Added private function <code>parLapply2</code></p></li>
+<li><p>Added comprehensive GitHub Copilot instructions file</p></li>
+<li><p>Improved code organization and documentation across multiple R files</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.5" id="fastret-115-">FastRet 1.1.5 <!-- Commit Date: 2025-06-26 -->
