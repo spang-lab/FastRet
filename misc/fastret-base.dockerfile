@@ -1,10 +1,10 @@
 # Usage:
 #   $env:DOCKER_BUILDKIT=1
 #   cd "$(git rev-parse --show-toplevel)"
-#   docker build -t "toscm/fastret-base:1.0.2" -t "toscm/fastret-base:latest" -f misc/fastret-base.dockerfile .
-#   docker run -it --rm -p 8080:8080 "toscm/fastret-base:1.0.2"
-#   docker run -it --rm -p 8080:8080 -v "$(pwd)/..:/workspace/FastRet" "toscm/fastret-base:1.0.2" /bin/bash
-#   docker push "toscm/fastret-base:1.0.2" && docker push "toscm/fastret-base:latest"
+#   docker build -t "toscm/fastret-base:1.2.2" -t "toscm/fastret-base:latest" -f misc/fastret-base.dockerfile .
+#   docker run -it --rm -p 8080:8080 "toscm/fastret-base:1.2.2"
+#   docker run -it --rm -p 8080:8080 -v "$(pwd)/..:/workspace/FastRet" "toscm/fastret-base:1.2.2" /bin/bash
+#   docker push "toscm/fastret-base:1.2.2" && docker push "toscm/fastret-base:latest"
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive

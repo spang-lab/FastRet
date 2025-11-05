@@ -1,10 +1,16 @@
+# FastRet 1.2.2 <!-- Commit Date: 2025-11-05 -->
+
+- Improved `selective_measuring()` by aligning glmnet coefficients to columns by
+  name (more stable) and by including RT, scaled by `max(abs(coefs))`,  in PAM
+  clustering.
+- Added `libwebp-dev` as dependency to Dockerfile.
+
 # FastRet 1.2.1 <!-- Branch: 2025-09-23 -->
 
 - Add updated Measurements `Measurements_v8.xlsx` to `inst/extdata/`. The new
   list contains corrections to the old `RP` dataset plus 1660 new measurements
   measured on a total of 18 different chromatographic environments.
 - Reintroduced RAM caching (although hugely simplified).
-
 # FastRet 1.2.0 <!-- Commit Date: 2025-09-22 -->
 
 - Added `seed` parameter to `selective_measuring()` function for reproducible

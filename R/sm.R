@@ -64,7 +64,6 @@ selective_measuring <- function(raw_data,
                                 verbose = 1,
                                 seed = NULL) {
 
-
     if (!is.null(seed)) set.seed(seed)
 
     # Configure logging behaviours
@@ -76,20 +75,31 @@ selective_measuring <- function(raw_data,
     df <- preprocess_data(raw_data, verbose = verbose)
 
     catf("Standardizing features")
-    dfz <- scale(df[, -which(colnames(df) %in% c("NAME", "SMILES"))])
-    dfz_noRT <- dfz[, -which(colnames(df) == "RT")]
+    dfz <- scale(df[, setdiff(colnames(df), c("NAME", "SMILES")), drop = FALSE])
+    dfz_noRT <- dfz[, setdiff(colnames(dfz), "RT"), drop = FALSE]
 
     catf("Training Ridge Regression model")
     model <- fit_ridge(dfz, verbose = verbose)
-    coefs <- glmnet::coef.glmnet(model)@x[-1] # remove intercept
 
     catf("Scaling features by coefficients of Ridge Regression model")
-    dfzb <- data.frame(t(apply(dfz_noRT, 1, function(z) z * coefs)))
-    dfzb <- `colnames<-`(dfzb, colnames(dfz_noRT))
+    coef_mat <- glmnet::coef.glmnet(model)
+    coefs <- as.numeric(coef_mat)[-1]
+    names(coefs) <- rownames(coef_mat)[-1]
+    stopifnot(all(colnames(dfz_noRT) %in% names(coefs))) # (1)
+    dfzb_mat <- sweep(as.matrix(dfz_noRT), 2, coefs[colnames(dfz_noRT)], `*`)
+    dfzb <- as.data.frame(dfzb_mat)
+    colnames(dfzb) <- colnames(dfz_noRT)
+    # (1) Probably not necessary, but let's make sure everything worked as expected
+
+    # Include RT in the clustering. Scale RT to be comparable to the other scaled features.
+    # Sensible default: scale RT by the maximum absolute coefficient magnitude so its
+    # influence is similar to the most influential descriptor (max(abs(coefs))).
+    rt_coef <- max(abs(coefs), na.rm = TRUE)
+    if (!is.finite(rt_coef) || rt_coef == 0) rt_coef <- 1
+    dfzb$RT <- as.numeric(dfz[, "RT"]) * rt_coef
 
     catf("Applying PAM clustering")
-    RTcol <- which(colnames(df) == "RT")
-    clobj <- cluster::pam(dfzb[, -RTcol], k = as.numeric(k_cluster))
+    clobj <- cluster::pam(dfzb, k = as.numeric(k_cluster))
 
     catf("Returning clustering results")
     CLUSTER = clobj$clustering
