@@ -222,6 +222,9 @@ adjust_frm <- function(frm = train_frm(),
         preds_adjonly = rep(NA, nrow(df))
     )
 
+    catf("Fitting adjustment model on full new data set")
+    model <- lm(formula = fm, data = df)
+
     catf("Estimating performance of adjusted model in CV")
     for (i in seq_along(cv$folds)) {
         train <- unname(unlist(cv$folds[-i]))
@@ -238,9 +241,6 @@ adjust_frm <- function(frm = train_frm(),
         testdf$RT <- predict(frm, testdf, adjust = FALSE, verbose = 0)
         cv$preds[test] <- predict(cv$models[[i]], testdf)
     }
-
-    catf("Fitting adjustment model on full new data set")
-    model <- lm(formula = fm, data = df)
 
     catf("Returning adjusted frm object")
     frm$adj <- list(model = model, df = df, cv = cv)

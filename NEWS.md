@@ -11,6 +11,7 @@
   list contains corrections to the old `RP` dataset plus 1660 new measurements
   measured on a total of 18 different chromatographic environments.
 - Reintroduced RAM caching (although hugely simplified).
+
 # FastRet 1.2.0 <!-- Commit Date: 2025-09-22 -->
 
 - Added `seed` parameter to `selective_measuring()` function for reproducible
