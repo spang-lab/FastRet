@@ -1,3 +1,9 @@
+
+# FastRet 1.2.3 <!-- Commit Date: 2025-11-07 -->
+
+- Removed `caret` dependency by providing own implementations for
+  `createFolds()` and `nearZeroVar()`.
+
 # FastRet 1.2.2 <!-- Commit Date: 2025-11-05 -->
 
 - Improved `selective_measuring()` by aligning glmnet coefficients to columns by

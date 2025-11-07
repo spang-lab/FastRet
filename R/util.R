@@ -208,3 +208,61 @@ enable_function_tracing <- function() {
     })
     options(FastRet.onFuncEntry = onFuncEntry)
 }
+
+# Caret Replacements (Private) #####
+
+#' @noRd
+#' @title Create cross-validation folds
+#' @param y Vector of indices/numeric values for splitting.
+#' @param k
+#' Number of folds. Default 10. If `k` is larger equal `length(y)`, k will be
+#' silently set to `length(y)`.
+#' @return A list of integer vectors with fold indices.
+createFolds <- function(y, k = 10) {
+    if (k >= length(y)) k <- length(y)
+    foldnrs <- sample(rep(1:k, length.out = length(y)))
+    folds <- split(seq_along(y), foldnrs)
+    names(folds) <- paste0("Fold", seq_len(k))
+    folds
+}
+
+#' @noRd
+#' @title nearZeroVar
+#' @description
+#' Lightweight replacement for `caret::nearZeroVar`. Identifies predictors with
+#' (a) a very large frequency ratio of the most common value to the second most
+#' common value and (b) a low percent of distinct values. (a) and (b) must both
+#' be true at the same time to consider a variable as near-zero-variance. This
+#' mirrors the behavior used from `caret::nearZeroVar`.
+#' @param X A data.frame.
+#' @param freqCut Frequency ratio cutoff (default 95/5).
+#' @param uniqueCut Percent unique cutoff (default 10).
+#' @return
+#' An integer vector with column indices of "near-zero-variance" predictors.
+nearZeroVar <- function(X, freqCut = 95/5, uniqueCut = 10) {
+  X <- as.data.frame(X, stringsAsFactors = FALSE)
+  which(vapply(X, hasNearZeroVar, logical(1), freqCut, uniqueCut, USE.NAMES = FALSE))
+}
+
+#' @noRd
+#' @title Check whether a predictor has near-zero variance
+#' @description
+#' Checks whether a predictor has near-zero variance based on frequency ratio
+#' and percent unique values. Mirrors the behavior of `caret::nearZeroVar`.
+#' @param x A vector of predictor values.
+#' @param freqCut Frequency ratio cutoff (default 95/5).
+#' @param uniqueCut Percent unique cutoff (default 10).
+#' @return
+#' A logical value indicating whether the predictor has near-zero variance.
+hasNearZeroVar <- function(x, freqCut = 95/5, uniqueCut = 10) {
+    n <- length(x)
+    x <- x[!is.na(x)]
+    if (!length(x)) return(TRUE)
+    tab <- table(x)
+    nUniq <- length(tab)
+    if (nUniq <= 1) return(TRUE)
+    top <- sort(tab, TRUE)
+    freqRatio <- if (length(top) == 1) Inf else top[1] / top[2]
+    pctUnique <- 100 * nUniq / n
+    freqRatio > freqCut & pctUnique < uniqueCut || (is.numeric(x) && sd(x) == 0)
+}

@@ -70,7 +70,7 @@ preprocess_data <- function(data,
 
     if (rm_near_zero_var) {
         catf("Removing columns with variance close to zero")
-        idx_zeroVar <- caret::nearZeroVar(df_noNAs)
+        idx_zeroVar <- nearZeroVar(df_noNAs)
         nzv <- length(idx_zeroVar)
         df <- if (nzv == 0) df_noNAs else df_noNAs[, -idx_zeroVar]
         catf("Resulting dataframe has dimension %d x %d", nrow(df), ncol(df))
@@ -156,7 +156,7 @@ check_lm_suitability <- function(df = read_retip_hilic_data(),
     predictors <- colnames(X)
     n <- ncol(X)
     hasNAs <- apply(X, 2, function(x) any(is.na(x)))
-    isAlmostConstant <- seq_len(ncol(X)) %in% caret::nearZeroVar(X)
+    isAlmostConstant <- seq_len(ncol(X)) %in% nearZeroVar(X)
     hasOutliers <- apply(X, 2, function(x) any(abs(x - median(x)) > 50 * mad(x)))
     isSuitable <- !(hasNAs | isAlmostConstant | hasOutliers)
     V <- data.frame(predictors, hasNAs, isAlmostConstant, hasOutliers, isSuitable)

@@ -97,7 +97,7 @@ train_frm <- function(df,
     }
 
     catf("Preprocessing data")
-    folds <- caret::createFolds(y = df$RT, k = nfolds)
+    folds <- createFolds(y = df$RT, k = nfolds)
     df <- preprocess_data(
         df,
         degree_polynomial,
@@ -216,7 +216,7 @@ adjust_frm <- function(frm = train_frm(),
     fm <- as.formula(fmstr)
     catf("Formula: %s", fmstr)
     cv <- list(
-        folds = caret::createFolds(y = df$RT, k = nfolds),
+        folds = createFolds(y = df$RT, k = nfolds),
         models = vector("list", nfolds),
         preds = rep(NA, nrow(df)),
         preds_adjonly = rep(NA, nrow(df))
@@ -501,7 +501,7 @@ fit_gbtree_grid <- function(df = preprocess_data(),
     y <- df$RT
     X <- as.matrix(df[, colnames(df) %in% CDFeatures])
     data <- xgboost::xgb.DMatrix(X, label = y, nthread = 1)
-    foldids <- caret::createFolds(seq_len(nrow(df)), k = nfolds)
+    foldids <- createFolds(seq_len(nrow(df)), k = nfolds)
     param_grid <- base::expand.grid(max_depth = max_depth, eta = eta, gamma = gamma, colsample_bytree = colsample_bytree, subsample = subsample, min_child_weight = min_child_weight, nthread = n_threads)
     nparams <- nrow(param_grid)
     nw <- min(nw, nparams)
