@@ -1,6 +1,6 @@
 Package: FastRet
 Title: Retention Time Prediction in Liquid Chromatography
-Version: 1.2.3
+Version: 1.3.0
 Authors@R: c(
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cph"), email = "christian-amesoeder@web.de", comment = c(ORCID = "0000-0002-1668-8351")),
     person(given = "Marian", family = "Schoen", role = c("aut", "cph"), email = "marian.schoen@klinik.uni-regensburg.de"),
@@ -23,7 +23,7 @@ BugReports: https://github.com/spang-lab/FastRet/issues
 biocViews: Retention, Time, Chromotography, LC-MS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.2.2
 Depends: R (>= 4.1.0)
 Imports:
     bslib,
@@ -63,11 +63,11 @@ LazyData: true
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/testthat/start-first:
-    train_frm-gbtree,
-    train_frm-lasso,
-    preprocess_data,
-    read_rp_xlsx,
-    fit_gbtree,
+    getCDs,
+    parLapply2,
+    get_predictors,
     plot_frm,
-    adjust_frm,
-    read_rpadj_xlsx
+    train_frm-lasso,
+    train_frm-gbtree,
+    fit_gbtree
+

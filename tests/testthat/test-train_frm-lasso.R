@@ -1,13 +1,8 @@
 library(testthat)
 
-test_that("train_frm works if `method == \'lasso\'`", {
-    set.seed(1)
-    model <- train_frm(
-        df = RP[1:88, ], # Use only 20% of the data to speed up execution time
-        method = "lasso",
-        nfolds = 2,
-        nw = 2,
-        verbose = 0
-    )
-    expect_equal(names(model), c("model", "df", "cv", "seed", "version"))
+test_that("train_frm works if method == 'lasso'", {
+    model1 <- train_frm(df=RP[1:20, ], method="lasso", nfolds=2, nw=1, verbose=0, seed=42)
+    model2 <- train_frm(df=RP[1:20, ], method="lasso", nfolds=2, nw=2, verbose=0, seed=42)
+    expect_equal(names(model1), c("model", "df", "cv", "seed", "version"))
+    expect_equal(model1, model2)
 })

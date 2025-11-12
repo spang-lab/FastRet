@@ -94,6 +94,42 @@ collect <- function(xx) {
     `names<-`(ret, ns)
 }
 
+#' @noRd
+#' @title Create automatically named List
+#' @description
+#' Like normal `list()`, except that unnamed elements are automatically named according to their symbol
+#'
+#' COPIED OVER FROM TOSCUTIL. Can be replaced with original toscutil version as
+#' soon as all NAMESPACE imports from toscutil have been removed (right now
+#' loading toscutil takes 22ms, and we want to avoid that).
+#'
+#' @param ... List elements
+#' @return Object of type `list` with names attribute set
+#' @seealso [list()]
+#' @keywords base
+#' @examples
+#' a <- 1:10
+#' b <- "helloworld"
+#' l1 <- list(a, b)
+#' names(l1) <- c("a", "b")
+#' l2 <- named(a, b)
+#' stopifnot(identical(l1, l2))
+#' l3 <- list(z = a, b = b)
+#' l4 <- named(z = a, b)
+#' stopifnot(identical(l3, l4))
+named <- function(...) {
+    .symbols <- as.character(substitute(list(...)))[-1]
+    .elems <- list(...)
+    .idx <- if (is.null(names(.elems))) {
+        rep(TRUE, length(.elems))
+    } else {
+        names(.elems) == ""
+    }
+    names(.elems)[.idx] <- .symbols[.idx]
+    .elems
+}
+
+
 # Misc (Private) #####
 
 #' @noRd
@@ -111,6 +147,22 @@ null <- function(...) {
 #' @return Logical vector indicating which elements of x are not in y
 `%notin%` <- function(x, y) {
     !(x %in% y)
+}
+
+#' @noRd
+#' @title Convert Vector to String
+#' @description Converts a vector to a string representation.
+#' @param x Vector
+#' @return String representation of the vector
+#' @examples
+#' as_str(x = c(1, 2, 3))                   # "1, 2, 3"
+#' as_str(x = c(a = 1, b = 2, c = "Hello")) # "a=1, b=2, c=Hello"
+#' as_str(x = c(a = 1, 2, c = "Hello"))     # "a=1, 2, c=Hello"
+as_str <- function(x) {
+    vals <- as.character(x)
+    nams <- names(x) %||% rep("", length(x))
+    sep <- ifelse(nams == "", "", "=")
+    paste(nams, sep, vals, sep = "", collapse = ", ")
 }
 
 # Caching (Public) #####

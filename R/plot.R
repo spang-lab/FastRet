@@ -77,10 +77,7 @@ plot_frm <- function(frm = train_frm(verbose = 1),
         stop(sprintf(fmt, type))
     }
     trafo <- match.arg(trafo, c("identity", "log2"))
-    dotrafo <- switch(trafo,
-        "identity" = identity,
-        "log2" = log2
-    )
+    dotrafo <- switch(trafo, "identity" = identity, "log2" = log2)
 
     # Prepare data for plotting
     title <- switch(type,
@@ -117,7 +114,11 @@ plot_frm <- function(frm = train_frm(verbose = 1),
 
     # Plot data
     plot(
-        x = x, y = y, col = col,
+        x = x, y = y,
+        pch = 21, # filled circle with border
+        bg = col, # fill color
+        col = "black", # border color
+        lwd = 0.6, # border width
         xlab = if (trafo == "identity") "RT (Measured)" else "log2(RT) (Measured)",
         ylab = if (trafo == "identity") "RT (Predicted)" else "log2(RT) (Predicted)"
     )
@@ -131,12 +132,15 @@ plot_frm <- function(frm = train_frm(verbose = 1),
             sprintf("|y - x| > 1 min (n = %d)", sum(!is_within_1min)),
             sprintf("y notin [min(x) - mu; max(x) + mu] (n = %d)", sum(is_outlier))
         ),
-        col = c("black", "green", "blue", "red"),
-        pch = c(NA, 1, 1, 1),
-        lty = c(1, 0, 0, 0)
+        col = c("black", "black", "black", "black"),
+        pt.bg = c(NA, "green", "blue", "red"),
+        pch = c(NA, 21, 21, 21),
+        lty = c(1, 0, 0, 0),
+        bg = grDevices::adjustcolor("white", alpha.f = 0.66)
     )
     legend(
         x = "topleft", col = "black", lty = 0, pch = NA,
-        legend = c(sprintf("R = %.2f", R), sprintf("MSE = %.2f", MSE), sprintf("MAE = %.2f", MAE))
+        legend = c(sprintf("R = %.2f", R), sprintf("MSE = %.2f", MSE), sprintf("MAE = %.2f", MAE)),
+        bg = grDevices::adjustcolor("white", alpha.f = 0.66)
     )
 }

@@ -32,16 +32,34 @@ getCDs <- function(df,
                    verbose = 1,
                    nw = 1,
                    keepdf = TRUE) {
-    catf <- if (verbose >= 1) catf else null
+
+    logf <- if (verbose >= 1) catf else null
+
+    logf("Calculating chemical descriptors for %d molecules", nrow(df))
     a <- Sys.time()
+    if (is.character(df)) df <- data.frame(SMILES = df)
+
+    # Return early if all CDs are already present
+    if (all(CDFeatures %in% colnames(df))) {
+        logf("Dataframe already contains all CDs, skipping calculation")
+        return(if (keepdf) df else df[, CDFeatures])
+    } else {
+        # At least one CD is missing, so we remove all existing ones to avoid
+        # duplication of columns later on
+        df <- df[, !colnames(df) %in% CDFeatures, drop = FALSE]
+    }
+
+    # Load CDs for known SMILES from cache
     cachedCDs <- getOption("FastRet.cachedCDs")
     if (is.null(cachedCDs) || nrow(cachedCDs) < 1788) {
         cachedCDs <- readRDS(pkg_file("cachedata/CDs.rds"))
         options(FastRet.cachedCDs = cachedCDs)
     }
+
+    # Compute CDs for new SMILES
     smi <- unique(df$SMILES[df$SMILES %notin% rownames(cachedCDs)])
     if (length(smi) > 0) {
-        catf("Computing CDs for %d new SMILES using rCDK", length(smi))
+        logf("Computing CDs for %d new SMILES using rCDK", length(smi))
         if (nw > 1) {
             chunkids <- cut(seq_along(smi), nw, labels = FALSE)
             DF <- split(data.frame(SMILES = smi), chunkids)
@@ -54,13 +72,18 @@ getCDs <- function(df,
             lapply(objs, rcdk::generate.2d.coordinates) # Gen 2D coords
             newCDs <- suppressWarnings(rcdk::eval.desc(objs, CDNames, verbose = FALSE))
         }
+        # Update cache
         cachedCDs <- rbind(cachedCDs, newCDs) # Add new CDs to already existing ones
         options(FastRet.cachedCDs = cachedCDs) # Update cached CDs
     }
+
+    # Assemble final dataframe
     cds <- cachedCDs[df$SMILES, ]
     retdf <- if (keepdf) cbind(df, cds) else cds
     b <- Sys.time()
-    catf("Finished calculating chemical descriptors in %s", format(b - a))
+    secs <- as.numeric(difftime(b, a, units = "secs"))
+    logf("Finished calculating chemical descriptors in %.2fs", secs)
+
     invisible(retdf)
 }
 

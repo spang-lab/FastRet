@@ -1,13 +1,10 @@
 library(testthat)
 
 test_that("train_frm works if `method == \"GBTree\"`", {
-    set.seed(1)
-    model <- train_frm(
-        df = RP[1:44, ], # Use only 10% of the data to speed up execution time
-        method = "gbtree",
-        nfolds = 2,
-        nw = 2,
-        verbose = 0
-    )
-    expect_equal(names(model), c("model", "df", "cv", "seed", "version"))
+    model1 <- train_frm(df=RP[1:20, ], method="gbtree", nfolds=2, nw=1, verbose=0, seed=42)
+    model2 <- train_frm(df=RP[1:20, ], method="gbtree", nfolds=2, nw=2, verbose=0, seed=42)
+    expect_equal(names(model1), c("model", "df", "cv", "seed", "version"))
+    expect_true(all.equal(model1, model2)) # (1)
+    # (1) we can't use expect_equal because the xgboost objects contain pointers
+    # to the underlying C structs which causes expect_equal to fail
 })

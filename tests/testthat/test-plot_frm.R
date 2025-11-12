@@ -1,10 +1,11 @@
 library(testthat)
 
 test_that("plot_frm works for not-adjusted models", {
-    frm <- train_frm(df = RP[1:20, ], method = "lasso", seed = 123, nfolds = 2, nw = 1, verbose = 0)
+    df <- RP[1:20, ]
+    frm <- train_frm(df, "lasso", verbose = 0, nfolds = 2, nw = 1, seed = 123)
     testthat::expect_no_error(object = {
-        plot_frm(frm = frm, type = "scatter.cv")
-        plot_frm(frm = frm, type = "scatter.train")
+        plot_frm(frm, type = "scatter.cv")
+        plot_frm(frm, type = "scatter.train")
     })
     expect_error(
         object = plot_frm(frm = frm, type = "scatter.cv.adj"),

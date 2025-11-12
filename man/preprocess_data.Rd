@@ -11,39 +11,52 @@ preprocess_data(
   verbose = 1,
   nw = 1,
   rm_near_zero_var = TRUE,
-  rm_na = TRUE
+  rm_na = TRUE,
+  add_cds = TRUE
 )
 }
 \arguments{
-\item{data}{Dataframe with columns RT, NAME, SMILES}
+\item{data}{Dataframe with following columns:
+\itemize{
+\item Mandatory: NAME, RT and SMILES.
+\item Recommmended: INCHIKEY.
+\item Optional: Any of the chemical descriptors listed in \link{CDFeatures}.
+All other columns will be removed.
+See 'Details'.
+}}
 
-\item{degree_polynomial}{Defines how many polynomials get added (if 3 quadratic and cubic terms get
-added).}
+\item{degree_polynomial}{Add predictors with polynomial terms up to the specified degree, e.g. 2 means
+"add squares", 3 means "add squares and cubes". Set to 1 to leave descriptors
+unchanged.}
 
-\item{interaction_terms}{If TRUE all interaction terms get added to data set.}
+\item{interaction_terms}{Add interaction terms? Polynomial terms are not included in the generation of
+interaction terms.}
 
-\item{verbose}{0 == no output, 1 == show progress, 2 == show progress and warnings}
+\item{verbose}{0: no output, 1: show progress, 2: progress and warnings.}
 
-\item{nw}{number of workers to use for parallel processing}
+\item{nw}{Number of workers to use for parallel processing.}
 
-\item{rm_near_zero_var}{A logical value indicating whether to remove near zero variance predictors.
-Setting this to TRUE can cause the CV results to be overoptimistic, as the
-variance filtering is done on the whole dataset, i.e. information from the
-test folds is used for feature selection.}
+\item{rm_near_zero_var}{Remove near zero variance predictors?}
 
-\item{rm_na}{A logical value indicating whether to remove NA values. Setting this to TRUE
-can cause the CV results to be overoptimistic, as the filtering is done on
-the whole dataset, i.e. information from the test folds is used for feature
-selection.}
+\item{rm_na}{Remove NA values?}
+
+\item{add_cds}{Add chemical descriptors using \code{\link[=getCDs]{getCDs()}}? See 'Details'.}
 }
 \value{
-A dataframe with the preprocessed data
+A dataframe with the preprocessed data.
 }
 \description{
 Preprocess data so they can be used as input for \code{\link[=train_frm]{train_frm()}}.
 }
+\details{
+If \code{add_cds = TRUE}, chemical descriptors are added using \code{\link[=getCDs]{getCDs()}}. If
+\strong{all} chemical descriptors listed in \link{CDFeatures} are already present in
+the input \code{data} object, \code{\link[=getCDs]{getCDs()}} will leave them unchanged. If one or more
+chemical descriptors are missing, \strong{all} chemical descriptors will be
+recalculated and existing ones will be overwritten.
+}
 \examples{
-data <- head(RP, 3) # Only use first three rows to speed up example runtime
+data <- head(RP, 3)
 pre <- preprocess_data(data, verbose = 0)
 }
 \keyword{public}

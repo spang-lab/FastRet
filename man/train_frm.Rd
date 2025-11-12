@@ -23,8 +23,9 @@ train_frm(
 chemical descriptors. If no chemical descriptors are provided, they are
 calculated using the function \code{\link[=preprocess_data]{preprocess_data()}}.}
 
-\item{method}{A string representing the prediction algorithm. Either "lasso", "ridge" or
-"gbtree".}
+\item{method}{A string representing the prediction algorithm. Either "lasso", "ridge",
+"gbtree", "gbtreeDefault" or "gbtreeRP". Method "gbtree" is an alias for
+"gbtreeRP".}
 
 \item{verbose}{A logical value indicating whether to print progress messages.}
 
@@ -37,15 +38,11 @@ specified degree are included in the model.}
 
 \item{interaction_terms}{A logical value indicating whether to include interaction terms in the model.}
 
-\item{rm_near_zero_var}{A logical value indicating whether to remove near zero variance predictors.
-Setting this to TRUE can cause the CV results to be overoptimistic, as the
-variance filtering is done on the whole dataset, i.e. information from the
-test folds is used for feature selection.}
+\item{rm_near_zero_var}{A logical value indicating whether to remove near zero variance predictors.}
 
-\item{rm_na}{A logical value indicating whether to remove NA values. Setting this to TRUE
-can cause the CV results to be overoptimistic, as the filtering is done on
-the whole dataset, i.e. information from the test folds is used for feature
-selection.}
+\item{rm_na}{A logical value indicating whether to remove NA values before training.
+Highly recommended to avoid issues during model fitting. Setting this to
+FALSE with \code{method = "lasso"} will most likely lead to errors.}
 
 \item{rm_ns}{A logical value indicating whether to remove chemical descriptors that were
 considered as not suitable for linear regression based on a previous analysis
@@ -55,15 +52,32 @@ of an independent dataset. Currently not used.}
 reproducible results.}
 }
 \value{
-A trained FastRet model.
+A 'FastRet Model', i.e., an object of class \code{frm}. Components are:
+\itemize{
+\item \code{model}: The fitted base model. This can be an object of class \code{glmnet}
+(for Lasso or Ridge regression) or \code{xgb.Booster} (for GBTree models).
+\item \code{df}: The data frame used for training the model. The data frame contains
+all user-provided columns (including mandatory columns RT, SMILES and NAME)
+as well the calculated chemical descriptors. (But no interaction terms or
+polynomial features, as these can be recreated within a few milliseconds).
+\item \code{cv}: A named list containing the cross validation results. Elements are:
+\itemize{
+\item \code{folds}: A list of integer vectors specifying the samples in each fold.
+\item \code{models}: A list of models trained on each fold.
+\item \code{stats}: A list of vectors with RMSE, Rsquared, MAE, pBelow1Min per fold.
+\item \code{preds}: Retention time predictions obtained in CV as numeric vector.
+}
+\item \code{seed}: The seed used for random number generation.
+\item \code{version}: The version of the FastRet package used to train the model.
+}
 }
 \description{
 Trains a new model from molecule SMILES to predict retention times (RT) using
 the specified method.
 }
 \examples{
-system.time(m <- train_frm(RP[1:80, ], method = "lasso", nfolds = 2, nw = 1, verbose = 0))
-# For the sake of a short runtime, only the first 80 rows of the RP dataset
+m <- train_frm(df = RP[1:40, ], method = "lasso", nfolds = 2, verbose = 0)
+# For the sake of a short runtime, only the first 40 rows of the RP dataset
 # are used in this example. In practice, you should always use the entire
 # training dataset for model training.
 }

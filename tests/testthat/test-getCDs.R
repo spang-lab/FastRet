@@ -16,7 +16,7 @@ test_that("getCDs works correctly", {
     expect_true(all.equal(Y1[, 1:3], X))
     expect_true(all(colnames(Y1)[4:nc] %in% CDFeatures))
     expect_equal(Y1$Fsp3, c(0.75, 1/3, 0.00, 0.50, 0.50))
-    expect_true(rt1 < 0.05)
+    expect_true(rt1 < 0.050, info = sprintf("runtime: %.3f secs", rt1))
     expect_equal(nrow(getOption("FastRet.cachedCDs")), 1788)
 
     # Test with unknown SMILES (not in package data)

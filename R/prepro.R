@@ -9,38 +9,37 @@
 #' Preprocess data so they can be used as input for [train_frm()].
 #'
 #' @param data
-#' Dataframe with columns RT, NAME, SMILES
-#'
+#' Dataframe with following columns:
+#' - Mandatory: NAME, RT and SMILES.
+#' - Recommmended: INCHIKEY.
+#' - Optional: Any of the chemical descriptors listed in [CDFeatures].
+#' All other columns will be removed.
+#' See 'Details'.
 #' @param degree_polynomial
-#' Defines how many polynomials get added (if 3 quadratic and cubic terms get
-#' added).
-#'
+#' Add predictors with polynomial terms up to the specified degree, e.g. 2 means
+#' "add squares", 3 means "add squares and cubes". Set to 1 to leave descriptors
+#' unchanged.
 #' @param interaction_terms
-#' If TRUE all interaction terms get added to data set.
+#' Add interaction terms? Polynomial terms are not included in the generation of
+#' interaction terms.
+#' @param verbose 0: no output, 1: show progress, 2: progress and warnings.
+#' @param nw Number of workers to use for parallel processing.
+#' @param rm_near_zero_var Remove near zero variance predictors?
+#' @param rm_na Remove NA values?
+#' @param add_cds Add chemical descriptors using [getCDs()]? See 'Details'.
 #'
-#' @param verbose
-#' 0 == no output, 1 == show progress, 2 == show progress and warnings
-#'
-#' @param nw
-#' number of workers to use for parallel processing
-#'
-#' @param rm_near_zero_var
-#' A logical value indicating whether to remove near zero variance predictors.
-#' Setting this to TRUE can cause the CV results to be overoptimistic, as the
-#' variance filtering is done on the whole dataset, i.e. information from the
-#' test folds is used for feature selection.
-#'
-#' @param rm_na
-#' A logical value indicating whether to remove NA values. Setting this to TRUE
-#' can cause the CV results to be overoptimistic, as the filtering is done on
-#' the whole dataset, i.e. information from the test folds is used for feature
-#' selection.
+#' @details
+#' If `add_cds = TRUE`, chemical descriptors are added using [getCDs()]. If
+#' **all** chemical descriptors listed in [CDFeatures] are already present in
+#' the input `data` object, [getCDs()] will leave them unchanged. If one or more
+#' chemical descriptors are missing, **all** chemical descriptors will be
+#' recalculated and existing ones will be overwritten.
 #'
 #' @return
-#' A dataframe with the preprocessed data
+#' A dataframe with the preprocessed data.
 #'
 #' @examples
-#' data <- head(RP, 3) # Only use first three rows to speed up example runtime
+#' data <- head(RP, 3)
 #' pre <- preprocess_data(data, verbose = 0)
 preprocess_data <- function(data,
                             degree_polynomial = 1,
@@ -48,74 +47,69 @@ preprocess_data <- function(data,
                             verbose = 1,
                             nw = 1,
                             rm_near_zero_var = TRUE,
-                            rm_na = TRUE) {
-    if (verbose == 0) catf <- function(...) invisible()
+                            rm_na = TRUE,
+                            add_cds = TRUE) {
 
-    catf("Preprocessing dataframe with dimension %d x %d", nrow(data), ncol(data))
+    logf <- if (verbose) catf else null
 
-    if (TRUE) {
-        catf("Obtaining chemical descriptors using %d workers", nw)
-        df_raw <- getCDs(data, verbose, nw) # nolint: object_usage_linter.
-        catf("Resulting dataframe has dimension %d x %d", nrow(df_raw), ncol(df_raw))
+    logf("Preprocessing dataframe with dimension %d x %d", nrow(data), ncol(data))
+
+    mandatory <- c("NAME", "RT", "SMILES")
+    optional <- c("INCHIKEY")
+    supported <- c(mandatory, optional, CDFeatures)
+    is_supported <- colnames(data) %in% supported
+    if (!all(mandatory %in% colnames(data))) {
+        missing <- mandatory[!mandatory %in% colnames(data)]
+        stop("Missing mandatory columns: ", as_str(missing))
+    }
+    if (!all(is_supported)) {
+        logf("Removing %d unsupported columns", sum(!is_supported))
+        data <- data[, is_supported, drop = FALSE]
     }
 
-    if (rm_na) {
-        catf("Removing columns with NAs")
-        has_nas <- apply(df_raw, 2, function(col) any(is.na(col)))
-        df_noNAs <- df_raw[, !has_nas]
-        catf("Resulting dataframe has dimension %d x %d", nrow(df_noNAs), ncol(df_noNAs))
+    if (add_cds) {
+        logf("Obtaining chemical descriptors using %d workers", nw)
+        df <- getCDs(data, verbose, nw)
     } else {
-        df_noNAs <- df_raw
+        df <- data # Maybe user wants to work with pre-computed CDs
     }
 
-    if (rm_near_zero_var) {
-        catf("Removing columns with variance close to zero")
-        idx_zeroVar <- nearZeroVar(df_noNAs)
-        nzv <- length(idx_zeroVar)
-        df <- if (nzv == 0) df_noNAs else df_noNAs[, -idx_zeroVar]
-        catf("Resulting dataframe has dimension %d x %d", nrow(df), ncol(df))
-    } else {
-        df <- df_noNAs
-    }
+    iscd <- colnames(df) %in% CDFeatures
+    M <- df[, !iscd, drop = FALSE] # Metadata (NAME, RT, SMILES, INCHIKEY)
+    X <- df[, iscd, drop = FALSE] # Chemical Descriptors
+    Xorig <- X # Backup original X for use in upcoming transformations
 
-    if (degree_polynomial >= 2 || interaction_terms) {
-        catf("Moving columns RT, NAME, SMILES into a seperate dataframe")
-        rt <- df[, which(colnames(df) %in% c("RT", "NAME", "SMILES"))]
-        cd <- df[, -which(colnames(df) %in% c("RT", "NAME", "SMILES"))]
-
-        cdp <- cd
-        if (degree_polynomial >= 2) {
-            catf("Adding polynomial predictors up to degree %d", degree_polynomial)
-            npredictors <- ncol(cdp)
-            for (p in c(2:degree_polynomial)) {
-                for (predictor in c(2:npredictors)) {
-                    new_name <- paste(colnames(cdp)[predictor], "^", p, sep = "")
-                    cdp[, new_name] <- cdp[, predictor]^p
-                }
-            }
-            catf("Resulting dataframe has dimension %d x %d", nrow(cdp), ncol(cdp))
+    if (degree_polynomial >= 2 && ncol(X) > 0) {
+        logf("Adding polynomial predictors up to degree %d", degree_polynomial)
+        for (p in seq(2, degree_polynomial)) {
+            P <- as.data.frame(lapply(Xorig, function(col) col^p))
+            colnames(P) <- paste0(colnames(Xorig), "^", p)
+            X <- cbind(X, P)
         }
-
-        cdpi <- cdp
-        if (interaction_terms) {
-            catf("Adding interaction terms (this can take a while)")
-            npredictors <- ncol(cdpi)
-            for (predictor in c(2:npredictors - 1)) {
-                for (predictor2 in c((predictor + 1):npredictors)) {
-                    new_name <- paste(colnames(cdpi)[predictor], "/", colnames(cdpi)[predictor2], sep = "")
-                    cdpi[, new_name] <- cdpi[, predictor] / cdpi[, predictor2]
-                }
-            }
-            cdpi[is.na.data.frame(cdpi)] <- 0
-            catf("Resulting dataframe has dimension %d x %d", nrow(cdpi), ncol(cdpi))
-        }
-
-        catf("Readding RT, NAME, SMILES to dataframe")
-        df <- cbind(rt, cdpi)
     }
 
-    catf("Preprocessing finished")
-    return(df)
+    np <- ncol(Xorig)
+    if (interaction_terms && ncol(X) > 0 && np >= 2) {
+        logf("Adding interaction terms")
+        I <- stats::model.matrix(~ .^2 - . - 1, data = Xorig)
+        X <- cbind(X, I)
+    }
+
+    if (rm_na && ncol(X) > 0) {
+        logf("Removing CDs with NAs")
+        keep <- !apply(X, 2, function(col) any(is.na(col)))
+        X <- X[, keep, drop = FALSE]
+    }
+
+    if (rm_near_zero_var && ncol(X) > 0) {
+        logf("Removing CDs with variance close to zero")
+        idx <- nearZeroVar(X)
+        if (length(idx)) X <- X[, -idx, drop = FALSE]
+    }
+
+    df <- cbind(M, X)
+    logf("Preprocessing finished")
+    df
 }
 
 # Private #####
