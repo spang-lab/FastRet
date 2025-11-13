@@ -10,9 +10,12 @@ API Improvements:
      SMILES strings can now be provided
    - Improved progress output
 2. `plot_frm()`:
+   - Now available as exported function (the function existed before, but was
+     only exposed via the Grafical User Interface). Now users can call it
+     directly from R scripts.
    - Added semi-transparent background to legends for better readability
    - Changed the point character from unfilled circles with colored borders to
-     filled circles with black borders for better visibility
+     filled circles with black borders for better visibility. See [misc/pdfs/plot_frm_v1.2.2.pdf](./misc/pdfs/plot_frm_v1.2.2.pdf) and [misc/pdfs/plot_frm_v1.3.0.pdf](./misc/pdfs/plot_frm_v1.3.0.pdf) for a comparison.
 3. `preprocess_data()`:
    - Added argument `add_cds` to control whether chemical descriptors should be
      added to the input data using `getCDs()`

@@ -1,71 +1,33 @@
-# Private #####
-
-#' @noRd
+#' @export
+#' @keywords public
+#'
+#' @title Plot predictions for a FastRet model
 #'
 #' @description
-#' Create boxplots for up to 4 models to compare their performance measures
+#' Creates scatter plots of measured vs. predicted retention times (RT) for a
+#' FastRet Model (FRM). Supports plotting cross-validation (CV) predictions and
+#' fitted predictions on the training set, as well as their adjusted variants
+#' when the model has been adjusted via [adjust_frm()]. Coloring highlights
+#' points within 1 minute of the identity line and simple outliers.
 #'
-#' @param models
-#' A list of objects of class `frm` as returned by [train_frm()].
-#'
-#' @param ptype
-#' A string specifying the plot type. Options are: "base" (default) and "ggplot2".
-#'
-plot_boxplot <- function(model = train_frm(), ptype = "base") {
-    .data <- rlang::.data # (1)
-    # (1) To avoid warnings about NSE in ggplot2 calls
-    # (https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html)
-    ptype <- match.arg(ptype, c("base", "ggplot2"))
-    stats <- as.data.frame(collect(model$cv$stats))
-    p <- if (ptype == "base") {
-        opar <- par(mar = c(2, 2, 2, 0) + 0.5)
-        on.exit(par(opar), add = TRUE)
-        boxplot(stats, main = "CV Performance across folds", xlab = "", ylab = "", cex.axis = 0.8)
-    } else {
-        stats_lf <- reshape(
-            stats,
-            varying = names(stats), v.names = "Value", timevar = "Measure",
-            times = names(stats), direction = "long"
-        )
-        p <- ggplot2::ggplot(
-            data = stats_lf,
-            mapping = ggplot2::aes(x = .data$Measure, y = .data$Value)
-        )
-        p <- p + ggplot2::geom_boxplot()
-        p <- p + ggplot2::ggtitle("CV Performance across folds")
-        p <- p + ggplot2::theme_minimal()
-        p <- p + ggplot2::theme(
-            axis.title = ggplot2::element_blank(),
-            plot.title = ggplot2::element_text(hjust = 0.5)
-        )
-    }
-}
-
-#' @noRd
-#' @description
-#' Plot predictions of a FastRet Model (FRM) for its training data. If the FRM
-#' was adjusted, the original and adjusted predictions are plotted.
-#'
-#' @param frm
-#' An object of class `frm` as returned by [train_frm()].
-#'
-#' @param type
-#' A string specifying the plot type. Options are:
-#'
-#' - "scatter.cv": Cross-validation predictions for the full training set
-#' - "scatter.cv.adj": Cross-validation predictions for the adjustment set
+#' @param frm An object of class `frm` as returned by [train_frm()].
+#' @param type Plot type. One of:
+#' - "scatter.cv": CV predictions for the training set
+#' - "scatter.cv.adj": CV predictions for the adjustment set (requires `frm$adj`)
 #' - "scatter.train": Model predictions for the training set
-#' - "scatter.train.adj": Adjusted model predictions for the adjustment set
+#' - "scatter.train.adj": Adjusted model predictions for the adjustment set (requires `frm$adj`)
+#' @param trafo Transformation applied for display. One of:
+#' - "identity": no transformation
+#' - "log2": apply log2 transform to axes (metrics are computed on raw values)
 #'
-#' @param trafo
-#' A string specifying the transformation to apply to the data before plotting. Options are:
+#' @return NULL, called for its side effect of plotting.
 #'
-#' - "identity": No transformation
-#' - "log2": Apply the log2 transformation
-#'
+#' @examples
+#' frm <- read_rp_lasso_model_rds()
+#' plot_frm(frm, type = "scatter.cv")
 plot_frm <- function(frm = train_frm(verbose = 1),
-                     type = "scatter.cv", # c("scatter.cv", "scatter.cv.adj", "scatter.train", "scatter.train.adj")
-                     trafo = "identity" # c("identity", "log2")
+                     type = "scatter.cv",
+                     trafo = "identity"
 ) {
     # Check args
     type <- match.arg(type, c("scatter.cv", "scatter.cv.adj", "scatter.train", "scatter.train.adj"))
@@ -73,7 +35,7 @@ plot_frm <- function(frm = train_frm(verbose = 1),
     if (plot_adj && is.null(frm$adj)) {
         fmt <- paste(sep = "\n",
             "type is `%s`, but the model has not been adjusted yet.",
-            "See `?adjust_model` for information on how to Adjust existing Models."
+            "See `?adjust_frm` for information on how to adjust existing models."
         )
         stop(sprintf(fmt, type))
     }
@@ -144,4 +106,45 @@ plot_frm <- function(frm = train_frm(verbose = 1),
         legend = c(sprintf("R = %.2f", R), sprintf("MSE = %.2f", MSE), sprintf("MAE = %.2f", MAE)),
         bg = grDevices::adjustcolor("white", alpha.f = 0.66)
     )
+}
+
+#' @noRd
+#'
+#' @description
+#' Create boxplots for up to 4 models to compare their performance measures
+#'
+#' @param models
+#' A list of objects of class `frm` as returned by [train_frm()].
+#'
+#' @param ptype
+#' A string specifying the plot type. Options are: "base" (default) and "ggplot2".
+#'
+plot_boxplot <- function(model = train_frm(), ptype = "base") {
+    .data <- rlang::.data # (1)
+    # (1) To avoid warnings about NSE in ggplot2 calls
+    # (https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html)
+    ptype <- match.arg(ptype, c("base", "ggplot2"))
+    stats <- as.data.frame(collect(model$cv$stats))
+    p <- if (ptype == "base") {
+        opar <- par(mar = c(2, 2, 2, 0) + 0.5)
+        on.exit(par(opar), add = TRUE)
+        boxplot(stats, main = "CV Performance across folds", xlab = "", ylab = "", cex.axis = 0.8)
+    } else {
+        stats_lf <- reshape(
+            stats,
+            varying = names(stats), v.names = "Value", timevar = "Measure",
+            times = names(stats), direction = "long"
+        )
+        p <- ggplot2::ggplot(
+            data = stats_lf,
+            mapping = ggplot2::aes(x = .data$Measure, y = .data$Value)
+        )
+        p <- p + ggplot2::geom_boxplot()
+        p <- p + ggplot2::ggtitle("CV Performance across folds")
+        p <- p + ggplot2::theme_minimal()
+        p <- p + ggplot2::theme(
+            axis.title = ggplot2::element_blank(),
+            plot.title = ggplot2::element_text(hjust = 0.5)
+        )
+    }
 }
