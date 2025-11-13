@@ -91,7 +91,8 @@ preprocess_data <- function(data,
     np <- ncol(Xorig)
     if (interaction_terms && ncol(X) > 0 && np >= 2) {
         logf("Adding interaction terms")
-        I <- stats::model.matrix(~ .^2 - . - 1, data = Xorig)
+        withr::local_options(list(na.action='na.pass'))
+        I <- stats::model.matrix(~ .^2 - . - 1, data = Xorig, na.action = stats::na.pass)
         X <- cbind(X, I)
     }
 

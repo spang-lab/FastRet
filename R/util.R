@@ -10,16 +10,20 @@
 # anyways. Loading 3rd party packages can significantly slow down package
 # loading. E.g. glmnet or xgboost both take almost 1s to load.
 
-# Colors (Private) #####
+# Public #####
 
-GREY <- "\033[1;30m"
-RED <- "\033[1;31m"
-GREEN <- "\033[1;32m"
-YELLOW <- "\033[1;33m"
-BLUE <- "\033[1;34m"
-RESET <- "\033[0m"
-
-# Misc (Public) #####
+#' @export
+#' @title Get package file
+#' @description Returns the path to a file within the FastRet package.
+#' @param path The path to the file within the package.
+#' @param mustWork If TRUE, an error is thrown if the file does not exist.
+#' @return The path to the file.
+#' @keywords internal
+#' @examples
+#' path <- pkg_file("extdata/RP.xlsx")
+pkg_file <- function(path, mustWork = FALSE) {
+    system.file(path, package = "FastRet", mustWork = mustWork)
+}
 
 #' @export
 #' @keywords internal
@@ -94,6 +98,8 @@ collect <- function(xx) {
     `names<-`(ret, ns)
 }
 
+# Misc (Private) #####
+
 #' @noRd
 #' @title Create automatically named List
 #' @description
@@ -129,9 +135,6 @@ named <- function(...) {
     .elems
 }
 
-
-# Misc (Private) #####
-
 #' @noRd
 #' @title Null Function
 #' @description A function that always returns invisibly NULL, ignoring all arguments.
@@ -165,22 +168,35 @@ as_str <- function(x) {
     paste(nams, sep, vals, sep = "", collapse = ", ")
 }
 
-# Caching (Public) #####
-
-#' @export
-#' @title Get package file
-#' @description Returns the path to a file within the FastRet package.
-#' @param path The path to the file within the package.
-#' @param mustWork If TRUE, an error is thrown if the file does not exist.
-#' @return The path to the file.
-#' @keywords internal
+#' @noRd
+#' @title Canonicalize SMILES
+#' @description Convert SMILES to canonical form.
+#' @param smiles Character vector of SMILES.
+#' @return Character vector of canonical SMILES.
 #' @examples
-#' path <- pkg_file("extdata/RP.xlsx")
-pkg_file <- function(path, mustWork = FALSE) {
-    system.file(path, package = "FastRet", mustWork = mustWork)
+#' as_canonical(c("CCO", "C(C)O"))
+as_canonical <- function(smiles) {
+    canons <- rep("INVALID", length(smiles))
+    is_valid <- is_valid_smiles(smiles)
+    molecules <- rcdk::parse.smiles(smiles[is_valid])
+    flavor <- rcdk::smiles.flavors("Canonical")
+    canons[is_valid] <- sapply(molecules, rcdk::get.smiles, flavor)
+    canons
 }
 
-# Multicore (Private) #####
+#' @noRd
+#' @title Validate SMILES
+#' @description Check if SMILES strings are valid.
+#' @details Attention: this documentation has been generated automatically by
+#' GitHub Copilot and has NOT been reviewed.
+#' @param smiles Character vector of SMILES.
+#' @return Logical vector of validity.
+#' @examples
+#' is_valid_smiles(c("CCO", "invalid"))
+is_valid_smiles <- function(smiles) {
+    molecules <- suppressWarnings(rcdk::parse.smiles(smiles))
+    !sapply(molecules, is.null)
+}
 
 #' @noRd
 #' @description Calculate the number of workers for parallel processing
@@ -318,3 +334,12 @@ hasNearZeroVar <- function(x, freqCut = 95/5, uniqueCut = 10) {
     pctUnique <- 100 * nUniq / n
     freqRatio > freqCut & pctUnique < uniqueCut || (is.numeric(x) && sd(x) == 0)
 }
+
+# Colors (Private) #####
+
+GREY <- "\033[1;30m"
+RED <- "\033[1;31m"
+GREEN <- "\033[1;32m"
+YELLOW <- "\033[1;33m"
+BLUE <- "\033[1;34m"
+RESET <- "\033[0m"

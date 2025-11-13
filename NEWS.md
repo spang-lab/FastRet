@@ -46,6 +46,9 @@ API Improvements:
      trying to predict RTs using models trained with `degree_polynomial>1`
      and/or `interaction_terms=TRUE`, unless the transformations were manually
      applied to the new data beforehand.
+   - Added argument `clip` to allow clipping of predictions to be within
+     the RT range of the training data. Works for both adjusted and unadjusted
+     models.
 6. `selective_measuring()`:
    - Added argument `rt_coef`, allowing user to control the influence of RT on
      the clustering. A value of 0 means that RT is ignored, a value of
@@ -53,6 +56,14 @@ API Improvements:
      important chemical descriptor and a value of 1 means no scaling at all
      (except standardization to z-scores, which is applied before to the whole
      dataset before the ridge regression is trained).
+7. `adjust_frm()`:
+   - Added argument `seed` to allow reproducible results
+   - Added support for mapping by SMILES+INCHIKEY in addition to SMILES+NAME.
+     SMILES+INCHIKEY is used by default if both columns are present in the
+     adjusted and the original training data. Otherwise SMILES+NAME is used as
+     before.
+   - Improved error handling. Previously, unmappable entries in the new data had
+     been ignored silently. Now, an error is raised in such cases.
 
 Bugfixes:
 
@@ -63,10 +74,14 @@ Bugfixes:
    to downstream functions like `predict.frm()` or `adjust_frm()` will now lead
    to an error. (This is not a breaking change, as `predict.frm()` and friends
    have in fact never been able to handle such models)
+2. `plot_frm()` with type "scatter.cv.adj" or "scatter.train.adj" now correctly
+   shows retention times from the new data (used for model adjustment) as x-axis
+   values instead of the original training retention times.
 
 Internal Improvements:
 
 1. Added or improved unit tests for:
+   - `adjust_frm()`
    - `fit_gbtree()`
    - `fit_glmnet()`
    - `get_param_grid()`
@@ -107,7 +122,10 @@ Internal Improvements:
    `find_params_best()` for different numbers of cores and/or threads. As it
    turns out, choosing a higher number of cores is usually more efficient (at
    the cost of worse progress output).
-9. Added utility functions `named()` and `as_str()`.
+9. Added utility functions `named()`, `as_str()`, `is_valid_smiles()` and
+   `as_canonical()`
+10. Added helper function `clip_predictions()` to clip predictions to be within
+    the RT range of the training data.
 
 # FastRet 1.2.2 <!-- Commit Date: 2025-11-05 -->
 

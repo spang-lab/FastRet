@@ -69,7 +69,8 @@ plot_frm <- function(frm = train_frm(verbose = 1),
 ) {
     # Check args
     type <- match.arg(type, c("scatter.cv", "scatter.cv.adj", "scatter.train", "scatter.train.adj"))
-    if (grepl("adj", type) && is.null(frm$adj)) {
+    plot_adj <- grepl("adj", type)
+    if (plot_adj && is.null(frm$adj)) {
         fmt <- paste(sep = "\n",
             "type is `%s`, but the model has not been adjusted yet.",
             "See `?adjust_model` for information on how to Adjust existing Models."
@@ -86,8 +87,8 @@ plot_frm <- function(frm = train_frm(verbose = 1),
         "scatter.train" = "Model predictions for training data",
         "scatter.train.adj" = "Adjusted model predictions for adjustment data"
     )
-    df <- if (grepl("adj", type)) frm$adj$df else frm$df
-    x <- df$RT
+    df <- if (plot_adj) frm$adj$df else frm$df
+    x <- if (plot_adj) df$RT_ADJ else df$RT
     y <- switch(type,
         "scatter.cv" = frm$cv$preds,
         "scatter.cv.adj" = frm$adj$cv$preds,

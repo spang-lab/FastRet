@@ -1,3 +1,18 @@
+
+# Open
+
+## Accept InCHIKEYs in FastRet
+
+Change the implementation of `train_frm`, `adjust_frm`,
+`selective_measuring`, etc. to accept an INCHIKEY column in addition to
+the NAME, SMILES and RT columns. If that column is present, INCHIKEYs are
+used for mapping, instead of NAME/SMILES combinations.
+
+## Make bounding in predict_frm optional
+
+Make bounding of predicted RTs to the min/max +- x% of training RTs optional
+via a function parameter in `predict_frm()`. Default should be 33%.
+
 # Done
 
 ## Remove caret from FastRet
@@ -7,8 +22,6 @@ Currently, there are only three functions used from caret:
 be replaced with custom implementations to reduce package dependencies.
 
 Done 2025-11-07, 11am, with version 1.2.3.
-
-# Open
 
 ## Ensure predict.frm handles polynomial/interaction features
 
@@ -27,11 +40,17 @@ Proposed fix
   `rm_na=FALSE)` to reconstruct polynomial and interaction features without
   re-filtering by variance/NA across the full dataset.
 - Then subset to `get_predictors(object)` and predict.
-- Nice addition: modify `preprocess_data()` to store function arguments optionally as attributes of the returned data frame, so that `predict.frm()` can read `degree_polynomial` and `interaction_terms` from `attributes(frm$df)` instead of having to grep column names. (But we still want to have the grepping functionality as fallback).
+- Nice addition: modify `preprocess_data()` to store function arguments
+  optionally as attributes of the returned data frame, so that `predict.frm()`
+  can read `degree_polynomial` and `interaction_terms` from `attributes(frm$df)`
+  instead of having to grep column names. (But we still want to have the
+  grepping functionality as fallback).
 
 Acceptance criteria
 - A model trained with polynomials and/or interactions can be used to predict on new data containing only NAME/SMILES/RT or NAME/SMILES without manual preprocessing.
 - Add unit tests covering polynomial+interaction training and subsequent prediction on new data (with and without pre-computed CDs).
+
+Done 2025-11-12.
 
 ## Document frm object structure
 
@@ -43,6 +62,8 @@ dedicated help file. The corresponding roxygen2 documentation should be found in
 After the docs exist, search all functions for places where `frm` objects are
 mentioned and replace the word with an actual link to the `frm` documentation.
 
+Done 2025-11-12.
+
 ## Do not preprocess before CV
 
 Currently, we preprocess the data, then train our model and then estimate its
@@ -53,7 +74,7 @@ training, i.e., we should implement two seperate functions `train_frm()` and
 
 Plan:
 
-1. Make calculate of chemical descriptors in `preprocess_data()` optional
+1. Make calculation of chemical descriptors in `preprocess_data()` optional
 2. Implement a function `cross_validate`, that takes a fit function plus other
    required args and then performs a cross validation where the fit function
    is evaluated on each fold.
@@ -68,6 +89,7 @@ Plan:
      `cross_validate()` must do nothing else than splitting the data and calling
      `fit_func` (with all preprocessing args) on each fold.
 
+Done 2025-11-12.
 
 ## Make scaling of RT in SM optional
 
@@ -76,25 +98,5 @@ should be made a parameter of the function. Instead of max scaling, we should
 allows the user to choose between "max" and "none" (we use strings in case we
 want to add more options later on).
 
-## Accept InCHIKEYs in FastRet
+Done 2025-11-12.
 
-Change the implementation of `train_frm`, `adjust_frm`,
-`selective_measuring`, etc. to accept an INCHIKEY column in addition to
-the NAME, SMILES and RT columns. If that column is present, INCHIKEYs are
-used for mapping, instead of NAME/SMILES combinations.
-
-## Test FastRet with rcdk v3.3
-
-Make sure we test once with an old version of rcdk and corresponding rcdlibs.
-Install these in the github workflow.
-Set the smallest test version as dependency in the DESCRIPTION file.
-
-## Make bounding in predict_frm optional
-
-Make bounding of predicted RTs to the min/max +- x% of training RTs optional
-via a function parameter in `predict_frm()`. Default should be 33%.
-
-## Check that all parallel calls work on Windows
-
-Check all places where we use parallel processing and make sure they work
-on Windows as well.

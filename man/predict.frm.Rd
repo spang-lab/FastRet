@@ -4,7 +4,14 @@
 \alias{predict.frm}
 \title{Predict retention times using a FastRet Model}
 \usage{
-\method{predict}{frm}(object = train_frm(), df = object$df, adjust = NULL, verbose = 0, ...)
+\method{predict}{frm}(
+  object = train_frm(),
+  df = object$df,
+  adjust = NULL,
+  verbose = 0,
+  clip = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{frm} as returned by \code{\link[=train_frm]{train_frm()}}.}
@@ -17,6 +24,8 @@ predictions obtained from \code{object$model}. If FALSE \code{object$adj} will b
 ignored. If NULL, \code{object$model} will be used, if available.}
 
 \item{verbose}{A logical value indicating whether to print progress messages.}
+
+\item{clip}{Clip predictions to be within RT range of training data?}
 
 \item{...}{Not used. Required to match the generic signature of \code{predict()}.}
 }

@@ -9,32 +9,46 @@ adjust_frm(
   new_data = read_rpadj_xlsx(),
   predictors = 1:6,
   nfolds = 5,
-  verbose = 1
+  verbose = 1,
+  seed = NULL
 )
 }
 \arguments{
 \item{frm}{An object of class \code{frm} as returned by \code{\link[=train_frm]{train_frm()}}.}
 
-\item{new_data}{Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of
-chemical descriptors.}
+\item{new_data}{Data frame with required columns "RT", "NAME", "SMILES"; optional "INCHIKEY".
+"RT" must be the retention time measured on the adjusted column.
+Each row must match one row in \code{frm$df}.
+Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
+INCHIKEYs for all rows; otherwise via "SMILES"+"NAME".
+Prefer INCHIKEY to avoid ambiguous NAME matches.}
 
 \item{predictors}{Numeric vector specifying which predictors to include in the model in
 addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
 5=exp(RT), 6=sqrt(RT).}
 
-\item{nfolds}{An integer representing the number of folds for cross validation.}
+\item{nfolds}{The number of folds for cross validation.}
 
-\item{verbose}{A logical value indicating whether to print progress messages.}
+\item{verbose}{Show progress messages?}
+
+\item{seed}{An integer value to set the seed for random number generation to allow for
+reproducible results.}
 }
 \value{
-An object of class \code{frm}, which is a list with the following elements:
+An object of class \code{frm}, as returned by \code{\link[=train_frm]{train_frm()}}, but with an
+additional element \code{adj} containing the adjustment model. Components are:
 \itemize{
-\item \code{model}: A list containing details about the original model.
-\item \code{df}: The data frame used for training the model.
-\item \code{cv}: A list containing the cross validation results.
-\item \code{seed}: The seed used for random number generation.
-\item \code{version}: The version of the FastRet package used to train the model.
-\item \code{adj}: A list containing details about the adjusted model.
+\item \code{model}: The fitted adjustment model of class \code{lm}.
+\item \code{df}: The data frame used for training the adjustment model.
+\item \code{cv}: A named list containing the cross validation results. Elements are:
+\itemize{
+\item \code{folds}: A list of integer vectors specifying the samples in each fold.
+\item \code{models}: A list of adjustment models trained on each fold.
+\item \code{preds}: Retention time predictions obtained in CV as numeric vector.
+\item \code{preds_adjonly}: Retention time predictions obtained in CV by applying
+the adjustment model to the observed RT values of \code{new_data}.
+}
+\item \code{seed}: The seed used for random number generation. Added with v1.3.0.
 }
 }
 \description{
@@ -46,6 +60,6 @@ model.
 \examples{
 frm <- read_rp_lasso_model_rds()
 new_data <- read_rpadj_xlsx()
-frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
+frm_adj <- adjust_frm(frm, new_data, verbose = 0)
 }
 \keyword{public}

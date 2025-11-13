@@ -1,4 +1,4 @@
-# Fitting #####
+# Fit Models #####
 
 #' @export
 #' @keywords public
@@ -153,8 +153,7 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
         xpar <- if (method == "gbtreeDefault") "default" else "rpopt"
         fit_gbtree(X, y, xpar, seed, verbose, nw, nfolds, 2000, 1)
     } else {
-        alpha <- switch(method, "lasso" = 1, "ridge" = 0, NA)
-        fit_glmnet(X, y, alpha)
+        fit_glmnet(X, y, method)
     }
     model$feature_names <- colnames(X) # Required prediction of new data
     logf("Finished training of the %s model", method)
@@ -176,47 +175,54 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #' the original column) and to attach this "adjustmodel" to an existing FastRet
 #' model.
 #'
-#' @param frm
-#' An object of class `frm` as returned by [train_frm()].
-#'
+#' @param frm An object of class `frm` as returned by [train_frm()].
 #' @param new_data
-#' Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of
-#' chemical descriptors.
-#'
+#' Data frame with required columns "RT", "NAME", "SMILES"; optional "INCHIKEY".
+#' "RT" must be the retention time measured on the adjusted column.
+#' Each row must match one row in `frm$df`.
+#' Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
+#' INCHIKEYs for all rows; otherwise via "SMILES"+"NAME".
+#' Prefer INCHIKEY to avoid ambiguous NAME matches.
 #' @param predictors
 #' Numeric vector specifying which predictors to include in the model in
 #' addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
 #' 5=exp(RT), 6=sqrt(RT).
-#'
-#' @param nfolds
-#' An integer representing the number of folds for cross validation.
-#'
-#' @param verbose
-#' A logical value indicating whether to print progress messages.
+#' @param nfolds The number of folds for cross validation.
+#' @param verbose Show progress messages?
+#' @param seed
+#' An integer value to set the seed for random number generation to allow for
+#' reproducible results.
 #'
 #' @return
-#' An object of class `frm`, which is a list with the following elements:
+#' An object of class `frm`, as returned by [train_frm()], but with an
+#' additional element `adj` containing the adjustment model. Components are:
 #'
-#' * `model`: A list containing details about the original model.
-#' * `df`: The data frame used for training the model.
-#' * `cv`: A list containing the cross validation results.
-#' * `seed`: The seed used for random number generation.
-#' * `version`: The version of the FastRet package used to train the model.
-#' * `adj`: A list containing details about the adjusted model.
+#' + `model`: The fitted adjustment model of class `lm`.
+#' + `df`: The data frame used for training the adjustment model.
+#' + `cv`: A named list containing the cross validation results. Elements are:
+#'    - `folds`: A list of integer vectors specifying the samples in each fold.
+#'    - `models`: A list of adjustment models trained on each fold.
+#'    - `preds`: Retention time predictions obtained in CV as numeric vector.
+#'    - `preds_adjonly`: Retention time predictions obtained in CV by applying
+#'       the adjustment model to the observed RT values of `new_data`.
+#' + `seed`: The seed used for random number generation. Added with v1.3.0.
 #'
 #' @examples
 #' frm <- read_rp_lasso_model_rds()
 #' new_data <- read_rpadj_xlsx()
-#' frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
+#' frm_adj <- adjust_frm(frm, new_data, verbose = 0)
 adjust_frm <- function(frm = train_frm(),
                        new_data = read_rpadj_xlsx(),
                        predictors = 1:6,
                        nfolds = 5,
-                       verbose = 1) {
+                       verbose = 1,
+                       seed = NULL) {
+
     if (!is.numeric(predictors) || length(predictors) < 1 || !all(predictors %in% 1:6)) {
         stop("Invalid predictors. Please provide a vector of integers between 1 and 6.")
     }
     if (isFALSE(verbose) || verbose == 0) catf <- function(...) {}
+    if (is.numeric(seed)) set.seed(seed)
 
     catf("Starting model Adjustment")
     catf("dim(original_data): %s", paste(dim(frm$df), collapse = " x "))
@@ -227,7 +233,24 @@ adjust_frm <- function(frm = train_frm(),
     catf("Preprocessing data")
     new <- data.frame(NAME = new_data$NAME, SMILES = new_data$SMILES, RT_ADJ = new_data$RT)
     old <- frm$df
-    df <- merge(new, old) # Only keep rows where we have NAME and SMILES in both datasets
+    use_inchi <- {
+        !is.null(old$INCHIKEY) && all(!is.na(old$INCHIKEY)) &&
+        !is.null(new_data$INCHIKEY) && all(!is.na(new_data$INCHIKEY))
+    }
+    if (use_inchi) {
+        new$INCHIKEY <- new_data$INCHIKEY
+        old$NAME <- NULL # Ignore old name and merge by SMILES+INCHIKEY instead
+        keys <- keys <- c("SMILES", "INCHIKEY")
+    } else {
+        old$INCHIKEY <- NULL # Ignore old INCHIKEY and merge by SMILES+NAME
+        keys <- keys <- c("SMILES", "NAME")
+    }
+    df <- merge(new, old, keys = keys)
+    if (nrow(df) < nrow(new)) {
+        fmt <- "Could not map %d new entries to original data based on %s."
+        stop(sprintf(fmt, nrow(new) - nrow(df), as_str(keys)))
+    }
+
     pvec <- c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)")[predictors]
     pstr <- paste(pvec, collapse = " + ")
     fmstr <- paste("RT_ADJ ~", pstr)
@@ -244,26 +267,36 @@ adjust_frm <- function(frm = train_frm(),
     model <- lm(formula = fm, data = df)
 
     catf("Estimating performance of adjusted model in CV")
+
     for (i in seq_along(cv$folds)) {
-        train <- unname(unlist(cv$folds[-i]))
-        cv$models[[i]] <- lm(formula = fm, data = df[train, ])
-        # First create adjusted predictions using the true RT from the original
-        # column. This allows us to see how the adjustment model would perform
-        # if we could predict RT's for the original column with 100% accuracy.
-        test <- cv$folds[[i]]
-        testdf <- df[test, ]
-        cv$preds_adjonly[test] <- predict(cv$models[[i]], testdf)
-        # Now create adjusted predictions using the RT values predicted from the
-        # orginal model. This is the scenario we will encounter for future data
-        # as well.
-        testdf$RT <- predict(frm, testdf, adjust = FALSE, verbose = 0)
-        cv$preds[test] <- predict(cv$models[[i]], testdf)
+        # Train model on test folds
+        train_ids <- unname(unlist(cv$folds[-i]))
+        train_df <- df[train_ids, ]
+        train_RT <- train_df$RT
+        adjlm <- lm(formula = fm, data = train_df)
+        # First predict RT using the original model, then apply adjust model.
+        test_ids <- cv$folds[[i]]
+        test_df <- df[test_ids, ]
+        test_df$RT <- predict(frm, test_df, adjust = FALSE, verbose = 0)
+        test_df$RT_PRED <- predict(adjlm, test_df)
+        # Now repeat prediction, but this time use the correct RTs as input for
+        # the adjustment model. This allows us to see how the adjustment model
+        # would perform if we could predict RT's for the original column with
+        # 100% accuracy.
+        test_df$RT <- df$RT[test_ids]
+        test_df$RT_PRED_ADJONLY <- predict(adjlm, test_df)
+        # Now store results in cv object
+        cv$models[[i]] <- adjlm
+        cv$preds[test_ids] <- test_df$RT_PRED
+        cv$preds_adjonly[test_ids] <- test_df$RT_PRED_ADJONLY
     }
 
     catf("Returning adjusted frm object")
     frm$adj <- list(model = model, df = df, cv = cv)
     frm
 }
+
+# Use Models #####
 
 #' @export
 #' @keywords public
@@ -273,20 +306,15 @@ adjust_frm <- function(frm = train_frm(),
 #' @description
 #' Predict retention times for new data using a FastRet Model (FRM).
 #'
-#' @param object
-#' An object of class `frm` as returned by [train_frm()].
-#'
-#' @param df
-#' A data.frame with the same columns as the training data.
-#'
+#' @param object An object of class `frm` as returned by [train_frm()].
+#' @param df A data.frame with the same columns as the training data.
 #' @param adjust
 #' If `object` was adjusted using [adjust_frm()], it will contain a property
 #' `object$adj`. If `adjust` is TRUE, `object$adj` will be used to adjust
 #' predictions obtained from `object$model`. If FALSE `object$adj` will be
 #' ignored. If NULL, `object$model` will be used, if available.
-#'
-#' @param verbose
-#' A logical value indicating whether to print progress messages.
+#' @param verbose A logical value indicating whether to print progress messages.
+#' @param clip Clip predictions to be within RT range of training data?
 #'
 #' @param ...
 #' Not used. Required to match the generic signature of `predict()`.
@@ -300,7 +328,12 @@ adjust_frm <- function(frm = train_frm(),
 #' object <- read_rp_lasso_model_rds()
 #' df <- head(RP)
 #' yhat <- predict(object, df)
-predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, verbose = 0, ...) {
+predict.frm <- function(object = train_frm(),
+                        df = object$df,
+                        adjust = NULL,
+                        verbose = 0,
+                        clip = FALSE,
+                        ...) {
 
     pkg <- if (inherits(object$model, "glmnet")) "glmnet" else "xgboost"
     withr::local_package(pkg)
@@ -314,7 +347,7 @@ predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, ver
         stop(errmsg)
     }
 
-    if (sum(predictors %in% colnames(df)) == 0 && "SMILES" %in% colnames(df)) {
+    if (!all(predictors %in% colnames(df))) {
         logf("Chemical descriptors not found in newdata. Trying to calculate them from the provided SMILES.")
         cds <- preprocess_data(df, dgp, iat, verbose, 1, FALSE, FALSE, TRUE)
         df <- cbind(df, cds)
@@ -330,16 +363,22 @@ predict.frm <- function(object = train_frm(), df = object$df, adjust = NULL, ver
     yhat <- c(predict(object$model, as.matrix(df[, predictors])))
     logf("Predictions: %s", paste(round(yhat, 2), collapse = ", "))
 
-    if (!is.null(object$adj) && (isTRUE(adjust) || is.null(adjust))) {
+    adjust <- !is.null(object$adj) && (isTRUE(adjust) || is.null(adjust))
+
+    if (adjust) {
         logf("Adjusting predictions using the adjustment model")
-        yhatadj <- predict(object$adj$model, data.frame(RT = yhat))
-        logf("Adjusted predictions: %s", paste(round(yhatadj, 2), collapse = ", "))
-        logf("Returning adjusted predictions")
-        return(yhatadj)
-    } else {
-        logf("Returning (unadjusted) predictions")
-        return(yhat)
+        yhat <- predict(object$adj$model, data.frame(RT = yhat))
+        logf("Adjusted predictions: %s", paste(round(yhat, 2), collapse = ", "))
     }
+
+    if (clip) {
+        logf("Clipping predictions to be within RT range of training data")
+        y <- if (adjust) object$adj$df$RT else object$df$RT
+        yhat <- clip_predictions(yhat, y)
+        logf("Final predictions: %s", paste(round(yhat, 2), collapse = ", "))
+    }
+
+    yhat
 }
 
 #' @export
@@ -356,17 +395,40 @@ get_predictors <- function(frm = train_frm()) {
     if (inherits(m, "glmnet")) rownames(m$beta) else m$feature_names
 }
 
+#' @export
+#' @title Clip predictions to observed range
+#'
+#' @description
+#' Clips predicted retention times to the observed target range.
+#'
+#' @param yhat Numeric vector of predicted retention times.
+#' @param y Numeric vector of observed retention times used to derive bounds.
+#'
+#' @return Numeric vector of clipped (bounded) predictions.
+#'
+#' @examples
+#' # Basic clipping to the observed range
+#' yhat <- c(-10, 5, 50, 150, 300)
+#' y <- c(20, 30, 40, 50, 60)
+#' clip_predictions(yhat, y)
+clip_predictions <- function(yhat, y) {
+    # upper_bound <- max(y, na.rm = TRUE)
+    # lower_bound <- min(y, na.rm = TRUE)
+    # yhat <- pmin(yhat, upper_bound)
+    # yhat <- pmax(yhat, lower_bound)
+    yhat
+}
 
 # Preprocessing #####
 
 #' @noRd
 #' @description Get RMSE, Rsquared, MAE and %below1min for a specific dataset and model.
 #' @param data dataframe with retention time in the first column
-#' @param model object useable as input for [stats::predict()]
+#' @param model object useable as input for [predict()]
 get_stats <- function(df, model) {
     X <- as.matrix(df[, colnames(df) %in% CDFeatures])
     y <- df$RT
-    yhat <- stats::predict(model, X, type = "response")
+    yhat <- predict(model, df, type = "response")
     measures <- c(
         RMSE = sqrt(mean((y - yhat)^2)),
         Rsquared = cor(y, yhat)^2,
