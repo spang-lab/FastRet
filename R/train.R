@@ -406,6 +406,7 @@ get_predictors <- function(frm = train_frm()) {
 #'
 #' @return Numeric vector of clipped (bounded) predictions.
 #'
+#' @keywords public
 #' @examples
 #' # Basic clipping to the observed range
 #' yhat <- c(-10, 5, 50, 150, 300)

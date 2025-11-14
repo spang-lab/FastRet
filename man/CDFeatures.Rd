@@ -14,6 +14,9 @@ CDFeatures
 Vector containing the feature names of the chemical descriptors listed in
 \link{CDNames}.
 }
+\examples{
+str(CDFeatures)
+}
 \seealso{
 \link{CDNames}
 }

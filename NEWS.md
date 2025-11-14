@@ -6,16 +6,16 @@ API Improvements:
 1. `getCDs()`:
    - Calculation of CDs is skipped, if all CDs are already present in the input
      dataframe
-   - In additon to a dataframe with column "SMILES", a plain character vector of
-     SMILES strings can now be provided
+   - In addition to a dataframe with column "SMILES", a plain character vector
+     of SMILES strings can now be provided
    - Improved progress output
 2. `plot_frm()`:
    - Now available as exported function (the function existed before, but was
-     only exposed via the Grafical User Interface). Now users can call it
+    only exposed via the Graphical User Interface). Now users can call it
      directly from R scripts.
    - Added semi-transparent background to legends for better readability
    - Changed the point character from unfilled circles with colored borders to
-     filled circles with black borders for better visibility. See [misc/pdfs/plot_frm_v1.2.2.pdf](./misc/pdfs/plot_frm_v1.2.2.pdf) and [misc/pdfs/plot_frm_v1.3.0.pdf](./misc/pdfs/plot_frm_v1.3.0.pdf) for a comparison.
+     filled circles with black borders for better visibility.
 3. `preprocess_data()`:
    - Added argument `add_cds` to control whether chemical descriptors should be
      added to the input data using `getCDs()`
@@ -30,9 +30,9 @@ API Improvements:
    - Improved progress output
 4. `train_frm()`:
    - Removal of near-zero-variance predictors and/or removal of NA values is now
-     done as part of the internal model training, i.e. it happens seperately for
+    done as part of the internal model training, i.e. it happens separately for
      each fold during cross-validation. This prevents data leakage from the
-     training set to the validation set. The correspondong hint about
+    training set to the validation set. The corresponding hint about
      "overoptimistic cross-validation results" has consequently been removed
      from the documentation.
    - Argument `method` now accepts two values for training models with xgbtree
@@ -55,7 +55,7 @@ API Improvements:
 6. `selective_measuring()`:
    - Added argument `rt_coef`, allowing user to control the influence of RT on
      the clustering. A value of 0 means that RT is ignored, a value of
-     "max_ridge_coefficent" means that RT has the same weight as the most
+    "max_ridge_coefficient" means that RT has the same weight as the most
      important chemical descriptor and a value of 1 means no scaling at all
      (except standardization to z-scores, which is applied before to the whole
      dataset before the ridge regression is trained).
@@ -322,6 +322,7 @@ Completely refactored source code, e.g.:
 - Initial version.
 
   Copy of commit `cd243aa82a56df405df8060b84535633cf06b692` of [Christian
-  Amesöders Repository](https://github.com/ChristianAmes/FastRet.git).
+  Amesöders Repository](https://github.com/ChristianAmes/FastRet).
   (Christian wrote this initial version of FastRet as part of his master thesis
   at the Institute of functional Genomics, University of Regensburg).
+

@@ -23,3 +23,4 @@ yhat <- c(-10, 5, 50, 150, 300)
 y <- c(20, 30, 40, 50, 60)
 clip_predictions(yhat, y)
 }
+\keyword{public}

@@ -254,15 +254,13 @@ analyzeCDNames <- function(df, descriptors = rcdk::get.desc.names(type = "all"))
 
 #' @export
 #' @keywords internal
-#'
 #' @title Chemical Descriptor Features
-#'
 #' @description
 #' Vector containing the feature names of the chemical descriptors listed in
 #' [CDNames].
-#'
 #' @seealso [CDNames]
-#'
+#' @examples
+#' str(CDFeatures)
 CDFeatures <- c(
     "Fsp3", "nSmallRings", "nAromRings", "nRingBlocks",
     "nAromBlocks", "nRings3", "nRings4", "nRings5", "nRings6", "nRings7",
