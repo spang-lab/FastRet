@@ -48,7 +48,8 @@ additional element \code{adj} containing the adjustment model. Components are:
 \item \code{preds_adjonly}: Retention time predictions obtained in CV by applying
 the adjustment model to the observed RT values of \code{new_data}.
 }
-\item \code{seed}: The seed used for random number generation. Added with v1.3.0.
+\item \code{args}: Function arguments used for adjustment (excluding \code{frm} and
+\code{new_data}). Added with v1.3.0.
 }
 }
 \description{

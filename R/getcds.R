@@ -51,7 +51,7 @@ getCDs <- function(df,
 
     # Load CDs for known SMILES from cache
     cachedCDs <- getOption("FastRet.cachedCDs")
-    if (is.null(cachedCDs) || nrow(cachedCDs) < 1788) {
+    if (is.null(cachedCDs) || nrow(cachedCDs) < N_SMI_CACHED) {
         cachedCDs <- readRDS(pkg_file("cachedata/CDs.rds"))
         options(FastRet.cachedCDs = cachedCDs)
     }
@@ -107,13 +107,23 @@ updateCachedCDs <- function() {
     meas8 <- openxlsx::read.xlsx(pkg_file("extdata/Measurements_v8.xlsx"))[, cols]
     RPold <- openxlsx::read.xlsx(pkg_file("extdata/RP.xlsx"))[, cols]
     df <- rbind(hilic, meas8, RPold)
-    df <- df[!duplicated(df$SMILES), ]
-    CDs <- getCDs(df, verbose = 1, nw = 8, keepdf = FALSE)
+    smiles <- unique(df$SMILES)
+    canonicals <- unique(as_canonical(smiles))
+    combined <- unique(c(smiles, canonicals)) # 2578 unique strings
+    nUnique <- length(combined)
+    if (nUnique != N_SMI_CACHED) {
+        message("-----------------------------------------------")
+        message("IMPORTANT: N_SMI_CACHED has changed!")
+        message("Please define N_SMI_CACHED <- ", nUnique, " in getcds.R")
+        message("-----------------------------------------------")
+    }
+    CDs <- getCDs(combined, verbose = 1, nw = 8, keepdf = FALSE)
     cachedata_path <- pkg_file("cachedata")
     rdspath <- file.path(cachedata_path, "CDs.rds")
     saveRDS(CDs, rdspath)
 }
 
+N_SMI_CACHED <- 2578
 
 #' @export
 #' @keywords internal

@@ -95,7 +95,7 @@ selective_measuring <- function(raw_data,
     logf("Training Ridge Regression model")
     Xz <- as.matrix(dfz[, colnames(dfz) != "RT", drop = FALSE])
     y <- as.numeric(dfz[, "RT"])
-    model <- fit_glmnet(Xz, y, method = "ridge")
+    model <- fit_glmnet(Xz, y, method = "ridge", seed = seed)
 
     logf("Scaling features by coefficients of Ridge Regression model")
     coef_mat <- glmnet::coef.glmnet(model) # (m+1) x 1 matrix

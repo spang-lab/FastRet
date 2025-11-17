@@ -152,6 +152,10 @@ null <- function(...) {
     !(x %in% y)
 }
 
+`%||%` <- function(a, b) {
+    if (!is.null(a)) a else b
+}
+
 #' @noRd
 #' @title Convert Vector to String
 #' @description Converts a vector to a string representation.

@@ -69,6 +69,7 @@ polynomial features, as these can be recreated within a few milliseconds).
 }
 \item \code{seed}: The seed used for random number generation.
 \item \code{version}: The version of the FastRet package used to train the model.
+\item \code{args}: The value of function arguments besides \code{df} as named list.
 }
 }
 \description{

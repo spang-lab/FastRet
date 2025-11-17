@@ -67,6 +67,7 @@
 #'   - `preds`: Retention time predictions obtained in CV as numeric vector.
 #' + `seed`: The seed used for random number generation.
 #' + `version`: The version of the FastRet package used to train the model.
+#' + `args`: The value of function arguments besides `df` as named list.
 #'
 #' @examples
 #' m <- train_frm(df = RP[1:40, ], method = "lasso", nfolds = 2, verbose = 0)
@@ -120,7 +121,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     verbose <- FALSE
     models <- parLapply2(
         nw, train_dfs, train_frm_internal,
-        method, verbose, nfolds, nw, dgp, iat, rm_nzv, rm_na, seed
+        method, verbose, nfolds, 1, dgp, iat, rm_nzv, rm_na, seed
     )
     preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
     preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
@@ -141,6 +142,12 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
     logf <- if (verbose) catf else null
     dfp <- preprocess_data(df, dgp, iat, verbose, nw, rm_nzv, rm_na)
     meta <- which(colnames(dfp) %in% c("NAME", "SMILES", "RT", "INCHIKEY"))
+    args <- named(
+        method, verbose, nfolds, nw, degree_polynomial = dgp,
+        interaction_terms = iat, rm_near_zero_var = rm_nzv,
+        rm_na = rm_na, seed = seed
+    )
+
     M <- dfp[, meta]
     X <- as.matrix(dfp[, -meta])
     y <- M$RT
@@ -153,14 +160,14 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
         xpar <- if (method == "gbtreeDefault") "default" else "rpopt"
         fit_gbtree(X, y, xpar, seed, verbose, nw, nfolds, 2000, 1)
     } else {
-        fit_glmnet(X, y, method)
+        fit_glmnet(X, y, method, seed)
     }
     model$feature_names <- colnames(X) # Required prediction of new data
     logf("Finished training of the %s model", method)
 
     cv <- NULL
     version <- packageVersion("FastRet")
-    frm <- named(model, df, cv, seed, version)
+    frm <- named(model, df, cv, seed, version, args)
     frm <- structure(frm, class = "frm")
 }
 
@@ -205,7 +212,8 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #'    - `preds`: Retention time predictions obtained in CV as numeric vector.
 #'    - `preds_adjonly`: Retention time predictions obtained in CV by applying
 #'       the adjustment model to the observed RT values of `new_data`.
-#' + `seed`: The seed used for random number generation. Added with v1.3.0.
+#' + `args`: Function arguments used for adjustment (excluding `frm` and
+#'   `new_data`). Added with v1.3.0.
 #'
 #' @examples
 #' frm <- read_rp_lasso_model_rds()
@@ -231,6 +239,7 @@ adjust_frm <- function(frm = train_frm(),
     catf("nfolds: %s", nfolds)
 
     catf("Preprocessing data")
+    args <- named(predictors, nfolds, verbose, seed)
     new <- data.frame(NAME = new_data$NAME, SMILES = new_data$SMILES, RT_ADJ = new_data$RT)
     old <- frm$df
     use_inchi <- {
@@ -292,11 +301,44 @@ adjust_frm <- function(frm = train_frm(),
     }
 
     catf("Returning adjusted frm object")
-    frm$adj <- list(model = model, df = df, cv = cv)
+    frm$adj <- named(model, df, cv, args)
     frm
 }
 
 # Use Models #####
+
+#' @export
+print.frm <- function(x, ...) {
+    msg <- paste(
+        sprintf("object of class 'frm'"),
+        sprintf("$ model: %s", if (inherits(x$model, "glmnet")) "glmnet" else "xgboost"),
+        sprintf("$ df: %d x %d", nrow(x$df), ncol(x$df)),
+        sprintf("$ cv: results of %d-fold cross validation (see below)", length(x$cv$folds)),
+        sprintf("  $ folds: list of sample IDs for each fold"),
+        sprintf("  $ models: list of models trained on each fold"),
+        sprintf("  $ stats: list(RMSE, Rsquared, MAE, pBelow1Min) for each fold"),
+        sprintf("  $ preds: numeric vector with CV predictions"),
+        sprintf("$ version: %s", as.character(x$version)),
+        sprintf("$ seed: %s", if (is.null(x$seed)) "NULL" else as.character(x$seed)),
+        sprintf("$ args: train_frm arguments"),
+        sep = "\n"
+    )
+    if (!is.null(x$adj)) {
+        cls <- as_str(class(x$adj$model))
+        coefs <- coef(x$adj$model)
+        feats <- which(c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)") %in% names(coefs))
+        adj <- paste(
+            sprintf("$ adj: adjustment information"),
+            sprintf("  $ model: %s (predictors: %s)", cls, as_str(feats)),
+            sprintf("  $ df: %d x %d", nrow(x$adj$df), ncol(x$adj$df)),
+            sprintf("  $ cv: results of %d-fold cross validation", length(x$adj$cv$folds)),
+            sprintf("  $ args: adjust_frm arguments"),
+            sep = "\n"
+        )
+        msg <- paste(msg, adj, sep = "\n")
+    }
+    cat(msg, "", sep = "\n")
+}
 
 #' @export
 #' @keywords public
@@ -494,7 +536,8 @@ validate_inputmodel <- function(model) {
 
 # Fitting #####
 
-fit_glmnet <- function(X, y = NULL, method = "lasso") {
+fit_glmnet <- function(X, y = NULL, method = "lasso", seed = NULL) {
+    if (is.numeric(seed)) set.seed(seed)
     alpha <- switch(method, "lasso" = 1, "ridge" = 0)
     cvobj <- glmnet::cv.glmnet(
         X, y, alpha = alpha, standardize = TRUE, family = "gaussian",

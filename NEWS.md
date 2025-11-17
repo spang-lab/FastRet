@@ -9,6 +9,8 @@ API Improvements:
    - In addition to a dataframe with column "SMILES", a plain character vector
      of SMILES strings can now be provided
    - Improved progress output
+   - More Smiles are now pre-cached internally to speed up retrieval of CDs for
+     large datasets
 2. `plot_frm()`:
    - Now available as exported function (the function existed before, but was
     only exposed via the Graphical User Interface). Now users can call it
@@ -67,6 +69,11 @@ API Improvements:
      before.
    - Improved error handling. Previously, unmappable entries in the new data had
      been ignored silently. Now, an error is raised in such cases.
+   - Function arguments are now stored in the returned frm object for better
+     reproducibility.
+8. `print.frm()`:
+   - frm objects can now be printed directly to the console in a user-friendly
+     format.
 
 Bugfixes:
 

@@ -17,7 +17,7 @@ test_that("getCDs works correctly", {
     expect_true(all(colnames(Y1)[4:nc] %in% CDFeatures))
     expect_equal(Y1$Fsp3, c(0.75, 1/3, 0.00, 0.50, 0.50))
     expect_true(rt1 < 0.050, info = sprintf("runtime: %.3f secs", rt1))
-    expect_equal(nrow(getOption("FastRet.cachedCDs")), 1788)
+    expect_equal(nrow(getOption("FastRet.cachedCDs")), N_SMI_CACHED)
 
     # Test with unknown SMILES (not in package data)
     smi <- c("CCC", "CCCC", "CCCCC", "CCC")
@@ -27,10 +27,10 @@ test_that("getCDs works correctly", {
     expect_equal(Y2$SMILES, Y2$SMILES)
     expect_equal(ncol(Y2), ncol(df) + length(CDFeatures))
     expect_true(rt2 > rt1)
-    expect_equal(nrow(getOption("FastRet.cachedCDs")), 1791)
+    expect_equal(nrow(getOption("FastRet.cachedCDs")), N_SMI_CACHED + 3) # 3 new molecules added
 
     # Test with multiple workers
-    options(FastRet.cachedCDs = getOption("FastRet.cachedCDs")[1:1788, ]) # reset cache to original
+    options(FastRet.cachedCDs = getOption("FastRet.cachedCDs")[1:N_SMI_CACHED, ]) # reset cache to original
     rt3 <- measure(Y3 <- getCDs(df, verbose = 0, nw = 2))
     expect_equal(Y3, Y2)
     expect_true(rt3 > rt2) # should take more time due to parallel overhead
