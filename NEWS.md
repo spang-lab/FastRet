@@ -71,6 +71,12 @@ API Improvements:
      been ignored silently. Now, an error is raised in such cases.
    - Function arguments are now stored in the returned frm object for better
      reproducibility.
+   - Mapping is now performed as an exact one-to-one match: each new entry is
+     matched to exactly one row from the original training data. If a key
+     (SMILES+INCHIKEY or SMILES+NAME) corresponds to more original rows than
+     new rows, an exact subset of original rows (without replacement) is
+     selected so that the mapping is one-to-one. If there are fewer original
+     rows than new rows for a key, an error is raised.
 8. `print.frm()`:
    - frm objects can now be printed directly to the console in a user-friendly
      format.

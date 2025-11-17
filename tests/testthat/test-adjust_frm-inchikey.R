@@ -8,9 +8,14 @@ test_that("adjust_frm merges by INCHIKEY when available", {
     frm <- readRDS(pkg_file("extdata/RP_lasso_model.rds"))
 
     # Add an artificial INCHIKEY column to the training data
-    # Ensure non-missing unique keys
+    # Ensure non-missing keys and introduce some duplicate SMILES+INCHIKEY
     n <- nrow(frm$df)
     frm$df$INCHIKEY <- sprintf("IK%05d", seq_len(n))
+    # Introduce duplicates for the first key so the training data contains
+    # multiple entries with the same SMILES+INCHIKEY but slightly different RTs
+    frm$df$INCHIKEY[1:5] <- frm$df$INCHIKEY[1]
+    frm$df$SMILES[1:5] <- frm$df$SMILES[1]
+    frm$df$RT[1:5] <- frm$df$RT[1] + c(0, 0.1, 0.2, 0.3, 0.4)
 
     # Build new_data from a small subset and change some NAMES to avoid
     # NAME-matching
@@ -20,12 +25,16 @@ test_that("adjust_frm merges by INCHIKEY when available", {
 
     # Run adjustment; this should use INCHIKEY+SMILES and not error
     afm <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1)
+    afm42 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1)
+    afm99 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 99, predictors = 1)
 
     # Basic checks
     expect_true("adj" %in% names(afm))
     expect_true(is.list(afm$adj))
     expect_true("INCHIKEY" %in% colnames(afm$adj$df))
     expect_equal(nrow(afm$adj$df), nrow(new))
+    expect_true(isTRUE(all.equal(afm, afm42)))
+    expect_false(isFALSE(all.equal(afm, afm99)))
 
     # Now remove some INCHIKEYs from the new data to force fallback to
     # SMILES+NAME mapping

@@ -81,7 +81,6 @@ selective_measuring <- function(raw_data,
 
     logf("Starting Selective Measuring")
     if (is.numeric(seed)) set.seed(seed)
-    validate_inputdata(raw_data, min_cds = 0)
 
     logf("Preprocessing input data")
     df <- preprocess_data(raw_data, verbose = verbose)

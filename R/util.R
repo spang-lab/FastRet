@@ -101,6 +101,23 @@ collect <- function(xx) {
 # Misc (Private) #####
 
 #' @noRd
+#' @title Find Random Positions of x in y
+#' @description
+#' Like `match(x, y)`, but if `y` contains multiple occurrences of
+#' `x[i]`, a random occurrence is returned (instead of always the first,
+#' like `match` does).
+#' @param x Vector of values to match.
+#' @param y Vector of values to match against.
+#' @param seed Random seed for reproducibility.
+match_random <- function(x, y, seed = NULL) {
+    if (!is.null(seed)) set.seed(seed)
+    perm <- sample.int(length(y)) # shuffle indices of y
+    yshuf <- y[perm]
+    pos <- match(x, yshuf) # first match in shuffled y -> random occurrence
+    perm[pos] # map back to original indices
+}
+
+#' @noRd
 #' @title Create automatically named List
 #' @description
 #' Like normal `list()`, except that unnamed elements are automatically named according to their symbol

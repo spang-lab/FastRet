@@ -303,7 +303,7 @@ init_upload_handlers <- function(SE) {
             xlsx <- SE$input$ubInpXlsx$datapath
             catf("Reading and validating %s", xlsx)
             inpDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
-            inpDf <- validate_inputdata(inpDf, min_cds = 0)
+            inpDf <- validate_inputdata(inpDf, min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$inpDf and SE$output$toInpXlsxError.")
             SE$RV$inpDf <- inpDf
             SE$output$toInpXlsxError <- shiny::renderText("")
@@ -319,7 +319,7 @@ init_upload_handlers <- function(SE) {
             xlsx <- SE$input$ubPredXlsx$datapath
             catf("Reading and validating %s", xlsx)
             pred_df <- openxlsx::read.xlsx(xlsx, sheet = 1)
-            pred_df <- validate_inputdata(pred_df, require = c("NAME", "SMILES"), min_cds = 0)
+            pred_df <- validate_inputdata(pred_df, require = c("NAME", "SMILES"), min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$predDf and SE$output$toPredXlsxError.")
             SE$RV$predDf <- pred_df
             SE$output$toPredXlsxError <- NULL
@@ -335,7 +335,7 @@ init_upload_handlers <- function(SE) {
             xlsx <- SE$input$ubAdjXlsx$datapath
             catf("Reading and validating %s", xlsx)
             adjDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
-            adjDf <- validate_inputdata(adjDf, min_cds = 0)
+            adjDf <- validate_inputdata(adjDf, min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$adjDf and SE$output$toAdjXlsxError.")
             SE$RV$adjDf <- adjDf
             SE$output$toAdjXlsxError <- shiny::renderText("")

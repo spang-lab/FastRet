@@ -249,12 +249,18 @@ adjust_frm <- function(frm = train_frm(),
     if (use_inchi) {
         new$INCHIKEY <- new_data$INCHIKEY
         old$NAME <- NULL # Ignore old name and merge by SMILES+INCHIKEY instead
-        keys <- keys <- c("SMILES", "INCHIKEY")
+        keys <- c("SMILES", "INCHIKEY")
     } else {
         old$INCHIKEY <- NULL # Ignore old INCHIKEY and merge by SMILES+NAME
-        keys <- keys <- c("SMILES", "NAME")
+        keys <- c("SMILES", "NAME")
     }
+    old_key <- paste0(old[[keys[[1]]]], "_", old[[keys[[2]]]])
+    new_key <- paste0(new[[keys[[1]]]], "_", new[[keys[[2]]]])
+    old_keep <- match_random(new_key, old_key, seed = seed)
+    old <- old[old_keep, ]
+
     df <- merge(new, old, keys = keys)
+
     if (nrow(df) < nrow(new)) {
         fmt <- "Could not map %d new entries to original data based on %s."
         stop(sprintf(fmt, nrow(new) - nrow(df), as_str(keys)))
@@ -500,7 +506,8 @@ get_dgp <- function(x) {
 
 validate_inputdata <- function(df,
                                require = c("RT", "SMILES", "NAME"),
-                               min_cds = 1) {
+                               min_cds = 1,
+                               stop_on_unknown = TRUE) {
     missing_cols <- setdiff(require, colnames(df))
     if (length(missing_cols) > 0) stop(sprintf("missing columns: %s", paste(missing_cols, collapse = ", ")))
     n_cds <- sum(colnames(df) %in% CDFeatures)
@@ -509,7 +516,7 @@ validate_inputdata <- function(df,
         stop(msg)
     }
     unnown_cols <- setdiff(colnames(df), c("RT", "SMILES", "NAME", CDFeatures))
-    if (length(unnown_cols) > 0) {
+    if (stop_on_unknown && length(unnown_cols) > 0) {
         msg <- sprintf("Unknown columns present: %s", paste(unnown_cols, collapse = ", "))
         stop(msg)
     }
