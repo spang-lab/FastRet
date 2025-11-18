@@ -18,10 +18,8 @@ adjust_frm(
 
 \item{new_data}{Data frame with required columns "RT", "NAME", "SMILES"; optional "INCHIKEY".
 "RT" must be the retention time measured on the adjusted column.
-Each row must match one row in \code{frm$df}.
-Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
-INCHIKEYs for all rows; otherwise via "SMILES"+"NAME".
-Prefer INCHIKEY to avoid ambiguous NAME matches.}
+Each row must match at least one row in \code{frm$df}.
+The exact matching behavior is described in 'Details'.}
 
 \item{predictors}{Numeric vector specifying which predictors to include in the model in
 addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
@@ -55,8 +53,35 @@ the adjustment model to the observed RT values of \code{new_data}.
 \description{
 The goal of this function is to train a model that predicts RT_ADJ (retention
 time measured on a new, adjusted column) from RT (retention time measured on
-the original column) and to attach this "adjustmodel" to an existing FastRet
-model.
+the original column) and to attach this adjustment model to an existing
+FastRet model.
+}
+\details{
+Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
+INCHIKEYs for all rows; otherwise via "SMILES"+"NAME". If multiple rows in
+\code{frm$df} match the same row in \code{new_data}, their RT values are averaged
+first, and this average is used for training the adjustment model.
+
+Example: if \code{frm$df} equals data.frame OLD shown below and \code{new_data} equals
+data.frame NEW, then the resulting, paired data.frame will look like PAIRED.
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{OLD <- data.frame(
+    NAME   = c("A", "B",  "B",  "C"  ),
+    SMILES = c("C", "CC", "CC", "CCC"),
+    RT     = c(5.0,  8.0,  8.2,  9.0 )
+)
+NEW <- data.frame(
+    NAME   = c("A", "B",  "B",  "B"),
+    SMILES = c("C", "CC", "CC", "CC"),
+    RT     = c(2.5,  5.5,  5.7,  5.6)
+)
+PAIRED <- data.frame(
+    NAME   = c("A", "B",  "B",  "B"),
+    SMILES = c("C", "CC", "CC", "CC"),
+    RT     = c(5.0,  8.1,  8.1,  8.1), # Average of OLD$RT[2:3]
+    RT_ADJ = c(2.5,  5.5,  5.7,  5.6)  # Taken from NEW
+)
+}\if{html}{\out{</div>}}
 }
 \examples{
 frm <- read_rp_lasso_model_rds()

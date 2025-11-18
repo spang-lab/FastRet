@@ -179,17 +179,15 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #' @description
 #' The goal of this function is to train a model that predicts RT_ADJ (retention
 #' time measured on a new, adjusted column) from RT (retention time measured on
-#' the original column) and to attach this "adjustmodel" to an existing FastRet
-#' model.
+#' the original column) and to attach this adjustment model to an existing
+#' FastRet model.
 #'
 #' @param frm An object of class `frm` as returned by [train_frm()].
 #' @param new_data
 #' Data frame with required columns "RT", "NAME", "SMILES"; optional "INCHIKEY".
 #' "RT" must be the retention time measured on the adjusted column.
-#' Each row must match one row in `frm$df`.
-#' Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
-#' INCHIKEYs for all rows; otherwise via "SMILES"+"NAME".
-#' Prefer INCHIKEY to avoid ambiguous NAME matches.
+#' Each row must match at least one row in `frm$df`.
+#' The exact matching behavior is described in 'Details'.
 #' @param predictors
 #' Numeric vector specifying which predictors to include in the model in
 #' addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
@@ -199,6 +197,34 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #' @param seed
 #' An integer value to set the seed for random number generation to allow for
 #' reproducible results.
+#'
+#' @details
+#' Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
+#' INCHIKEYs for all rows; otherwise via "SMILES"+"NAME". If multiple rows in
+#' `frm$df` match the same row in `new_data`, their RT values are averaged
+#' first, and this average is used for training the adjustment model.
+#'
+#' Example: if `frm$df` equals data.frame OLD shown below and `new_data` equals
+#' data.frame NEW, then the resulting, paired data.frame will look like PAIRED.
+#'
+#' ```R
+#' OLD <- data.frame(
+#'     NAME   = c("A", "B",  "B",  "C"  ),
+#'     SMILES = c("C", "CC", "CC", "CCC"),
+#'     RT     = c(5.0,  8.0,  8.2,  9.0 )
+#' )
+#' NEW <- data.frame(
+#'     NAME   = c("A", "B",  "B",  "B"),
+#'     SMILES = c("C", "CC", "CC", "CC"),
+#'     RT     = c(2.5,  5.5,  5.7,  5.6)
+#' )
+#' PAIRED <- data.frame(
+#'     NAME   = c("A", "B",  "B",  "B"),
+#'     SMILES = c("C", "CC", "CC", "CC"),
+#'     RT     = c(5.0,  8.1,  8.1,  8.1), # Average of OLD$RT[2:3]
+#'     RT_ADJ = c(2.5,  5.5,  5.7,  5.6)  # Taken from NEW
+#' )
+#' ```
 #'
 #' @return
 #' An object of class `frm`, as returned by [train_frm()], but with an
@@ -254,16 +280,24 @@ adjust_frm <- function(frm = train_frm(),
         old$INCHIKEY <- NULL # Ignore old INCHIKEY and merge by SMILES+NAME
         keys <- c("SMILES", "NAME")
     }
-    old_key <- paste0(old[[keys[[1]]]], "_", old[[keys[[2]]]])
-    new_key <- paste0(new[[keys[[1]]]], "_", new[[keys[[2]]]])
-    old_keep <- match_random(new_key, old_key, seed = seed)
-    old <- old[old_keep, ]
-
-    df <- merge(new, old, keys = keys)
-
+    old$KEY <- paste0(old[[keys[[1]]]], "_", old[[keys[[2]]]])
+    new$KEY <- paste0(new[[keys[[1]]]], "_", new[[keys[[2]]]])
+    old <- old[old$KEY %in% unique(new$KEY), ]
+    # At this point, we can still have multiple measurements per KEY in old. To
+    # deal with this, we average their RTs first, then map every new entry to
+    # the average.
+    old_RT_avgs <- tapply(old$RT, old$KEY, mean)
+    old <- old[!duplicated(old$KEY), ]
+    old$RT <- as.numeric(old_RT_avgs[old$KEY]) # as.numeric drops dimnames attr
+    df <- merge(new, old, keys = c(keys, "KEY"), sort = FALSE)
+    df$KEY <- NULL
     if (nrow(df) < nrow(new)) {
         fmt <- "Could not map %d new entries to original data based on %s."
         stop(sprintf(fmt, nrow(new) - nrow(df), as_str(keys)))
+    } else if (nrow(df) > nrow(new)) {
+        # This can't happen due to averaging above. We check anyway to be safe.
+        msg <- sprintf("Ambiguous mapping: %d new -> %d old", nrow(new), nrow(df))
+        stop(msg)
     }
 
     pvec <- c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)")[predictors]
