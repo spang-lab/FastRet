@@ -93,6 +93,10 @@ Bugfixes:
 2. `plot_frm()` with type "scatter.cv.adj" or "scatter.train.adj" now correctly
    shows retention times from the new data (used for model adjustment) as x-axis
    values instead of the original training retention times.
+3. `catf()` now only emits escape codes (i.e. colored output), it the output is
+   directed to a terminal. If the output is redirected to a file or a pipe, no
+   escape codes are emitted anymore. Since `catf()` is used throughout the
+   package for logging, this fixes the output for the whole package.
 
 Internal Improvements:
 

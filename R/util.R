@@ -63,7 +63,15 @@ now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
 catf <- function(...,
                  prefix = .Options$FastRet.catf.prefix,
                  end = .Options$FastRet.catf.end) {
-    prefixstr <- if (is.null(prefix)) sprintf("%s%s%s ", GREY, now(), RESET) else prefix()
+    prefixstr <- if (is.null(prefix)) {
+        if (isatty(stdout())) {
+            sprintf("%s%s%s ", GREY, now(), RESET)
+        } else {
+            sprintf("%s ", now())
+        }
+    } else {
+        prefix()
+    }
     endstr <- if (is.null(end)) "\n" else end
     middlestr <- sprintf(...)
     msg <- sprintf("%s%s%s", prefixstr, middlestr, endstr)
