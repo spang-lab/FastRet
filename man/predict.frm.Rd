@@ -9,7 +9,7 @@
   df = object$df,
   adjust = NULL,
   verbose = 0,
-  clip = FALSE,
+  clip = TRUE,
   ...
 )
 }

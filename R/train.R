@@ -323,17 +323,22 @@ adjust_frm <- function(frm = train_frm(),
         train_df <- df[train_ids, ]
         train_RT <- train_df$RT
         adjlm <- lm(formula = fm, data = train_df)
+
         # First predict RT using the original model, then apply adjust model.
         test_ids <- cv$folds[[i]]
         test_df <- df[test_ids, ]
         test_df$RT <- predict(frm, test_df, adjust = FALSE, verbose = 0)
+
         test_df$RT_PRED <- predict(adjlm, test_df)
+        test_df$RT_PRED <- clip_predictions(test_df$RT_PRED, train_RT)
+        
         # Now repeat prediction, but this time use the correct RTs as input for
         # the adjustment model. This allows us to see how the adjustment model
         # would perform if we could predict RT's for the original column with
         # 100% accuracy.
         test_df$RT <- df$RT[test_ids]
         test_df$RT_PRED_ADJONLY <- predict(adjlm, test_df)
+        test_df$RT_PRED_ADJONLY <- clip_predictions(test_df$RT_PRED_ADJONLY, train_RT)
         # Now store results in cv object
         cv$models[[i]] <- adjlm
         cv$preds[test_ids] <- test_df$RT_PRED
@@ -414,7 +419,7 @@ predict.frm <- function(object = train_frm(),
                         df = object$df,
                         adjust = NULL,
                         verbose = 0,
-                        clip = FALSE,
+                        clip = TRUE,
                         ...) {
 
     pkg <- if (inherits(object$model, "glmnet")) "glmnet" else "xgboost"
@@ -441,26 +446,23 @@ predict.frm <- function(object = train_frm(),
         stop(errmsg)
     }
 
-    logf("Predicting retention times")
-    yhat <- c(predict(object$model, as.matrix(df[, predictors])))
-    logf("Predictions: %s", paste(round(yhat, 2), collapse = ", "))
-
     adjust <- !is.null(object$adj) && (isTRUE(adjust) || is.null(adjust))
+    logf("Predicting retention times")
+    yhat <- as.numeric(predict(object$model, as.matrix(df[, predictors])))
 
     if (adjust) {
         logf("Adjusting predictions using the adjustment model")
-        yhat <- predict(object$adj$model, data.frame(RT = yhat))
-        logf("Adjusted predictions: %s", paste(round(yhat, 2), collapse = ", "))
+        yhat <- clip_predictions(yhat, object$df$RT)
+        yhat <- as.numeric(predict(object$adj$model, data.frame(RT = yhat)))
     }
 
     if (clip) {
         logf("Clipping predictions to be within RT range of training data")
         y <- if (adjust) object$adj$df$RT else object$df$RT
         yhat <- clip_predictions(yhat, y)
-        logf("Final predictions: %s", paste(round(yhat, 2), collapse = ", "))
     }
 
-    yhat
+    as.numeric(yhat)
 }
 
 #' @export
@@ -481,7 +483,11 @@ get_predictors <- function(frm = train_frm()) {
 #' @title Clip predictions to observed range
 #'
 #' @description
-#' Clips predicted retention times to the observed target range.
+#' Clips predicted retention times by fitting a log-normal distribution to the
+#' observed training RTs and bounding predictions to the central 99.99%
+#' interval. All observed RTs must be positive to estimate the distribution.
+#' If the estimated lower bound would be negative, it is replaced by 1% of the
+#' observed minimum RT instead.
 #'
 #' @param yhat Numeric vector of predicted retention times.
 #' @param y Numeric vector of observed retention times used to derive bounds.
@@ -490,15 +496,47 @@ get_predictors <- function(frm = train_frm()) {
 #'
 #' @keywords public
 #' @examples
-#' # Basic clipping to the observed range
-#' yhat <- c(-10, 5, 50, 150, 300)
-#' y <- c(20, 30, 40, 50, 60)
-#' clip_predictions(yhat, y)
+#' 
+#' # Draw only a few samples (10) and clip based on these. The allowed range will
+#' # be much bigger than the observed range.
+#' 
+#' set.seed(42)
+#' y <- rlnorm(n = 1000, meanlog = 2, sdlog = 0.1)
+#' yhat <- y
+#' yhat[1] <- -100 # way too low to be realistic
+#' yhat[2] <- 1000 # way too high to be realistic
+#' yhat <- clip_predictions(yhat, y)
+#' range(y)  # [ 6.18,  8.93]
+#' yhat[1:2] # [ 4.96, 10.61] # Limited by theoretical bounds
+#' 
+#' 
+#' # Draw more samples (1000) and clip based on these. The allowed range will
+#' # be almost identical to the observed range.
+#'
+#' set.seed(42)
+#' y <- rnorm(n = 100, mean = 100, sd = 5)
+#' yhat <- y
+#' yhat[1] <- -100
+#' yhat[2] <- 1000
+#' yhat <- clip_predictions(yhat, y)
+#' range(y)  # 83.14, 117.47
+#' yhat[1:2] # 83.14, 117.72
+#' 
 clip_predictions <- function(yhat, y) {
-    # upper_bound <- max(y, na.rm = TRUE)
-    # lower_bound <- min(y, na.rm = TRUE)
-    # yhat <- pmin(yhat, upper_bound)
-    # yhat <- pmax(yhat, lower_bound)
+    if (any(y <= 0)) stop("Observed RTs must be strictly positive")
+    log_y <- log(y)
+    mu <- mean(log_y, na.rm = TRUE)
+    sigma <- stats::sd(log_y, na.rm = TRUE)
+    sigma <- ifelse(is.na(sigma) || sigma == 0, .Machine$double.eps, sigma)
+    lower_bound <- stats::qlnorm(0.0005, meanlog = mu, sdlog = sigma)
+    upper_bound <- stats::qlnorm(0.9995, meanlog = mu, sdlog = sigma)
+    obsrvd_min <- min(y, na.rm = TRUE)
+    obsrvd_max <- max(y, na.rm = TRUE)
+    if (lower_bound > obsrvd_min) lower_bound <- obsrvd_min
+    if (upper_bound < obsrvd_max) upper_bound <- obsrvd_max
+    if (lower_bound < obsrvd_min * 0.01) lower_bound <- obsrvd_min * 0.01
+    yhat <- pmin(yhat, upper_bound)
+    yhat <- pmax(yhat, lower_bound)
     yhat
 }
 

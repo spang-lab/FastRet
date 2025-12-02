@@ -32,9 +32,9 @@ API Improvements:
    - Improved progress output
 4. `train_frm()`:
    - Removal of near-zero-variance predictors and/or removal of NA values is now
-    done as part of the internal model training, i.e. it happens separately for
+     done as part of the internal model training, i.e. it happens separately for
      each fold during cross-validation. This prevents data leakage from the
-    training set to the validation set. The corresponding hint about
+     training set to the validation set. The corresponding hint about
      "overoptimistic cross-validation results" has consequently been removed
      from the documentation.
    - Argument `method` now accepts two values for training models with xgbtree
@@ -44,6 +44,10 @@ API Improvements:
    - Improved documentation of the return value (i.e. `frm` objects are fully
      specified now)
    - Added type checking for each user input
+   - Performance estimation via cross-validation now uses the new clipping
+     mechanism provided by `clip_predictions()`. Of course, the clipping is
+     always based on the RT range of training folds, not the whole original
+     training data.
 5. `predict.frm()`:
    - Data transformations applied to the training data (adding polynomial
      features and/or adding interaction terms) are now automatically applied to
@@ -54,6 +58,9 @@ API Improvements:
    - Added argument `clip` to allow clipping of predictions to be within
      the RT range of the training data. Works for both adjusted and unadjusted
      models.
+   - Predictions are now clipped to be within a sensible range by default. To
+     produce unclipped predictions, set `clip=FALSE`. See `clip_predictions()`
+     for details.
 6. `selective_measuring()`:
    - Added argument `rt_coef`, allowing user to control the influence of RT on
      the clustering. A value of 0 means that RT is ignored, a value of
@@ -77,9 +84,17 @@ API Improvements:
      new rows, an exact subset of original rows (without replacement) is
      selected so that the mapping is one-to-one. If there are fewer original
      rows than new rows for a key, an error is raised.
+   - Performance estimation via cross-validation now uses the new clipping
+     mechanism provided by `clip_predictions()`. Of course, the clipping is
+     always based on the RT range of training folds, not the whole original
+     training data.
 8. `print.frm()`:
    - frm objects can now be printed directly to the console in a user-friendly
      format.
+9. `clip_predictions()`:
+   - New utility function for clipping predicted RTs to be within a sensible
+     range. Used internally by `train_frm()`, `predict.frm()` and
+     `adjust_frm()`.
 
 Bugfixes:
 
@@ -144,8 +159,6 @@ Internal Improvements:
    the cost of worse progress output).
 9. Added utility functions `named()`, `as_str()`, `is_valid_smiles()` and
    `as_canonical()`
-10. Added helper function `clip_predictions()` to clip predictions to be within
-    the RT range of the training data.
 
 # FastRet 1.2.2 <!-- Commit Date: 2025-11-05 -->
 

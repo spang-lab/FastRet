@@ -15,12 +15,34 @@ clip_predictions(yhat, y)
 Numeric vector of clipped (bounded) predictions.
 }
 \description{
-Clips predicted retention times to the observed target range.
+Clips predicted retention times to the theoretical target range.
 }
 \examples{
-# Basic clipping to the observed range
-yhat <- c(-10, 5, 50, 150, 300)
-y <- c(20, 30, 40, 50, 60)
-clip_predictions(yhat, y)
+
+# Draw only a few samples (10) and clip based on these. The allowed range will
+# be much bigger than the observed range.
+
+set.seed(42)
+y <- rlnorm(n = 1000, meanlog = 2, sdlog = 0.1)
+yhat <- y
+yhat[1] <- -100 # way too low to be realistic
+yhat[2] <- 1000 # way too high to be realistic
+yhat <- clip_predictions(yhat, y)
+range(y)  # [ 6.18,  8.93]
+yhat[1:2] # [ 4.96, 10.61] # Limited by theoretical bounds
+
+
+# Draw more samples (1000) and clip based on these. The allowed range will
+# be almost identical to the observed range.
+
+set.seed(42)
+y <- rnorm(n = 100, mean = 100, sd = 5)
+yhat <- y
+yhat[1] <- -100
+yhat[2] <- 1000
+yhat <- clip_predictions(yhat, y)
+range(y)  # 83.14, 117.47
+yhat[1:2] # 83.14, 117.72
+
 }
 \keyword{public}
