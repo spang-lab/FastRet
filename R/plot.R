@@ -66,7 +66,7 @@ plot_frm <- function(frm = train_frm(verbose = 1),
     col[is_outlier] <- "red"
     y[is_min_outlier] <- min(x) - mean(x)
     y[is_max_outlier] <- max(x) + mean(x)
-    R <- cor(x, y)
+    R <- cor(x, y, on_zero_sd = NA)
     MSE <- mean((x - y)^2)
     MAE <- mean(abs(x - y))
     x <- dotrafo(x) # (1)

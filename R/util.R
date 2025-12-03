@@ -108,6 +108,15 @@ collect <- function(xx) {
 
 # Misc (Private) #####
 
+cor <- function(x, y, on_zero_sd = NA) {
+    sd_x <- sd(x)
+    sd_y <- sd(y)
+    if (sd_x == 0 || sd_y == 0) {
+        return(on_zero_sd)
+    }
+    stats::cor(x, y)
+}
+
 #' @noRd
 #' @title Find Random Positions of x in y
 #' @description

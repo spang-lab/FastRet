@@ -552,7 +552,7 @@ get_stats <- function(df, model) {
     yhat <- predict(model, df, type = "response")
     measures <- c(
         RMSE = sqrt(mean((y - yhat)^2)),
-        Rsquared = cor(y, yhat)^2,
+        Rsquared = cor(y, yhat, on_zero_sd = 0)^2,
         MAE = mean(abs(y - yhat)),
         pBelow1Min = sum(abs(y - yhat) < 1.0) / length(y)
     )

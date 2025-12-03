@@ -5,12 +5,12 @@ API Improvements:
 
 1. `getCDs()`:
    - Calculation of CDs is skipped, if all CDs are already present in the input
-     dataframe
+     dataframe.
    - In addition to a dataframe with column "SMILES", a plain character vector
-     of SMILES strings can now be provided
-   - Improved progress output
+     of SMILES strings can now be provided as input.
+   - Improved progress output.
    - More Smiles are now pre-cached internally to speed up retrieval of CDs for
-     large datasets
+     large datasets.
 2. `plot_frm()`:
    - Now available as exported function (the function existed before, but was
     only exposed via the Graphical User Interface). Now users can call it
@@ -18,18 +18,20 @@ API Improvements:
    - Added semi-transparent background to legends for better readability
    - Changed the point character from unfilled circles with colored borders to
      filled circles with black borders for better visibility.
+   - Constant predictions (causing correlation to be NA) do no longer cause
+     a warning.
 3. `preprocess_data()`:
    - Added argument `add_cds` to control whether chemical descriptors should be
-     added to the input data using `getCDs()`
-   - Presence of mandatory columns (SMILES, RT, NAME) is now checked
+     added to the input data using `getCDs()`.
+   - Presence of mandatory columns (SMILES, RT, NAME) is now checked.
    - INCHIKEY and Chemical Descriptors listed in `CDFeatures` are allowed as
-     optional columns
-   - Columns that are neither mandatory nor optional are automatically removed
+     optional columns.
+   - Columns that are neither mandatory nor optional are automatically removed.
    - Improved runtime for generation of polynomial features and/or interaction
-     terms
+     terms.
    - Removal of NA and/or near-zero-variance predictors is now done after adding
-     polynomial features and/or interaction terms
-   - Improved progress output
+     polynomial features and/or interaction terms.
+   - Improved progress output.
 4. `train_frm()`:
    - Removal of near-zero-variance predictors and/or removal of NA values is now
      done as part of the internal model training, i.e. it happens separately for
@@ -42,12 +44,15 @@ API Improvements:
      (train xgboost with parameters optimized for the RP dataset). The old value
      "gbtree" still works and is an alias for "gbtreeRP".
    - Improved documentation of the return value (i.e. `frm` objects are fully
-     specified now)
-   - Added type checking for each user input
+     specified now).
+   - Added type checking for each user input.
    - Performance estimation via cross-validation now uses the new clipping
      mechanism provided by `clip_predictions()`. Of course, the clipping is
      always based on the RT range of training folds, not the whole original
      training data.
+   - Calculating proportion of variance explained (R²) no longer throws a
+     warning for constant predictions (causing correlation to be NA). Instead,
+     R² is set to 0 in such cases.
 5. `predict.frm()`:
    - Data transformations applied to the training data (adding polynomial
      features and/or adding interaction terms) are now automatically applied to
@@ -69,7 +74,7 @@ API Improvements:
      (except standardization to z-scores, which is applied before to the whole
      dataset before the ridge regression is trained).
 7. `adjust_frm()`:
-   - Added argument `seed` to allow reproducible results
+   - Added argument `seed` to allow reproducible results.
    - Added support for mapping by SMILES+INCHIKEY in addition to SMILES+NAME.
      SMILES+INCHIKEY is used by default if both columns are present in the
      adjusted and the original training data. Otherwise SMILES+NAME is used as
@@ -88,6 +93,9 @@ API Improvements:
      mechanism provided by `clip_predictions()`. Of course, the clipping is
      always based on the RT range of training folds, not the whole original
      training data.
+   - Calculating proportion of variance explained (R²) no longer throws a
+     warning for constant predictions (causing correlation to be NA). Instead,
+     R² is set to 0 in such cases.
 8. `print.frm()`:
    - frm objects can now be printed directly to the console in a user-friendly
      format.
@@ -104,7 +112,7 @@ Bugfixes:
    issues. Passing older models, trained with division-based interaction terms,
    to downstream functions like `predict.frm()` or `adjust_frm()` will now lead
    to an error. (This is not a breaking change, as `predict.frm()` and friends
-   have in fact never been able to handle such models)
+   have in fact never been able to handle such models).
 2. `plot_frm()` with type "scatter.cv.adj" or "scatter.train.adj" now correctly
    shows retention times from the new data (used for model adjustment) as x-axis
    values instead of the original training retention times.
