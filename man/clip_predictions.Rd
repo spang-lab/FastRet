@@ -15,7 +15,11 @@ clip_predictions(yhat, y)
 Numeric vector of clipped (bounded) predictions.
 }
 \description{
-Clips predicted retention times to the theoretical target range.
+Clips predicted retention times by fitting a log-normal distribution to the
+observed training RTs and bounding predictions to the central 99.99\%
+interval. All observed RTs must be positive to estimate the distribution.
+If the estimated lower bound would be negative, it is replaced by 1\% of the
+observed minimum RT instead.
 }
 \examples{
 
