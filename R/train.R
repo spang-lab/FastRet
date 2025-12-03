@@ -283,14 +283,23 @@ adjust_frm <- function(frm = train_frm(),
     old$KEY <- paste0(old[[keys[[1]]]], "_", old[[keys[[2]]]])
     new$KEY <- paste0(new[[keys[[1]]]], "_", new[[keys[[2]]]])
     old <- old[old$KEY %in% unique(new$KEY), ]
+
     # At this point, we can still have multiple measurements per KEY in old. To
     # deal with this, we average their RTs first, then map every new entry to
     # the average.
     old_RT_avgs <- tapply(old$RT, old$KEY, mean)
     old <- old[!duplicated(old$KEY), ]
     old$RT <- as.numeric(old_RT_avgs[old$KEY]) # as.numeric drops dimnames attr
-    df <- merge(new, old, keys = c(keys, "KEY"), sort = FALSE)
+
+    # Now finally merge new and old data to get the paired data.frame for model
+    # fitting. Make sure to restore the original order after merging, as
+    # `merge()` returns rows in an 'unspecified' order (even with sort=FALSE).
+    new$ID <- seq_len(nrow(new))
+    df <- merge(new, old, keys = c(keys, "KEY"), sort = FALSE, all = FALSE)
+    df <- df[order(df$ID), ]
+    df$ID <- NULL
     df$KEY <- NULL
+
     if (nrow(df) < nrow(new)) {
         fmt <- "Could not map %d new entries to original data based on %s."
         stop(sprintf(fmt, nrow(new) - nrow(df), as_str(keys)))
@@ -331,7 +340,7 @@ adjust_frm <- function(frm = train_frm(),
 
         test_df$RT_PRED <- predict(adjlm, test_df)
         test_df$RT_PRED <- clip_predictions(test_df$RT_PRED, train_RT)
-        
+
         # Now repeat prediction, but this time use the correct RTs as input for
         # the adjustment model. This allows us to see how the adjustment model
         # would perform if we could predict RT's for the original column with
@@ -402,9 +411,8 @@ print.frm <- function(x, ...) {
 #' ignored. If NULL, `object$model` will be used, if available.
 #' @param verbose A logical value indicating whether to print progress messages.
 #' @param clip Clip predictions to be within RT range of training data?
-#'
-#' @param ...
-#' Not used. Required to match the generic signature of `predict()`.
+#' @param impute Impute missing predictor values using column means of training data?
+#' @param ... Not used. Required to match the generic signature of `predict()`.
 #'
 #' @return
 #' A numeric vector with the predicted retention times.
@@ -420,6 +428,7 @@ predict.frm <- function(object = train_frm(),
                         adjust = NULL,
                         verbose = 0,
                         clip = TRUE,
+                        impute = TRUE,
                         ...) {
 
     pkg <- if (inherits(object$model, "glmnet")) "glmnet" else "xgboost"
@@ -436,14 +445,31 @@ predict.frm <- function(object = train_frm(),
 
     if (!all(predictors %in% colnames(df))) {
         logf("Chemical descriptors not found in newdata. Trying to calculate them from the provided SMILES.")
-        cds <- preprocess_data(df, dgp, iat, verbose, 1, FALSE, FALSE, TRUE)
-        df <- cbind(df, cds)
+        df <- preprocess_data(df, dgp, iat, verbose, 1, FALSE, FALSE, TRUE)
     }
 
     if (!all(predictors %in% colnames(df))) {
         missing <- paste(setdiff(predictors, colnames(df)), collapse = ", ")
         errmsg <- paste("The following predictors are missing in `df`: ", missing)
         stop(errmsg)
+    }
+
+    if (impute && any(is.na(df[, predictors]))) {
+        nap <- predictors[colSums(is.na(df[, predictors])) > 0]
+        napstr <- paste(nap, collapse = ", ")
+        logf("NA values found for following predictors: %s", napstr)
+        logf("Replacing NA values by column means of training data")
+        train_df <- object$df
+        if (!all(predictors %in% colnames(train_df))) {
+            # We don't store interaction terms and/or polynomial features in
+            # the training data frame, so we need to preprocess it again to get
+            # these features.
+            train_df <- preprocess_data(train_df, dgp, iat, verbose, 1, FALSE, FALSE, TRUE)
+        }
+        for (p in nap) {
+            col_mean <- mean(train_df[[p]], na.rm = TRUE)
+            df[[p]][is.na(df[[p]])] <- col_mean
+        }
     }
 
     adjust <- !is.null(object$adj) && (isTRUE(adjust) || is.null(adjust))
@@ -496,10 +522,10 @@ get_predictors <- function(frm = train_frm()) {
 #'
 #' @keywords public
 #' @examples
-#' 
+#'
 #' # Draw only a few samples (10) and clip based on these. The allowed range will
 #' # be much bigger than the observed range.
-#' 
+#'
 #' set.seed(42)
 #' y <- rlnorm(n = 1000, meanlog = 2, sdlog = 0.1)
 #' yhat <- y
@@ -508,8 +534,8 @@ get_predictors <- function(frm = train_frm()) {
 #' yhat <- clip_predictions(yhat, y)
 #' range(y)  # [ 6.18,  8.93]
 #' yhat[1:2] # [ 4.96, 10.61] # Limited by theoretical bounds
-#' 
-#' 
+#'
+#'
 #' # Draw more samples (1000) and clip based on these. The allowed range will
 #' # be almost identical to the observed range.
 #'
@@ -521,7 +547,7 @@ get_predictors <- function(frm = train_frm()) {
 #' yhat <- clip_predictions(yhat, y)
 #' range(y)  # 83.14, 117.47
 #' yhat[1:2] # 83.14, 117.72
-#' 
+#'
 clip_predictions <- function(yhat, y) {
     if (any(y <= 0)) stop("Observed RTs must be strictly positive")
     log_y <- log(y)

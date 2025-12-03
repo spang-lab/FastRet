@@ -66,6 +66,10 @@ API Improvements:
    - Predictions are now clipped to be within a sensible range by default. To
      produce unclipped predictions, set `clip=FALSE`. See `clip_predictions()`
      for details.
+   - If a chemical descriptor is NA in the new data, but required by the model,
+     the NA value is now replaced by the mean of that descriptor in the training
+     data. Previously, the prediction for such entries was NA. The old behavior
+     can be restored by setting `impute=FALSE` in `predict.frm()`.
 6. `selective_measuring()`:
    - Added argument `rt_coef`, allowing user to control the influence of RT on
      the clustering. A value of 0 means that RT is ignored, a value of
@@ -83,12 +87,11 @@ API Improvements:
      been ignored silently. Now, an error is raised in such cases.
    - Function arguments are now stored in the returned frm object for better
      reproducibility.
-   - Mapping is now performed as an exact one-to-one match: each new entry is
-     matched to exactly one row from the original training data. If a key
-     (SMILES+INCHIKEY or SMILES+NAME) corresponds to more original rows than
-     new rows, an exact subset of original rows (without replacement) is
-     selected so that the mapping is one-to-one. If there are fewer original
-     rows than new rows for a key, an error is raised.
+   - Mapping is now performed by matching each new entry to the average RT of
+     all original training entries with the same key (SMILES+INCHIKEY or
+     SMILES+NAME). Example: if a the new datase contains a key twice, and the
+     original training data contains the key three times, both new entries are
+     mapped to the average RT of the three original entries.
    - Performance estimation via cross-validation now uses the new clipping
      mechanism provided by `clip_predictions()`. Of course, the clipping is
      always based on the RT range of training folds, not the whole original

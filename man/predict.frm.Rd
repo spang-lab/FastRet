@@ -10,6 +10,7 @@
   adjust = NULL,
   verbose = 0,
   clip = TRUE,
+  impute = TRUE,
   ...
 )
 }
@@ -26,6 +27,8 @@ ignored. If NULL, \code{object$model} will be used, if available.}
 \item{verbose}{A logical value indicating whether to print progress messages.}
 
 \item{clip}{Clip predictions to be within RT range of training data?}
+
+\item{impute}{Impute missing predictor values using column means of training data?}
 
 \item{...}{Not used. Required to match the generic signature of \code{predict()}.}
 }

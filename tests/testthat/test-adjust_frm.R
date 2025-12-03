@@ -15,8 +15,10 @@ test_that("adjust_frm merges by INCHIKEY when available", {
 
     # Build new_data from a small subset and change some NAMES to avoid
     # NAME-matching. Duplicate the first entry, so we have the most complex
-    # case. Multiple new entries (2) matching multiple old entries (5).
-    idx <- c(1, seq(1, 401, 40))
+    # case. Multiple new entries (2) matching multiple old entries (5). Also
+    # make sure that the duplicated entry is at different positions within
+    # new_data.
+    idx <- c(seq(1, 401, 40), 1)
     new <- frm$df[idx, c("NAME", "SMILES", "RT", "INCHIKEY")]
     new$RT <- new$RT + rnorm(nrow(new), mean = 3, sd = 0.5)  # Slightly perturb RTs
 
@@ -32,23 +34,24 @@ test_that("adjust_frm merges by INCHIKEY when available", {
     expect_equal(nrow(afm$adj$df), nrow(new))
     expect_true(isTRUE(all.equal(afm, afm42)))
     expect_false(isFALSE(all.equal(afm, afm99)))
+    expect_equal(new$RT, afm$adj$df$RT_ADJ)
 
     # Ensure that afm$adj$df$RT is calculated correctly by mapping to frm$df via
     # INCHIKEY+SMILES and averaging RT over duplicates.
+    n <- length(idx)
     old <- afm$df[idx, ] # (1)
-    old$RT[1:2] <- mean(afm$df$RT[1:5]) # (2)
-    expect_equal(length(unique(c(new$SMILES[1:2], afm$df$SMILES[1:5]))), 1) # (3)
-    expect_equal(length(unique(c(new$INCHIKEY[1:2], afm$df$INCHIKEY[1:5]))), 1) # (3)
+    old$RT[c(1, n)] <- mean(afm$df$RT[1:5]) # (2)
+    expect_equal(length(unique(c(new$SMILES[c(1, n)], afm$df$SMILES[1:5]))), 1) # (3)
+    expect_equal(length(unique(c(new$INCHIKEY[c(1, n)], afm$df$INCHIKEY[1:5]))), 1) # (3)
     expect_equal(afm$adj$df$RT_ADJ, new$RT)
     expect_equal(afm$adj$df$RT, old$RT)
     # (1) We generated `new` from `afm$df[idx, ]`, so naivly, we would expect
     # these elements to be picked as corresponding "old" measurements, that will
     # be adjusted.
-    # (2) However, because the first two entries in `new` have the same
+    # (2) However, because the first and last entry in `new` have the same
     # INCHIKEY+SMILES combination as the first five entries in `afm$df` (3), our
-    # algorithm cannot know that, and should instead calculate the average
-    # retention time over `afm$df[1:5, ]` and then map both `new[1,]` and
-    # `new[2, ]` to that average.
+    # algorithm should calculate the average retention time over `afm$df[1:5,]`
+    # and then map both `new[1,]` and `new[n,]` to that average.
 
     # Now remove some INCHIKEYs from the new data to force fallback to
     # SMILES+NAME mapping
