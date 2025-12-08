@@ -39,6 +39,12 @@ plot_frm <- function(frm = train_frm(verbose = 1),
         )
         stop(sprintf(fmt, type))
     }
+    if (type == "scatter.cv" && is.null(frm$cv)) {
+        stop("Cannot plot CV predictions: cross-validation was not performed. Use type = 'scatter.train' instead.")
+    }
+    if (type == "scatter.cv.adj" && is.null(frm$adj$cv)) {
+        stop("Cannot plot CV predictions: cross-validation was not performed during adjustment. Use type = 'scatter.train.adj' instead.")
+    }
     trafo <- match.arg(trafo, c("identity", "log2"))
     dotrafo <- switch(trafo, "identity" = identity, "log2" = log2)
 
@@ -124,6 +130,9 @@ plot_boxplot <- function(model = train_frm(), ptype = "base") {
     # (1) To avoid warnings about NSE in ggplot2 calls
     # (https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html)
     ptype <- match.arg(ptype, c("base", "ggplot2"))
+    if (is.null(model$cv)) {
+        stop("Cannot create boxplot: cross-validation was not performed.")
+    }
     stats <- as.data.frame(collect(model$cv$stats))
     p <- if (ptype == "base") {
         opar <- par(mar = c(2, 2, 2, 0) + 0.5)
