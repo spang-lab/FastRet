@@ -77,7 +77,7 @@ test_that("adjust_frm merges by INCHIKEY when available", {
     }
 })
 
-test_that("adjust_frm works with docv = FALSE", {
+test_that("adjust_frm works with do_cv = FALSE", {
     # Load pretrained model for speed-up
     frm <- readRDS(pkg_file("extdata/RP_lasso_model.rds"))
     
@@ -86,18 +86,18 @@ test_that("adjust_frm works with docv = FALSE", {
     new <- frm$df[idx, c("NAME", "SMILES", "RT")]
     new$RT <- new$RT + rnorm(nrow(new), mean = 3, sd = 0.5)
     
-    # Test with docv=FALSE
-    afm1 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1, docv = FALSE)
+    # Test with do_cv=FALSE
+    afm1 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1, do_cv = FALSE)
     
-    # Test with docv=TRUE
-    afm2 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1, docv = TRUE)
+    # Test with do_cv=TRUE
+    afm2 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1, do_cv = TRUE)
     
-    # Model with docv=FALSE should have NULL cv element
+    # Model with do_cv=FALSE should have NULL cv element
     expect_null(afm1$adj$cv)
     expect_true(is.list(afm1$adj))
     expect_equal(names(afm1$adj), c("model", "df", "cv", "args"))
     
-    # Model with docv=TRUE should have cv element
+    # Model with do_cv=TRUE should have cv element
     expect_false(is.null(afm2$adj$cv))
     expect_true(is.list(afm2$adj$cv))
     expect_equal(names(afm2$adj$cv), c("folds", "models", "preds", "preds_adjonly"))
