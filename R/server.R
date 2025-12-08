@@ -76,7 +76,7 @@ init_extended_task_handlers <- function(SE) {
             NAME <- frm$df$NAME
             SMILES <- frm$df$SMILES
             RT_PREDICTED <- round(predict(frm), 2)
-            RT_PREDICTED_CV <- round(frm$cv$preds, 2)
+            RT_PREDICTED_CV <- if (!is.null(frm$cv)) round(frm$cv$preds, 2) else rep(NA, nrow(frm$df))
             SE$RV$trainedFRM <- frm
             SE$RV$tblTrainResults <- cbind(RT, RT_PREDICTED, RT_PREDICTED_CV, NAME, SMILES, cds)
             catf("Showing buttons: dbSaveModel, dbSavePredictorSet")

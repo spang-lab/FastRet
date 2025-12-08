@@ -52,6 +52,10 @@
 #' An integer value to set the seed for random number generation to allow for
 #' reproducible results.
 #'
+#' @param do_cv
+#' A logical value indicating whether to perform cross-validation. If FALSE,
+#' the `cv` element in the returned object will be NULL.
+#'
 #' @return
 #' A 'FastRet Model', i.e., an object of class `frm`. Components are:
 #' + `model`: The fitted base model. This can be an object of class `glmnet`
@@ -60,7 +64,8 @@
 #'   all user-provided columns (including mandatory columns RT, SMILES and NAME)
 #'   as well the calculated chemical descriptors. (But no interaction terms or
 #'   polynomial features, as these can be recreated within a few milliseconds).
-#' + `cv`: A named list containing the cross validation results. Elements are:
+#' + `cv`: A named list containing the cross validation results, or NULL if
+#'   `do_cv = FALSE`. When not NULL, elements are:
 #'   - `folds`: A list of integer vectors specifying the samples in each fold.
 #'   - `models`: A list of models trained on each fold.
 #'   - `stats`: A list of vectors with RMSE, Rsquared, MAE, pBelow1Min per fold.
@@ -77,7 +82,7 @@
 train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
                       degree_polynomial = 1, interaction_terms = FALSE,
                       rm_near_zero_var = TRUE, rm_na = TRUE, rm_ns = FALSE,
-                      seed = NULL) {
+                      seed = NULL, do_cv = TRUE) {
 
     # Check arguments
     stopifnot(
@@ -91,7 +96,8 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
         is.logical(rm_near_zero_var),
         is.logical(rm_na),
         is.logical(rm_ns),
-        is.null(seed) || (is.numeric(seed) && length(seed) == 1)
+        is.null(seed) || (is.numeric(seed) && length(seed) == 1),
+        is.logical(do_cv)
     )
 
     # Init variables
@@ -109,25 +115,27 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     logf("Training a FastRet model with %s base", method)
     frm <- train_frm_internal(
         df,
-        method, verbose, nfolds, nw, dgp, iat, rm_nzv, rm_na, seed
+        method, verbose, nfolds, nw, dgp, iat, rm_nzv, rm_na, seed, do_cv
     )
     logf("Finished training of the FastRet model")
 
     # Estimate performance in cross validation
-    logf("Estimating model performance in CV using %d workers", nw)
-    folds <- createFolds(seq_len(nrow(df)), k = nfolds)
-    train_dfs <- lapply(folds, function(idx) df[-idx, ])
-    test_dfs <- lapply(folds, function(idx) df[idx, ])
-    verbose <- FALSE
-    models <- parLapply2(
-        nw, train_dfs, train_frm_internal,
-        method, verbose, nfolds, 1, dgp, iat, rm_nzv, rm_na, seed
-    )
-    preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
-    preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
-    stats <- mapply(get_stats, test_dfs, models, SIMPLIFY = FALSE)
-    frm$cv <- named(folds, models, stats, preds)
-    logf("Finished cross validation")
+    if (do_cv) {
+        logf("Estimating model performance in CV using %d workers", nw)
+        folds <- createFolds(seq_len(nrow(df)), k = nfolds)
+        train_dfs <- lapply(folds, function(idx) df[-idx, ])
+        test_dfs <- lapply(folds, function(idx) df[idx, ])
+        verbose <- FALSE
+        models <- parLapply2(
+            nw, train_dfs, train_frm_internal,
+            method, verbose, nfolds, 1, dgp, iat, rm_nzv, rm_na, seed, do_cv
+        )
+        preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
+        preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
+        stats <- mapply(get_stats, test_dfs, models, SIMPLIFY = FALSE)
+        frm$cv <- named(folds, models, stats, preds)
+        logf("Finished cross validation")
+    }
     frm
 }
 
@@ -136,7 +144,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
 #' @description
 #' Trains a `frm` model, but does NOT estimate performance in CV.
 train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
-                               rm_nzv, rm_na, seed) {
+                               rm_nzv, rm_na, seed, do_cv) {
 
     ## Prepare data for model fitting
     logf <- if (verbose) catf else null
@@ -145,7 +153,7 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
     args <- named(
         method, verbose, nfolds, nw, degree_polynomial = dgp,
         interaction_terms = iat, rm_near_zero_var = rm_nzv,
-        rm_na = rm_na, seed = seed
+        rm_na = rm_na, seed = seed, do_cv = do_cv
     )
 
     M <- dfp[, meta]
@@ -198,6 +206,10 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #' An integer value to set the seed for random number generation to allow for
 #' reproducible results.
 #'
+#' @param do_cv
+#' A logical value indicating whether to perform cross-validation. If FALSE,
+#' the `cv` element in the returned adjustment object will be NULL.
+#'
 #' @details
 #' Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
 #' INCHIKEYs for all rows; otherwise via "SMILES"+"NAME". If multiple rows in
@@ -232,7 +244,8 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #'
 #' + `model`: The fitted adjustment model of class `lm`.
 #' + `df`: The data frame used for training the adjustment model.
-#' + `cv`: A named list containing the cross validation results. Elements are:
+#' + `cv`: A named list containing the cross validation results, or NULL if
+#'   `do_cv = FALSE`. When not NULL, elements are:
 #'    - `folds`: A list of integer vectors specifying the samples in each fold.
 #'    - `models`: A list of adjustment models trained on each fold.
 #'    - `preds`: Retention time predictions obtained in CV as numeric vector.
@@ -250,10 +263,14 @@ adjust_frm <- function(frm = train_frm(),
                        predictors = 1:6,
                        nfolds = 5,
                        verbose = 1,
-                       seed = NULL) {
+                       seed = NULL,
+                       do_cv = TRUE) {
 
     if (!is.numeric(predictors) || length(predictors) < 1 || !all(predictors %in% 1:6)) {
         stop("Invalid predictors. Please provide a vector of integers between 1 and 6.")
+    }
+    if (!is.logical(do_cv)) {
+        stop("do_cv must be a logical value (TRUE or FALSE).")
     }
     if (isFALSE(verbose) || verbose == 0) catf <- function(...) {}
     if (is.numeric(seed)) set.seed(seed)
@@ -263,9 +280,10 @@ adjust_frm <- function(frm = train_frm(),
     catf("dim(new_data): %s", paste(dim(new_data), collapse = " x "))
     catf("predictors: %s", paste(predictors, collapse = ", "))
     catf("nfolds: %s", nfolds)
+    catf("do_cv: %s", do_cv)
 
     catf("Preprocessing data")
-    args <- named(predictors, nfolds, verbose, seed)
+    args <- named(predictors, nfolds, verbose, seed, do_cv)
     new <- data.frame(NAME = new_data$NAME, SMILES = new_data$SMILES, RT_ADJ = new_data$RT)
     old <- frm$df
     use_inchi <- {
@@ -314,44 +332,48 @@ adjust_frm <- function(frm = train_frm(),
     fmstr <- paste("RT_ADJ ~", pstr)
     fm <- as.formula(fmstr)
     catf("Formula: %s", fmstr)
-    cv <- list(
-        folds = createFolds(y = df$RT, k = nfolds),
-        models = vector("list", nfolds),
-        preds = rep(NA, nrow(df)),
-        preds_adjonly = rep(NA, nrow(df))
-    )
+    cv <- NULL
 
     catf("Fitting adjustment model on full new data set")
     model <- lm(formula = fm, data = df)
 
-    catf("Estimating performance of adjusted model in CV")
+    if (do_cv) {
+        cv <- list(
+            folds = createFolds(y = df$RT, k = nfolds),
+            models = vector("list", nfolds),
+            preds = rep(NA, nrow(df)),
+            preds_adjonly = rep(NA, nrow(df))
+        )
 
-    for (i in seq_along(cv$folds)) {
-        # Train model on test folds
-        train_ids <- unname(unlist(cv$folds[-i]))
-        train_df <- df[train_ids, ]
-        train_RT <- train_df$RT
-        adjlm <- lm(formula = fm, data = train_df)
+        catf("Estimating performance of adjusted model in CV")
 
-        # First predict RT using the original model, then apply adjust model.
-        test_ids <- cv$folds[[i]]
-        test_df <- df[test_ids, ]
-        test_df$RT <- predict(frm, test_df, adjust = FALSE, verbose = 0)
+        for (i in seq_along(cv$folds)) {
+            # Train model on test folds
+            train_ids <- unname(unlist(cv$folds[-i]))
+            train_df <- df[train_ids, ]
+            train_RT <- train_df$RT
+            adjlm <- lm(formula = fm, data = train_df)
 
-        test_df$RT_PRED <- predict(adjlm, test_df)
-        test_df$RT_PRED <- clip_predictions(test_df$RT_PRED, train_RT)
+            # First predict RT using the original model, then apply adjust model.
+            test_ids <- cv$folds[[i]]
+            test_df <- df[test_ids, ]
+            test_df$RT <- predict(frm, test_df, adjust = FALSE, verbose = 0)
 
-        # Now repeat prediction, but this time use the correct RTs as input for
-        # the adjustment model. This allows us to see how the adjustment model
-        # would perform if we could predict RT's for the original column with
-        # 100% accuracy.
-        test_df$RT <- df$RT[test_ids]
-        test_df$RT_PRED_ADJONLY <- predict(adjlm, test_df)
-        test_df$RT_PRED_ADJONLY <- clip_predictions(test_df$RT_PRED_ADJONLY, train_RT)
-        # Now store results in cv object
-        cv$models[[i]] <- adjlm
-        cv$preds[test_ids] <- test_df$RT_PRED
-        cv$preds_adjonly[test_ids] <- test_df$RT_PRED_ADJONLY
+            test_df$RT_PRED <- predict(adjlm, test_df)
+            test_df$RT_PRED <- clip_predictions(test_df$RT_PRED, train_RT)
+
+            # Now repeat prediction, but this time use the correct RTs as input for
+            # the adjustment model. This allows us to see how the adjustment model
+            # would perform if we could predict RT's for the original column with
+            # 100% accuracy.
+            test_df$RT <- df$RT[test_ids]
+            test_df$RT_PRED_ADJONLY <- predict(adjlm, test_df)
+            test_df$RT_PRED_ADJONLY <- clip_predictions(test_df$RT_PRED_ADJONLY, train_RT)
+            # Now store results in cv object
+            cv$models[[i]] <- adjlm
+            cv$preds[test_ids] <- test_df$RT_PRED
+            cv$preds_adjonly[test_ids] <- test_df$RT_PRED_ADJONLY
+        }
     }
 
     catf("Returning adjusted frm object")
@@ -363,15 +385,28 @@ adjust_frm <- function(frm = train_frm(),
 
 #' @export
 print.frm <- function(x, ...) {
+    cv_desc <- if (is.null(x$cv)) {
+        "NULL (cross validation was not performed)"
+    } else {
+        sprintf("results of %d-fold cross validation (see below)", length(x$cv$folds))
+    }
+    cv_details <- if (!is.null(x$cv)) {
+        paste(
+            sprintf("  $ folds: list of sample IDs for each fold"),
+            sprintf("  $ models: list of models trained on each fold"),
+            sprintf("  $ stats: list(RMSE, Rsquared, MAE, pBelow1Min) for each fold"),
+            sprintf("  $ preds: numeric vector with CV predictions"),
+            sep = "\n"
+        )
+    } else {
+        ""
+    }
     msg <- paste(
         sprintf("object of class 'frm'"),
         sprintf("$ model: %s", if (inherits(x$model, "glmnet")) "glmnet" else "xgboost"),
         sprintf("$ df: %d x %d", nrow(x$df), ncol(x$df)),
-        sprintf("$ cv: results of %d-fold cross validation (see below)", length(x$cv$folds)),
-        sprintf("  $ folds: list of sample IDs for each fold"),
-        sprintf("  $ models: list of models trained on each fold"),
-        sprintf("  $ stats: list(RMSE, Rsquared, MAE, pBelow1Min) for each fold"),
-        sprintf("  $ preds: numeric vector with CV predictions"),
+        sprintf("$ cv: %s", cv_desc),
+        cv_details,
         sprintf("$ version: %s", as.character(x$version)),
         sprintf("$ seed: %s", if (is.null(x$seed)) "NULL" else as.character(x$seed)),
         sprintf("$ args: train_frm arguments"),
@@ -381,11 +416,16 @@ print.frm <- function(x, ...) {
         cls <- as_str(class(x$adj$model))
         coefs <- coef(x$adj$model)
         feats <- which(c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)") %in% names(coefs))
+        adj_cv_desc <- if (is.null(x$adj$cv)) {
+            "NULL (cross validation was not performed)"
+        } else {
+            sprintf("results of %d-fold cross validation", length(x$adj$cv$folds))
+        }
         adj <- paste(
             sprintf("$ adj: adjustment information"),
             sprintf("  $ model: %s (predictors: %s)", cls, as_str(feats)),
             sprintf("  $ df: %d x %d", nrow(x$adj$df), ncol(x$adj$df)),
-            sprintf("  $ cv: results of %d-fold cross validation", length(x$adj$cv$folds)),
+            sprintf("  $ cv: %s", adj_cv_desc),
             sprintf("  $ args: adjust_frm arguments"),
             sep = "\n"
         )

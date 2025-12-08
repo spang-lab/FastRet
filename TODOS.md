@@ -4,8 +4,8 @@
 Should be implemented by branching of from `v1.2.2-dev` and then merged back
 into `v1.2.2-dev`.
 
-In `adjust_frm` allow `docv = FALSE` (do-cross-validation). In `train_frm` allow
-`docv = FALSE` (do-cross-validation). The corresponding `cv` element of the
+In `adjust_frm` allow `do_cv = FALSE` (do-cross-validation). In `train_frm` allow
+`do_cv = FALSE` (do-cross-validation). The corresponding `cv` element of the
 returned object should be `NULL` in those cases. The docs and tests must be
 adjusted accordingly.
 
