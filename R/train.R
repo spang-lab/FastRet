@@ -115,7 +115,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     logf("Training a FastRet model with %s base", method)
     frm <- train_frm_internal(
         df,
-        method, verbose, nfolds, nw, dgp, iat, rm_nzv, rm_na, seed
+        method, verbose, nfolds, nw, dgp, iat, rm_nzv, rm_na, seed, docv
     )
     logf("Finished training of the FastRet model")
 
@@ -128,7 +128,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
         verbose <- FALSE
         models <- parLapply2(
             nw, train_dfs, train_frm_internal,
-            method, verbose, nfolds, 1, dgp, iat, rm_nzv, rm_na, seed
+            method, verbose, nfolds, 1, dgp, iat, rm_nzv, rm_na, seed, docv
         )
         preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
         preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
@@ -144,7 +144,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
 #' @description
 #' Trains a `frm` model, but does NOT estimate performance in CV.
 train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
-                               rm_nzv, rm_na, seed) {
+                               rm_nzv, rm_na, seed, docv) {
 
     ## Prepare data for model fitting
     logf <- if (verbose) catf else null
@@ -153,7 +153,7 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
     args <- named(
         method, verbose, nfolds, nw, degree_polynomial = dgp,
         interaction_terms = iat, rm_near_zero_var = rm_nzv,
-        rm_na = rm_na, seed = seed
+        rm_na = rm_na, seed = seed, docv = docv
     )
 
     M <- dfp[, meta]
