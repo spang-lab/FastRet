@@ -27,6 +27,13 @@
 #' @param rm_near_zero_var Remove near zero variance predictors?
 #' @param rm_na Remove NA values?
 #' @param add_cds Add chemical descriptors using [getCDs()]? See 'Details'.
+#' @param rm_ucs Remove unsupported columns?
+#' @param rt_terms
+#' Which retention-time transformations to append as extra predictors. Supply a
+#' numeric vector referencing predefined rt_terms (1=RT, 2=I(RT^2),
+#' 3=I(RT^3), 4=log(RT), 5=exp(RT), 6=sqrt(RT)) or a character vector with the
+#' explicit transformation terms. Character values are passed to [model.frame()],
+#' so they must use valid formula syntax (e.g. "I(RT^2)" rather than "RT^2").
 #'
 #' @details
 #' If `add_cds = TRUE`, chemical descriptors are added using [getCDs()]. If
@@ -48,37 +55,66 @@ preprocess_data <- function(data,
                             nw = 1,
                             rm_near_zero_var = TRUE,
                             rm_na = TRUE,
-                            add_cds = TRUE) {
+                            add_cds = TRUE,
+                            rm_ucs = TRUE,
+                            rt_terms = 1) {
 
-    logf <- if (verbose) catf else null
+    if (FALSE) stub(preprocess_data, data=head(RP, 3), rt_terms=c(1:2,6))
+
+    logf <- if (verbose >= 1) catf else null
+    dbgf <- if (verbose >= 2) catf else null
 
     logf("Preprocessing dataframe with dimension %d x %d", nrow(data), ncol(data))
 
+    # Convert rt_term numbers to names
+    all_terms <- c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)")
+    if (is.numeric(rt_terms)) {
+        if (!all(rt_terms %in% 1:6)) {
+            stop("Invalid numbers in 'rt_terms'. Valid: 1 to 6.")
+        }
+        rt_terms <- all_terms[rt_terms]
+    } else if (is.character(rt_terms)) {
+        if (!all(rt_terms %in% all_terms)) {
+            stop("Invalid names in 'rt_terms'. Valid: ", as_str(all_terms))
+        }
+    } else {
+        stop("'rt_terms' must be either numeric or character vector.")
+    }
+    rt_terms <- rt_terms[rt_terms != "RT"] # RT is 'mandatory' anyways
+
+    # Check for missing columns
     mandatory <- c("NAME", "RT", "SMILES")
-    optional <- c("INCHIKEY")
-    supported <- c(mandatory, optional, CDFeatures)
+    optional <- c("INCHIKEY", "RT_ADJ")
+    supported <- c(mandatory, optional, rt_terms, CDFeatures)
     is_supported <- colnames(data) %in% supported
     if (!all(mandatory %in% colnames(data))) {
         missing <- mandatory[!mandatory %in% colnames(data)]
         stop("Missing mandatory columns: ", as_str(missing))
     }
-    if (!all(is_supported)) {
+
+    # Remove unsupported columns if requested and necessary
+    if (!all(is_supported) && rm_ucs) {
         logf("Removing %d unsupported columns", sum(!is_supported))
         data <- data[, is_supported, drop = FALSE]
     }
 
+    # Add chemical descriptors if requested
     if (add_cds) {
         logf("Obtaining chemical descriptors using %d workers", nw)
         df <- getCDs(data, verbose, nw)
     } else {
-        df <- data # Maybe user wants to work with pre-computed CDs
+        df <- data
     }
 
+    # Split data into metadata and chemical descriptors
     iscd <- colnames(df) %in% CDFeatures
-    M <- df[, !iscd, drop = FALSE] # Metadata (NAME, RT, SMILES, INCHIKEY)
+    M <- df[, !iscd, drop = FALSE] # Metadata (NAME, RT, SMILES, INCHIKEY, )
     X <- df[, iscd, drop = FALSE] # Chemical Descriptors
-    Xorig <- X # Backup original X for use in upcoming transformations
 
+    # Backup original X for use in upcoming transformations
+    Xorig <- X
+
+    # Add polynomial terms if requested
     if (degree_polynomial >= 2 && ncol(X) > 0) {
         logf("Adding polynomial predictors up to degree %d", degree_polynomial)
         for (p in seq(2, degree_polynomial)) {
@@ -88,6 +124,7 @@ preprocess_data <- function(data,
         }
     }
 
+    # Add interaction terms if requested
     np <- ncol(Xorig)
     if (interaction_terms && ncol(X) > 0 && np >= 2) {
         logf("Adding interaction terms")
@@ -96,18 +133,28 @@ preprocess_data <- function(data,
         X <- cbind(X, I)
     }
 
+    # Add transformed RT predictors if requested
+    if (length(rt_terms) >= 1 && !all(rt_terms %in% colnames(M))) {
+        fm <- paste0("~", paste(rt_terms, collapse = " + "))
+        T <- model.frame(fm, data = M)
+        M[, colnames(T)] <- T
+    }
+
+    # Remove columnbs with NAs if requested
     if (rm_na && ncol(X) > 0) {
         logf("Removing CDs with NAs")
         keep <- !apply(X, 2, function(col) any(is.na(col)))
         X <- X[, keep, drop = FALSE]
     }
 
+    # Remove columns with near zero variance if requested
     if (rm_near_zero_var && ncol(X) > 0) {
         logf("Removing CDs with variance close to zero")
         idx <- nearZeroVar(X)
         if (length(idx)) X <- X[, -idx, drop = FALSE]
     }
 
+    # Combine metadata and processed chemical descriptors
     df <- cbind(M, X)
     logf("Preprocessing finished")
     df

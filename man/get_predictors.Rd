@@ -4,10 +4,14 @@
 \alias{get_predictors}
 \title{Extract predictor names from an 'frm' object}
 \usage{
-get_predictors(frm = train_frm())
+get_predictors(frm, base = TRUE, adjust = FALSE)
 }
 \arguments{
 \item{frm}{An object of class 'frm' from which to extract the predictor names.}
+
+\item{base}{Logical indicating whether to include base model predictors.}
+
+\item{adjust}{Logical indicating whether to include adjustment model predictors.}
 }
 \value{
 A character vector with the predictor names.

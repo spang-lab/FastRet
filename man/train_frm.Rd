@@ -15,7 +15,8 @@ train_frm(
   rm_near_zero_var = TRUE,
   rm_na = TRUE,
   rm_ns = FALSE,
-  seed = NULL
+  seed = NULL,
+  do_cv = TRUE
 )
 }
 \arguments{
@@ -25,7 +26,7 @@ calculated using the function \code{\link[=preprocess_data]{preprocess_data()}}.
 
 \item{method}{A string representing the prediction algorithm. Either "lasso", "ridge",
 "gbtree", "gbtreeDefault" or "gbtreeRP". Method "gbtree" is an alias for
-"gbtreeRP".}
+"gbtreeDefault".}
 
 \item{verbose}{A logical value indicating whether to print progress messages.}
 
@@ -50,6 +51,9 @@ of an independent dataset. Currently not used.}
 
 \item{seed}{An integer value to set the seed for random number generation to allow for
 reproducible results.}
+
+\item{do_cv}{A logical value indicating whether to perform cross-validation. If FALSE,
+the \code{cv} element in the returned object will be NULL.}
 }
 \value{
 A 'FastRet Model', i.e., an object of class \code{frm}. Components are:
@@ -60,7 +64,8 @@ A 'FastRet Model', i.e., an object of class \code{frm}. Components are:
 all user-provided columns (including mandatory columns RT, SMILES and NAME)
 as well the calculated chemical descriptors. (But no interaction terms or
 polynomial features, as these can be recreated within a few milliseconds).
-\item \code{cv}: A named list containing the cross validation results. Elements are:
+\item \code{cv}: A named list containing the cross validation results, or NULL if
+\code{do_cv = FALSE}. When not NULL, elements are:
 \itemize{
 \item \code{folds}: A list of integer vectors specifying the samples in each fold.
 \item \code{models}: A list of models trained on each fold.

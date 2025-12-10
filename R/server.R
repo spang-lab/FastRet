@@ -886,3 +886,40 @@ renderTbl <- function(expr,
     )
     DT::renderDT(expr = expr, rownames = rownames, options = opts)
 }
+
+validate_inputdata <- function(df,
+                               require = c("RT", "SMILES", "NAME"),
+                               min_cds = 1,
+                               stop_on_unknown = TRUE) {
+    missing_cols <- setdiff(require, colnames(df))
+    if (length(missing_cols) > 0) stop(sprintf("missing columns: %s", paste(missing_cols, collapse = ", ")))
+    n_cds <- sum(colnames(df) %in% CDFeatures)
+    if (n_cds < min_cds) {
+        msg <- sprintf("At least %d chemical descriptors are required, but only %d are present", min_cds, n_cds)
+        stop(msg)
+    }
+    unnown_cols <- setdiff(colnames(df), c("RT", "SMILES", "NAME", CDFeatures))
+    if (stop_on_unknown && length(unnown_cols) > 0) {
+        msg <- sprintf("Unknown columns present: %s", paste(unnown_cols, collapse = ", "))
+        stop(msg)
+    }
+    invisible(df)
+}
+
+validate_inputmodel <- function(model) {
+    model_nams <- names(model)
+    expected_names <- c("model", "df", "cv")
+    n_missing <- sum(!expected_names %in% model_nams)
+    if (n_missing > 0) {
+        if (n_missing < length(expected_names)) {
+            missing <- paste(setdiff(expected_names, model_nams), collapse = ", ")
+            errmsg1 <- sprintf("Model object is missing required elements: %s.", missing)
+        } else {
+            errmsg1 <- sprintf("Model object is invalid.")
+        }
+        errmsg2 <- sprintf("Please upload a model trained with FastRet version %s or greater.", packageVersion("FastRet"))
+        errmsg <- paste(errmsg1, errmsg2)
+        stop(errmsg)
+    }
+    invisible(model)
+}

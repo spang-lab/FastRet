@@ -17,7 +17,7 @@
 #' @param method
 #' A string representing the prediction algorithm. Either "lasso", "ridge",
 #' "gbtree", "gbtreeDefault" or "gbtreeRP". Method "gbtree" is an alias for
-#' "gbtreeRP".
+#' "gbtreeDefault".
 #'
 #' @param verbose
 #' A logical value indicating whether to print progress messages.
@@ -102,7 +102,12 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
 
     # Init variables
     if (is.numeric(seed)) set.seed(seed)
-    if (method == "gbtree") method <- "gbtreeRP"
+    if (method == "gbtree") method <- "gbtreeDefault"
+    args <- named(
+        method, verbose, nfolds, nw, degree_polynomial,
+        interaction_terms, rm_near_zero_var,
+        rm_na, seed, do_cv
+    )
     logf <- if (verbose) catf else null
     dgp <- degree_polynomial
     iat <- interaction_terms
@@ -111,15 +116,24 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     # Only add CDs, but don't do any transformations yet, as this is part of
     # model training
 
-    # Train FastRet model on full data
     logf("Training a FastRet model with %s base", method)
-    frm <- train_frm_internal(
-        df,
-        method, verbose, nfolds, nw, dgp, iat, rm_nzv, rm_na, seed, do_cv
-    )
+    dfp <- preprocess_data(df, dgp, iat, verbose, nw, rm_nzv, rm_na)
+    meta <- which(colnames(dfp) %in% c("NAME", "SMILES", "RT", "INCHIKEY"))
+    M <- dfp[, meta]
+    X <- as.matrix(dfp[, -meta])
+    y <- M$RT
+    model <- if (method %in% c("gbtreeDefault", "gbtreeRP")) {
+        xgpar <- if (method == "gbtreeDefault") "default" else "rpopt"
+        fit_gbtree(X, y, xgpar, seed, verbose, nw, nfolds, 2000, 1)
+    } else {
+        fit_glmnet(X, y, method, seed)
+    }
+    cv <- NULL
+    version <- packageVersion("FastRet")
+    frm <- named(model, df, cv, seed, version, args)
+    frm <- structure(frm, class = "frm")
     logf("Finished training of the FastRet model")
 
-    # Estimate performance in cross validation
     if (do_cv) {
         logf("Estimating model performance in CV using %d workers", nw)
         folds <- createFolds(seq_len(nrow(df)), k = nfolds)
@@ -127,8 +141,11 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
         test_dfs <- lapply(folds, function(idx) df[idx, ])
         verbose <- FALSE
         models <- parLapply2(
-            nw, train_dfs, train_frm_internal,
-            method, verbose, nfolds, 1, dgp, iat, rm_nzv, rm_na, seed, do_cv
+            nw, train_dfs, train_frm,
+            method = method, verbose = verbose, nfolds = nfolds, nw = 1,
+            degree_polynomial = dgp, interaction_terms = iat,
+            rm_near_zero_var = rm_nzv, rm_na = rm_na, rm_ns = rm_ns,
+            seed = seed, do_cv = FALSE
         )
         preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
         preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
@@ -136,47 +153,8 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
         frm$cv <- named(folds, models, stats, preds)
         logf("Finished cross validation")
     }
+
     frm
-}
-
-#' @noRd
-#' @title Trains a FastRet model without cross validation
-#' @description
-#' Trains a `frm` model, but does NOT estimate performance in CV.
-train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
-                               rm_nzv, rm_na, seed, do_cv) {
-
-    ## Prepare data for model fitting
-    logf <- if (verbose) catf else null
-    dfp <- preprocess_data(df, dgp, iat, verbose, nw, rm_nzv, rm_na)
-    meta <- which(colnames(dfp) %in% c("NAME", "SMILES", "RT", "INCHIKEY"))
-    args <- named(
-        method, verbose, nfolds, nw, degree_polynomial = dgp,
-        interaction_terms = iat, rm_near_zero_var = rm_nzv,
-        rm_na = rm_na, seed = seed, do_cv = do_cv
-    )
-
-    M <- dfp[, meta]
-    X <- as.matrix(dfp[, -meta])
-    y <- M$RT
-
-    # Start model fitting
-    logf("Training a %s model", method)
-    pkg <- if (grepl("gbtree", method)) "xgboost" else "glmnet"
-    withr::local_package(pkg)
-    model <- if (method %in% c("gbtreeDefault", "gbtreeRP")) {
-        xpar <- if (method == "gbtreeDefault") "default" else "rpopt"
-        fit_gbtree(X, y, xpar, seed, verbose, nw, nfolds, 2000, 1)
-    } else {
-        fit_glmnet(X, y, method, seed)
-    }
-    model$feature_names <- colnames(X) # Required prediction of new data
-    logf("Finished training of the %s model", method)
-
-    cv <- NULL
-    version <- packageVersion("FastRet")
-    frm <- named(model, df, cv, seed, version, args)
-    frm <- structure(frm, class = "frm")
 }
 
 #' @export
@@ -197,18 +175,25 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #' Each row must match at least one row in `frm$df`.
 #' The exact matching behavior is described in 'Details'.
 #' @param predictors
-#' Numeric vector specifying which predictors to include in the model in
-#' addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
-#' 5=exp(RT), 6=sqrt(RT).
+#' Numeric vector specifying which transformations to include in the model.
+#' Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT),
+#' 6=sqrt(RT). Note that predictor 1 (RT) is always included, even if not
+#' specified explicitly.
 #' @param nfolds The number of folds for cross validation.
 #' @param verbose Show progress messages?
 #' @param seed
 #' An integer value to set the seed for random number generation to allow for
 #' reproducible results.
-#'
 #' @param do_cv
 #' A logical value indicating whether to perform cross-validation. If FALSE,
 #' the `cv` element in the returned adjustment object will be NULL.
+#' @param adj_type
+#' A string representing the adjustment model type. Either "lm", "lasso",
+#' "ridge", or "gbtree".
+#' @param add_cds
+#' A logical value indicating whether to add chemical descriptors as predictors
+#' to new data. Default is TRUE if `adj_type` is "lasso", "ridge" or "gbtree"
+#' and FALSE if `adj_type` is "lm".
 #'
 #' @details
 #' Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
@@ -240,144 +225,147 @@ train_frm_internal <- function(df, method, verbose, nfolds, nw, dgp, iat,
 #'
 #' @return
 #' An object of class `frm`, as returned by [train_frm()], but with an
-#' additional element `adj` containing the adjustment model. Components are:
+#' additional element `adj` containing the adjustment model. Components of `adj`
+#' are:
 #'
-#' + `model`: The fitted adjustment model of class `lm`.
-#' + `df`: The data frame used for training the adjustment model.
-#' + `cv`: A named list containing the cross validation results, or NULL if
-#'   `do_cv = FALSE`. When not NULL, elements are:
-#'    - `folds`: A list of integer vectors specifying the samples in each fold.
-#'    - `models`: A list of adjustment models trained on each fold.
-#'    - `preds`: Retention time predictions obtained in CV as numeric vector.
-#'    - `preds_adjonly`: Retention time predictions obtained in CV by applying
-#'       the adjustment model to the observed RT values of `new_data`.
-#' + `args`: Function arguments used for adjustment (excluding `frm` and
-#'   `new_data`). Added with v1.3.0.
+#' + `model`: The fitted adjustment model. Class depends on `adj_type` and is
+#'   one of `lm`, `glmnet`, or `xgb.Booster`.
+#'
+#' + `df`: The data frame used for training the adjustment model. Including
+#'   columns "NAME", "SMILES", "RT", "RT_ADJ" and optionally "INCHIKEY", as well
+#'   as any additional predictors specified via the `predictors` argument.
+#'
+#' + `cv`: A named list containing the cross validation results (see 'Details'),
+#'   or NULL if `do_cv = FALSE`. When not NULL, elements are:
+#'
+#'   - `folds`: A list of integer vectors specifying the samples in each fold.
+#'   - `models`: A list of adjustment models trained on each fold.
+#'   - `stats`: A list of vectors with RMSE, Rsquared, MAE, pBelow1Min per fold.
+#'      Added with v1.3.0.
+#'   - `preds`: Retention time predictions obtained during CV by applying the
+#'      adjustment model to the hold-out data.
+#'   - `preds_adjonly`: Removed (i.e. NULL) since v1.3.0.
+#'
+#'
+#' + `args`: Function arguments used for adjustment (excluding `frm`, `new_data`
+#'   and `verbose`). Added with v1.3.0.
+#'
+#' + `version`: The version of the FastRet package used to train the adjustment
+#'   model. Added with v1.3.0.
+#'
+#' @details
+#' If `do_cv` is TRUE, the adjustment procedure is evaluated in
+#' cross-validation. However, care must be taken when interpreting the CV
+#' results, as the model performance depends on both the adjustment layer and
+#' the original model, which was trained on the full base dataset. Therefore,
+#' the observed CV metrics should be read as "expected performance when
+#' predicting RTs for molecules that were part of the base-model training but
+#' not part of the adjustment set" instead of "expected performance when
+#' predicting RTs for completely new molecules".
 #'
 #' @examples
 #' frm <- read_rp_lasso_model_rds()
 #' new_data <- read_rpadj_xlsx()
 #' frm_adj <- adjust_frm(frm, new_data, verbose = 0)
-adjust_frm <- function(frm = train_frm(),
-                       new_data = read_rpadj_xlsx(),
+#'
+adjust_frm <- function(frm,
+                       new_data,
                        predictors = 1:6,
                        nfolds = 5,
                        verbose = 1,
                        seed = NULL,
-                       do_cv = TRUE) {
+                       do_cv = TRUE,
+                       adj_type = "lm",
+                       add_cds = NULL) {
 
-    if (!is.numeric(predictors) || length(predictors) < 1 || !all(predictors %in% 1:6)) {
-        stop("Invalid predictors. Please provide a vector of integers between 1 and 6.")
-    }
-    if (!is.logical(do_cv)) {
-        stop("do_cv must be a logical value (TRUE or FALSE).")
-    }
-    if (isFALSE(verbose) || verbose == 0) catf <- function(...) {}
-    if (is.numeric(seed)) set.seed(seed)
-
-    catf("Starting model Adjustment")
-    catf("dim(original_data): %s", paste(dim(frm$df), collapse = " x "))
-    catf("dim(new_data): %s", paste(dim(new_data), collapse = " x "))
-    catf("predictors: %s", paste(predictors, collapse = ", "))
-    catf("nfolds: %s", nfolds)
-    catf("do_cv: %s", do_cv)
-
-    catf("Preprocessing data")
-    args <- named(predictors, nfolds, verbose, seed, do_cv)
-    new <- data.frame(NAME = new_data$NAME, SMILES = new_data$SMILES, RT_ADJ = new_data$RT)
-    old <- frm$df
-    use_inchi <- {
-        !is.null(old$INCHIKEY) && all(!is.na(old$INCHIKEY)) &&
-        !is.null(new_data$INCHIKEY) && all(!is.na(new_data$INCHIKEY))
-    }
-    if (use_inchi) {
-        new$INCHIKEY <- new_data$INCHIKEY
-        old$NAME <- NULL # Ignore old name and merge by SMILES+INCHIKEY instead
-        keys <- c("SMILES", "INCHIKEY")
-    } else {
-        old$INCHIKEY <- NULL # Ignore old INCHIKEY and merge by SMILES+NAME
-        keys <- c("SMILES", "NAME")
-    }
-    old$KEY <- paste0(old[[keys[[1]]]], "_", old[[keys[[2]]]])
-    new$KEY <- paste0(new[[keys[[1]]]], "_", new[[keys[[2]]]])
-    old <- old[old$KEY %in% unique(new$KEY), ]
-
-    # At this point, we can still have multiple measurements per KEY in old. To
-    # deal with this, we average their RTs first, then map every new entry to
-    # the average.
-    old_RT_avgs <- tapply(old$RT, old$KEY, mean)
-    old <- old[!duplicated(old$KEY), ]
-    old$RT <- as.numeric(old_RT_avgs[old$KEY]) # as.numeric drops dimnames attr
-
-    # Now finally merge new and old data to get the paired data.frame for model
-    # fitting. Make sure to restore the original order after merging, as
-    # `merge()` returns rows in an 'unspecified' order (even with sort=FALSE).
-    new$ID <- seq_len(nrow(new))
-    df <- merge(new, old, keys = c(keys, "KEY"), sort = FALSE, all = FALSE)
-    df <- df[order(df$ID), ]
-    df$ID <- NULL
-    df$KEY <- NULL
-
-    if (nrow(df) < nrow(new)) {
-        fmt <- "Could not map %d new entries to original data based on %s."
-        stop(sprintf(fmt, nrow(new) - nrow(df), as_str(keys)))
-    } else if (nrow(df) > nrow(new)) {
-        # This can't happen due to averaging above. We check anyway to be safe.
-        msg <- sprintf("Ambiguous mapping: %d new -> %d old", nrow(new), nrow(df))
-        stop(msg)
+    # Stubs for interactive Development
+    if (FALSE) {
+        frm <- read_rp_lasso_model_rds()
+        new_data <- read_rpadj_xlsx()
+        stub(adjust_frm, frm = frm, new_data = new_data, verbose = 2)
     }
 
-    pvec <- c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)")[predictors]
-    pstr <- paste(pvec, collapse = " + ")
-    fmstr <- paste("RT_ADJ ~", pstr)
-    fm <- as.formula(fmstr)
-    catf("Formula: %s", fmstr)
-    cv <- NULL
+    # Check arguments
+    stopifnot(
+        inherits(frm, "frm"),
+        is.data.frame(new_data), all(c("NAME", "SMILES", "RT") %in% colnames(new_data)),
+        is.numeric(predictors), all(predictors %in% 1:7), length(predictors) >= 1,
+        is.numeric(nfolds), nfolds >= 2,
+        is.logical(verbose) || is.numeric(verbose),
+        is.null(seed) || is.numeric(seed),
+        is.logical(do_cv),
+        is.character(adj_type), adj_type %in% c("lm", "lasso", "ridge", "gbtree"),
+        is.null(add_cds) || is.logical(add_cds)
+    )
+    if (length(predictors) == 1 && predictors != 7 && adj_type != "lm") {
+        fmt <- "Adjustment via '%s' requires 2+ predictors. Setting 'adj_type' to 'lm'."
+        warning(sprintf(fmt, adj_type))
+        adj_type <- "lm"
+    }
+    if (is.null(seed)) seed <- sample.int(.Machine$integer.max, 1)
+    if (is.null(add_cds)) add_cds <- if (adj_type == "lm") FALSE else TRUE
 
-    catf("Fitting adjustment model on full new data set")
-    model <- lm(formula = fm, data = df)
+    # Configure logging
+    logf <- if (verbose >= 1) catf else null
+    dbgf <- if (verbose >= 2) catf else null
 
+    # Debug prints
+    dbgf("Parameters for model adjustment:")
+    dbgf("dim(original_data): %s", paste(dim(frm$df), collapse = " x "))
+    dbgf("dim(new_data): %s", paste(dim(new_data), collapse = " x "))
+    dbgf("predictors: %s", paste(predictors, collapse = ", "))
+    dbgf("nfolds: %s", nfolds)
+    dbgf("do_cv: %s", do_cv)
+    dbgf("adj_type: %s", adj_type)
+
+    # Map new and old data
+    logf("Mapping new and old data")
+    args <- named(predictors, nfolds, verbose, seed, do_cv, adj_type)
+    df <- merge_dfs(old = frm$df, new = new_data)
+    df <- preprocess_data(
+        df, degree_polynomial = 1, interaction_terms = FALSE, verbose = verbose,
+        nw = 1, rm_near_zero_var = FALSE, rm_na = FALSE, add_cds = add_cds,
+        rm_ucs = TRUE, rt_terms = predictors
+    )
+    frm$adj <- named(model = NULL, df = df, cv = NULL, args = args)
+
+    # Train adjustment model
+    logf("Training adjustment model with %s base", adj_type)
+    dfp <- preprocess_data(df, 1, FALSE, verbose, 1, TRUE, TRUE, FALSE, FALSE)
+    meta <- match(c("NAME", "SMILES", "INCHIKEY", "RT_ADJ"), colnames(df))
+    meta <- meta[!is.na(meta)]
+    M <- dfp[, meta]
+    X <- dfp[, -meta, drop = FALSE]
+    y <- M$RT_ADJ
+    frm$adj$model <- if (adj_type == "gbtree") {
+        fit_gbtree(X, y, "default", seed, verbose, 1, nfolds, 2000, 1)
+    } else if (adj_type %in% c("lasso", "ridge")) {
+        fit_glmnet(X, y, adj_type, seed)
+    } else if (adj_type == "lm") {
+        fit_lm(X, y, "RT_ADJ", seed)
+    }
+    logf("Finished training of adjustment model")
+
+    # Estimate performance in CV
     if (do_cv) {
-        cv <- list(
-            folds = createFolds(y = df$RT, k = nfolds),
-            models = vector("list", nfolds),
-            preds = rep(NA, nrow(df)),
-            preds_adjonly = rep(NA, nrow(df))
+        logf("Estimating performance of adjustment model in CV")
+        folds <- createFolds(seq_len(nrow(df)), k = nfolds)
+        train_dfs <- lapply(folds, function(idx) df[-idx, ])
+        test_dfs <- lapply(folds, function(idx) df[idx, ])
+        verbose <-  max(verbose - 1, 0)
+        seeds <- sample.int(.Machine$integer.max, nfolds)
+        models <- mapply(
+            adjust_frm, list(frm), train_dfs, list(predictors),
+            nfolds, verbose, seeds, FALSE, adj_type,
+            SIMPLIFY = FALSE, USE.NAMES = FALSE
         )
-
-        catf("Estimating performance of adjusted model in CV")
-
-        for (i in seq_along(cv$folds)) {
-            # Train model on test folds
-            train_ids <- unname(unlist(cv$folds[-i]))
-            train_df <- df[train_ids, ]
-            train_RT <- train_df$RT
-            adjlm <- lm(formula = fm, data = train_df)
-
-            # First predict RT using the original model, then apply adjust model.
-            test_ids <- cv$folds[[i]]
-            test_df <- df[test_ids, ]
-            test_df$RT <- predict(frm, test_df, adjust = FALSE, verbose = 0)
-
-            test_df$RT_PRED <- predict(adjlm, test_df)
-            test_df$RT_PRED <- clip_predictions(test_df$RT_PRED, train_RT)
-
-            # Now repeat prediction, but this time use the correct RTs as input for
-            # the adjustment model. This allows us to see how the adjustment model
-            # would perform if we could predict RT's for the original column with
-            # 100% accuracy.
-            test_df$RT <- df$RT[test_ids]
-            test_df$RT_PRED_ADJONLY <- predict(adjlm, test_df)
-            test_df$RT_PRED_ADJONLY <- clip_predictions(test_df$RT_PRED_ADJONLY, train_RT)
-            # Now store results in cv object
-            cv$models[[i]] <- adjlm
-            cv$preds[test_ids] <- test_df$RT_PRED
-            cv$preds_adjonly[test_ids] <- test_df$RT_PRED_ADJONLY
-        }
+        preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
+        preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
+        stats <- mapply(get_stats, test_dfs, models, SIMPLIFY = FALSE)
+        frm$adj$cv <- named(folds, models, stats, preds)
+        logf("Finished cross validation")
     }
 
-    catf("Returning adjusted frm object")
-    frm$adj <- named(model, df, cv, args)
     frm
 }
 
@@ -385,53 +373,53 @@ adjust_frm <- function(frm = train_frm(),
 
 #' @export
 print.frm <- function(x, ...) {
-    cv_desc <- if (is.null(x$cv)) {
-        "NULL (cross validation was not performed)"
+    model <- if (inherits(x$model, "glmnet")) "glmnet" else "xgboost"
+    nr <- nrow(x$df)
+    nc <- ncol(x$df)
+    v <- as.character(x$version)
+    seed <- if (is.null(x$seed)) "NULL" else as.character(x$seed)
+    nfold <-  length(x$cv$folds)
+    feat <- get_predictors(x, base = TRUE, adjust = FALSE)
+    nfeat <- sum(feat != "(Intercept)")
+    cv <- if (is.null(x$cv)) {
+        "NULL (no cross validation performed)"
     } else {
-        sprintf("results of %d-fold cross validation (see below)", length(x$cv$folds))
-    }
-    cv_details <- if (!is.null(x$cv)) {
-        paste(
-            sprintf("  $ folds: list of sample IDs for each fold"),
-            sprintf("  $ models: list of models trained on each fold"),
-            sprintf("  $ stats: list(RMSE, Rsquared, MAE, pBelow1Min) for each fold"),
-            sprintf("  $ preds: numeric vector with CV predictions"),
-            sep = "\n"
+        paste0(
+            sprintf("results of %d-fold cross validation\n", nfold),
+            sprintf("  $ folds: list of sample IDs per fold\n"),
+            sprintf("  $ models: list of models trained per fold\n"),
+            sprintf("  $ stats: list of RMSE, Rsquared, MAE and pBelow1Min per fold\n"),
+            sprintf("  $ preds: numeric vector with CV predictions")
         )
-    } else {
-        ""
     }
-    msg <- paste(
-        sprintf("object of class 'frm'"),
-        sprintf("$ model: %s", if (inherits(x$model, "glmnet")) "glmnet" else "xgboost"),
-        sprintf("$ df: %d x %d", nrow(x$df), ncol(x$df)),
-        sprintf("$ cv: %s", cv_desc),
-        cv_details,
-        sprintf("$ version: %s", as.character(x$version)),
-        sprintf("$ seed: %s", if (is.null(x$seed)) "NULL" else as.character(x$seed)),
-        sprintf("$ args: train_frm arguments"),
-        sep = "\n"
+    msg <- paste0(
+        sprintf("object of class 'frm'\n"),
+        sprintf("$ model: %s (num. predictors: %d)\n", model, nfeat),
+        sprintf("$ df: %d x %d\n", nr, nc),
+        sprintf("$ cv: %s\n", cv),
+        sprintf("$ version: %s\n", v),
+        sprintf("$ seed: %s\n", seed)
     )
     if (!is.null(x$adj)) {
         cls <- as_str(class(x$adj$model))
-        coefs <- coef(x$adj$model)
-        feats <- which(c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)") %in% names(coefs))
-        adj_cv_desc <- if (is.null(x$adj$cv)) {
-            "NULL (cross validation was not performed)"
+        feats <- get_predictors(x, base = FALSE, adjust = TRUE)
+        nfeat <- sum(feats != "(Intercept)")
+        nr <- nrow(x$adj$df)
+        nc <- ncol(x$adj$df)
+        cv <- if (is.null(x$adj$cv)) {
+            "NULL (no cross validation performed)"
         } else {
             sprintf("results of %d-fold cross validation", length(x$adj$cv$folds))
         }
-        adj <- paste(
-            sprintf("$ adj: adjustment information"),
-            sprintf("  $ model: %s (predictors: %s)", cls, as_str(feats)),
-            sprintf("  $ df: %d x %d", nrow(x$adj$df), ncol(x$adj$df)),
-            sprintf("  $ cv: %s", adj_cv_desc),
-            sprintf("  $ args: adjust_frm arguments"),
-            sep = "\n"
+        adj <- paste0(
+            sprintf("$ adj: adjustment info\n"),
+            sprintf("  $ model: %s (num. predictors: %s)\n", cls, nfeat),
+            sprintf("  $ df: %d x %d\n", nr, nc),
+            sprintf("  $ cv: %s\n", cv)
         )
-        msg <- paste(msg, adj, sep = "\n")
+        msg <- paste0(msg, adj)
     }
-    cat(msg, "", sep = "\n")
+    cat(msg)
 }
 
 #' @export
@@ -471,36 +459,50 @@ predict.frm <- function(object = train_frm(),
                         impute = TRUE,
                         ...) {
 
-    pkg <- if (inherits(object$model, "glmnet")) "glmnet" else "xgboost"
-    withr::local_package(pkg)
-    logf <- if (verbose == 1) catf else null
-    predictors <- get_predictors(object)
-    dgp <- get_dgp(predictors)
-    iat <- any(grepl(":", predictors))
+    # Load required packages
+    pkgs <- if (inherits(object$model, "glmnet")) "glmnet" else "xgboost"
+    if (!is.null(object$adj)) {
+        adj_type <- object$adj$type %||% if (inherits(object$adj$model, "glmnet")) "glmnet" else "lm"
+        adj_pkg <- switch(adj_type, "glmnet" = "glmnet", "gbtree" = "xgboost", NULL)
+        pkgs <- unique(c(pkgs, adj_pkg))
+    }
+    for (pkg in pkgs) {
+        if (!is.null(pkg)) withr::local_package(pkg)
+    }
 
+    # Init locals
+    logf <- if (verbose == 1) catf else null
+    cd_pds <- get_predictors(object, base = TRUE, adjust = FALSE)
+    dgp <- get_dgp(cd_pds)
+    iat <- any(grepl(":", cd_pds))
+    rm_nzv <- FALSE
+    rm_na <- FALSE
+    add_cds <- TRUE
+
+
+    # Check arguments
     if (isTRUE(adjust) && is.null(object$adj)) {
         errmsg <- "Model has not been adjusted yet. Please adjust the model first using `adjust_frm()`."
         stop(errmsg)
     }
-
-    if (!all(predictors %in% colnames(df))) {
+    if (!all(cd_pds %in% colnames(df))) {
         logf("Chemical descriptors not found in newdata. Trying to calculate them from the provided SMILES.")
-        df <- preprocess_data(df, dgp, iat, verbose, 1, FALSE, FALSE, TRUE)
+        df <- preprocess_data(df, dgp, iat, verbose, 1, rm_nzv, rm_na, add_cds)
     }
-
-    if (!all(predictors %in% colnames(df))) {
-        missing <- paste(setdiff(predictors, colnames(df)), collapse = ", ")
-        errmsg <- paste("The following predictors are missing in `df`: ", missing)
+    if (!all(cd_pds %in% colnames(df))) {
+        missing <- paste(setdiff(cd_pds, colnames(df)), collapse = ", ")
+        errmsg <- paste("The following cd_pds are missing in `df`: ", missing)
         stop(errmsg)
     }
 
-    if (impute && any(is.na(df[, predictors]))) {
-        nap <- predictors[colSums(is.na(df[, predictors])) > 0]
+    # Impute missing values
+    if (impute && any(is.na(df[, cd_pds]))) {
+        nap <- cd_pds[colSums(is.na(df[, cd_pds])) > 0]
         napstr <- paste(nap, collapse = ", ")
-        logf("NA values found for following predictors: %s", napstr)
+        logf("NA values found for following cd_pds: %s", napstr)
         logf("Replacing NA values by column means of training data")
         train_df <- object$df
-        if (!all(predictors %in% colnames(train_df))) {
+        if (!all(cd_pds %in% colnames(train_df))) {
             # We don't store interaction terms and/or polynomial features in
             # the training data frame, so we need to preprocess it again to get
             # these features.
@@ -512,22 +514,41 @@ predict.frm <- function(object = train_frm(),
         }
     }
 
+    # Predict retention times using base model
     adjust <- !is.null(object$adj) && (isTRUE(adjust) || is.null(adjust))
     logf("Predicting retention times")
-    yhat <- as.numeric(predict(object$model, as.matrix(df[, predictors])))
+    yhat <- as.numeric(predict(object$model, as.matrix(df[, cd_pds])))
 
+    # Adjust predictions if requested
     if (adjust) {
         logf("Adjusting predictions using the adjustment model")
-        yhat <- clip_predictions(yhat, object$df$RT)
-        yhat <- as.numeric(predict(object$adj$model, data.frame(RT = yhat)))
+        adj_df <- df
+        adj_df$RT <- clip_predictions(yhat, object$df$RT)
+        adj_pds <- get_predictors(object, base = FALSE, adjust = TRUE)
+        adj_cds <- intersect(adj_pds, CDFeatures)
+        adj_rtts <- intersect(adj_pds, RTFeatures)
+        missing_cds <- setdiff(adj_cds, colnames(adj_df))
+        add_cds <- if (length(missing_cds) > 0) TRUE else FALSE
+        if (any(adj_rtts %in% 2:6) || any(adj_pds %notin% colnames(adj_df))) {
+            adj_df <- preprocess_data(
+                data = adj_df, verbose = verbose, rm_near_zero_var = FALSE,
+                rm_na = FALSE, add_cds = add_cds, rm_ucs = FALSE,
+                rt_terms = adj_rtts
+            )
+        }
+        adj_df <- adj_df[, adj_pds, drop = FALSE]
+        if (inherits(object$adj$model, "glmnet")) adj_df <- as.matrix(adj_df)
+        yhat <- as.numeric(stats::predict(object$adj$model, adj_df))
     }
 
+    # Clip predictions if requested
     if (clip) {
         logf("Clipping predictions to be within RT range of training data")
         y <- if (adjust) object$adj$df$RT else object$df$RT
         yhat <- clip_predictions(yhat, y)
     }
 
+    # Return predictions
     as.numeric(yhat)
 }
 
@@ -535,14 +556,25 @@ predict.frm <- function(object = train_frm(),
 #' @title Extract predictor names from an 'frm' object
 #' @description Extracts the predictor names from an 'frm' object.
 #' @param frm An object of class 'frm' from which to extract the predictor names.
+#' @param base Logical indicating whether to include base model predictors.
+#' @param adjust Logical indicating whether to include adjustment model predictors.
 #' @return A character vector with the predictor names.
 #' @keywords internal
 #' @examples
 #' frm <- read_rp_lasso_model_rds()
 #' get_predictors(frm)
-get_predictors <- function(frm = train_frm()) {
-    m <- frm$model
-    if (inherits(m, "glmnet")) rownames(m$beta) else m$feature_names
+get_predictors <- function(frm, base = TRUE, adjust = FALSE) {
+    bm <- frm$model
+    bp <- if (isFALSE(base)) character(0)
+        else if (inherits(bm, "glmnet")) rownames(bm$beta)
+        else if (inherits(bm, "lm")) names(stats::coef(bm))[-1]
+        else variable.names(bm)
+    am <- frm$adj$model
+    ap <- if (isFALSE(adjust) || is.null(am)) character(0)
+        else if (inherits(am, "glmnet")) rownames(am$beta)
+        else if (inherits(am, "lm")) names(stats::coef(am))[-1]
+        else variable.names(am)
+    unique(c(bp, ap))
 }
 
 #' @export
@@ -609,6 +641,104 @@ clip_predictions <- function(yhat, y) {
 # Preprocessing #####
 
 #' @noRd
+#' @title Merge training and adjustment data.frames
+#' @description
+#' Merges the original data frame used to train a FastRet model with a new
+#' data frame provided by the user for adjusting the original model.
+#'
+#' @param old The original data frame used to train `frm`. Must contain columns
+#' "NAME", "SMILES", "RT" and optionally "INCHIKEY" as well the chemical
+#' descriptors listed in `CDFeatures`
+#' @param new The new data frame provided by the user. Must contain columns
+#' "NAME", "SMILES", "RT" and optionally "INCHIKEY".
+#'
+#' @return A data frame with following columns:
+#' - NAME: Molecule names from `new`
+#' - SMILES: Molecule SMILES from `new`
+#' - RT: Corresponding retention times taken from `old`
+#' - RT_ADJ: Retention times from `new`
+#'
+#' @examples
+#' new <- data.frame(
+#'     NAME   = c("A", "B",  "B",  "B"),
+#'     SMILES = c("C", "CC", "CC", "CC"),
+#'     RT     = c(2.5,  5.5,  5.7,  5.6)
+#' )
+#' old <- data.frame(
+#'      NAME   = c("A", "B",  "B",  "C"),
+#'      SMILES = c("C", "CC", "CC", "CCC"),
+#'      RT     = c(5.0,  8.0,  8.2,  9.0),
+#'      nAtom  = c(1,    2,    2,    3)
+#' )
+#' merged <- merge_dfs(old, new)
+#' print(merged)
+#' ## data.frame(
+#' ##      NAME = c("A", "B", "B", "B"),
+#' ##      SMILES = c("C", "CC", "CC", "CC"),
+#' ##      RT_ADJ = c(2.5, 5.5, 5.7, 5.6),
+#' ##      RT = c(5, 8.1, 8.1, 8.1),
+#' ##      nAtom = c(1, 2, 2, 2)
+#' ## )
+merge_dfs <- function(old, new) {
+    use_inchi <- {
+        !is.null(old$INCHIKEY) && all(!is.na(old$INCHIKEY)) &&
+        !is.null(new$INCHIKEY) && all(!is.na(new$INCHIKEY))
+    }
+    if (use_inchi) {
+        new <- data.frame(
+            NAME = new$NAME,
+            INCHIKEY = new$INCHIKEY,
+            SMILES = new$SMILES,
+            RT_ADJ = new$RT,
+            KEY = paste0(new$SMILES, "_", new$INCHIKEY)
+        )
+        old <- data.frame(
+            RT = old$RT,
+            KEY = paste0(old$SMILES, "_", old$INCHIKEY)
+        )
+    } else {
+        new <- data.frame(
+            NAME = new$NAME,
+            SMILES = new$SMILES,
+            RT_ADJ = new$RT,
+            KEY = paste0(new$SMILES, "_", new$NAME)
+        )
+        old <- data.frame(
+            RT = old$RT,
+            KEY = paste0(old$SMILES, "_", old$NAME)
+        )
+    }
+    old <- old[old$KEY %in% unique(new$KEY), ]
+
+    # At this point, we can still have multiple measurements per KEY in old. To
+    # deal with this, we average their RTs first, then map every new entry to
+    # the average.
+    old_RT_avgs <- tapply(old$RT, old$KEY, mean)
+    old <- old[!duplicated(old$KEY), ]
+    old$RT <- as.numeric(old_RT_avgs[old$KEY]) # as.numeric drops dimnames attr
+
+    # Now finally merge new and old data to get the paired data.frame for model
+    # fitting. Make sure to restore the original order after merging, as
+    # `merge()` returns rows in an 'unspecified' order (even with sort=FALSE).
+    new$ID <- seq_len(nrow(new))
+    df <- merge(new, old, by = "KEY", sort = FALSE, all = FALSE)
+    df <- df[order(df$ID), ]
+    df$ID <- NULL
+    df$KEY <- NULL
+
+    if (nrow(df) < nrow(new)) {
+        key <- if (use_inchi) "SMILES+INCHIKEY" else "SMILES+NAME"
+        fmt <- "Could not map %d new entries to original data based on %s."
+        stop(sprintf(fmt, nrow(new) - nrow(df), key))
+    } else if (nrow(df) > nrow(new)) {
+        # This can't happen due to averaging above. We check anyway to be safe.
+        msg <- sprintf("Ambiguous mapping: %d new -> %d old", nrow(new), nrow(df))
+        stop(msg)
+    }
+    df
+}
+
+#' @noRd
 #' @description Get RMSE, Rsquared, MAE and %below1min for a specific dataset and model.
 #' @param data dataframe with retention time in the first column
 #' @param model object useable as input for [predict()]
@@ -642,55 +772,23 @@ get_dgp <- function(x) {
     max(degs, na.rm = TRUE)
 }
 
-validate_inputdata <- function(df,
-                               require = c("RT", "SMILES", "NAME"),
-                               min_cds = 1,
-                               stop_on_unknown = TRUE) {
-    missing_cols <- setdiff(require, colnames(df))
-    if (length(missing_cols) > 0) stop(sprintf("missing columns: %s", paste(missing_cols, collapse = ", ")))
-    n_cds <- sum(colnames(df) %in% CDFeatures)
-    if (n_cds < min_cds) {
-        msg <- sprintf("At least %d chemical descriptors are required, but only %d are present", min_cds, n_cds)
-        stop(msg)
-    }
-    unnown_cols <- setdiff(colnames(df), c("RT", "SMILES", "NAME", CDFeatures))
-    if (stop_on_unknown && length(unnown_cols) > 0) {
-        msg <- sprintf("Unknown columns present: %s", paste(unnown_cols, collapse = ", "))
-        stop(msg)
-    }
-    invisible(df)
-}
-
-validate_inputmodel <- function(model) {
-    model_nams <- names(model)
-    expected_names <- c("model", "df", "cv")
-    n_missing <- sum(!expected_names %in% model_nams)
-    if (n_missing > 0) {
-        if (n_missing < length(expected_names)) {
-            missing <- paste(setdiff(expected_names, model_nams), collapse = ", ")
-            errmsg1 <- sprintf("Model object is missing required elements: %s.", missing)
-        } else {
-            errmsg1 <- sprintf("Model object is invalid.")
-        }
-        errmsg2 <- sprintf("Please upload a model trained with FastRet version %s or greater.", packageVersion("FastRet"))
-        errmsg <- paste(errmsg1, errmsg2)
-        stop(errmsg)
-    }
-    invisible(model)
-}
-
 # Fitting #####
 
 fit_glmnet <- function(X, y = NULL, method = "lasso", seed = NULL) {
     if (is.numeric(seed)) set.seed(seed)
-    alpha <- switch(method, "lasso" = 1, "ridge" = 0)
+    alpha <- switch(method,
+        "lasso" = 1,
+        "ridge" = 0,
+        stop("method must be 'lasso' or 'ridge', not '", method, "'.")
+    )
+
     cvobj <- glmnet::cv.glmnet(
-        X, y, alpha = alpha, standardize = TRUE, family = "gaussian",
-        type.measure = "mse", grouped = FALSE
+        x = as.matrix(X), y = y, alpha = alpha, standardize = TRUE,
+        family = "gaussian", type.measure = "mse", grouped = FALSE
     )
     model <- glmnet::glmnet(
-        X, y, alpha = alpha, standardize = TRUE, family = "gaussian",
-        lambda = cvobj$lambda.min
+        x = as.matrix(X), y = y, alpha = alpha, standardize = TRUE,
+        family = "gaussian", lambda = cvobj$lambda.min
     )
     model
 }
@@ -705,7 +803,7 @@ fit_glmnet <- function(X, y = NULL, method = "lasso", seed = NULL) {
 #'
 #' @param X Matrix or dataframe with features
 #' @param y Numeric vector with target variable
-#' @param xpar
+#' @param xgpar
 #' Keyword defining how to set xgboost parameters. Available options are:
 #' - default: Use default xgboost parameters.
 #' - rpopt: Use parameters optimized for RT prediction on the [RP] dataset.
@@ -728,27 +826,38 @@ fit_glmnet <- function(X, y = NULL, method = "lasso", seed = NULL) {
 #' M <- df[1:50, m]
 #' X <- df[1:50, -m]
 #' y <- M$RT
-#' gbt <- fit_gbtree(X, y, xpar = "rpopt", seed = 42)
-fit_gbtree <- function(X, y, xpar = "rpopt", seed = NULL, verbose = 1,
+#' gbt <- fit_gbtree(X, y, xgpar = "rpopt", seed = 42)
+fit_gbtree <- function(X, y, xgpar = "rpopt", seed = NULL, verbose = 1,
                        nw = 1, nfolds = 10, nrounds = 2000, nthread = 1) {
     if (is.numeric(seed)) set.seed(seed)
     params <- switch(
-        xpar,
+        xgpar,
         "default" = list(),
         "rpopt" = list(eta = 0.05, max_depth = 4, min_child_weight = 4, subsample = 0.5),
-        find_params_best(X, y, xpar, nfolds, nw, nthread, nrounds, verbose, seed)$best_params
+        find_params_best(X, y, xgpar, nfolds, nw, nthread, nrounds, verbose, seed)$best_params
     )
     params$nthread <- nthread
+    params$objective <- "reg:squarederror"
     Xmat <- as.matrix(X)
     data <- xgboost::xgb.DMatrix(Xmat, label = y, nthread = nthread)
     xverb <- if (verbose == 2) TRUE else FALSE
     cvobj <- xgboost::xgb.cv(
         params, data, nrounds, nfold = nfolds, early_stopping_rounds = 20,
-        objective = "reg:squarederror", verbose = xverb
+        verbose = xverb
     )
-    nrounds <- cvobj$best_iteration
+    nrounds <- cvobj$early_stop$best_iteration %||% cvobj$best_iteration
     xgboost::xgb.train(params, data, nrounds, verbose = xverb)
 }
+
+fit_lm <- function(X, y, yname, seed = NULL) {
+    if (is.numeric(seed)) set.seed(seed)
+    fm <- as.formula(paste(yname, "~", paste(colnames(X), collapse = " + ")))
+    Xy <- as.data.frame(X)
+    Xy[[yname]] <- y
+    stats::lm(formula = fm, data = Xy)
+}
+
+RTFeatures <- c("RT", "I(RT^2)", "I(RT^3)", "log(RT)", "exp(RT)", "sqrt(RT)")
 
 # Grid Search #####
 

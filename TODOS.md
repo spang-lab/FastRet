@@ -1,19 +1,16 @@
+# Todos
 
-# Allow disabling of cross-validation
+- [x] Allow disabling of cross-validation
+- [x] Add gbtree and glmnet as adjustment models
+- [x] Allow Adjustment based on chemical descriptors
+- [x] Fix failing tests in Github CI
+- [ ] Update included Measurements
+- [ ] Ensure Test Coverage
+- [ ] Ensure backwards compatibility
+- [ ] Resubmit to CRAN
+- [ ] Remove RP
 
-Should be implemented by branching of from `v1.2.2-dev` and then merged back
-into `v1.2.2-dev`.
-
-In `adjust_frm` allow `do_cv = FALSE` (do-cross-validation). In `train_frm` allow
-`do_cv = FALSE` (do-cross-validation). The corresponding `cv` element of the
-returned object should be `NULL` in those cases. The docs and tests must be
-adjusted accordingly.
-
-
-# Add gbtree and glmnet as adjustment models
-
-Should be implemented by branching of from `v1.2.2-dev` and then merged back
-into `v1.2.2-dev`.
+## Add gbtree and glmnet as adjustment models
 
 Currently, adjustment models are only fitted using `lm`. In addition, `glment`
 and `gbtree` models (as returned by `fit_glmnet()` and `fit_gbtree()`) should be
@@ -22,10 +19,7 @@ can take values `"lm"` (default), `"glmnet"`, and `"gbtree"` and based on this
 value decide which adjustment model to fit.
 
 
-# Allow Adjustment based on chemical descriptors
-
-Should be implemented by branching of from `v1.2.2-dev` and then merged back
-into `v1.2.2-dev`.
+## Allow Adjustment based on chemical descriptors
 
 In `adjust_frm` allow `predictors = 1:7` where 7 means "include CDs". If `7 %in%
 predictors`, chemical descriptors should be calculated using `preprocess_data()`
@@ -33,10 +27,7 @@ predictors`, chemical descriptors should be calculated using `preprocess_data()`
 polynomial terms. The resulting CDs should be included in the adjustment model.
 
 
-# Fix failing tests in Github CI
-
-Should be implemented by branching of from `v1.2.2-dev` and then merged back
-into `v1.2.2-dev`.
+## Fix failing tests in Github CI
 
 The following tests:
 
@@ -99,10 +90,7 @@ Instead of
 
 in `.github/workflows/r-cmd-check.yaml`.
 
-# Update included Measurements
-
-Should be implemented by branching of from `v1.2.2-dev` and then merged back
-into `v1.2.2-dev`.
+## Update included Measurements
 
 - Remove `inst/extdata/Measurements_v8.xlsx`
 - Add `data/datasets.rda`, containing datasets described in
@@ -131,10 +119,7 @@ into `v1.2.2-dev`.
   - RP_Val_T25_FR25_Flat:
   - RP_Val_T25_FR25_Steep:
 
-# Remove RP
-
-Should be implemented by branching of from `v1.2.2-dev` and then merged back
-into `v1.2.2-dev`.
+## Remove RP
 
 Replace all mentions of the following objects with corresponding objects from
 the new `datasets.rda` object. See issue 'Update included Measurements'.
@@ -147,9 +132,30 @@ the new `datasets.rda` object. See issue 'Update included Measurements'.
 
 Then mark the all old objects as deprecated in the documentation
 
-# Resubmit to CRAN
+## Ensure test coverage
 
-Should be implemented by branching of from `v1.2.2-dev` and then merged back
-into `v1.2.2-dev`.
+Ensure we have tests for the following scenarios:
+
+1. Train a ridge model, predict with it, adjust with lm/RT, predict with adjusted model
+2. Train a lasso model, predict with it, adjust with gbtree/RTTCD, predict with adjusted model
+3. Train a gbtree model, predict with it, adjust with lasso/RTCD, predict with adjusted model
+
+## Ensure backwards compatibility
+
+Include an adjusted lasso and gbtree model that was trained and adjusted with
+FastRet version 1.2.2 or earlier. Write testcase to ensure that all *.frm
+functions like adjust_frm, predict.frm, get_predictors, coef.frm, plot.frm work
+as expected with those.
+
+## Resubmit to CRAN
 
 Resubmit FastRet v1.3.0 to CRAN.
+
+# Done
+
+## Allow disabling of cross-validation
+
+In `adjust_frm` allow `docv = FALSE` (do-cross-validation). In `train_frm` allow
+`docv = FALSE` (do-cross-validation). The corresponding `cv` element of the
+returned object should be `NULL` in those cases. The docs and tests must be
+adjusted accordingly.

@@ -23,7 +23,12 @@ API Improvements:
 3. `preprocess_data()`:
    - Added argument `add_cds` to control whether chemical descriptors should be
      added to the input data using `getCDs()`.
-   - Presence of mandatory columns (SMILES, RT, NAME) is now checked.
+   - Added argument `rm_ucs` to control whether unsupported columns (i.e.
+     columns that are neither mandatory nor optional) should be removed from the
+     input data.
+   - Added argment `rt_terms` to control whether transformations of the RT column
+     (square, cube, log, exp, sqrt) should be added to the input data.
+   - In case of missing mandatory columns (SMILES, RT, NAME) an error is now raised.
    - INCHIKEY and Chemical Descriptors listed in `CDFeatures` are allowed as
      optional columns.
    - Columns that are neither mandatory nor optional are automatically removed.
@@ -33,6 +38,8 @@ API Improvements:
      polynomial features and/or interaction terms.
    - Improved progress output.
 4. `train_frm()`:
+   - Added argument `do_cv` to control whether cross-validation should be
+     performed for performance estimation. Default is TRUE.
    - Removal of near-zero-variance predictors and/or removal of NA values is now
      done as part of the internal model training, i.e. it happens separately for
      each fold during cross-validation. This prevents data leakage from the
@@ -42,7 +49,7 @@ API Improvements:
    - Argument `method` now accepts two values for training models with xgbtree
      base: "gbtreeDefault" (train xgboost with default params) and "gbtreeRP"
      (train xgboost with parameters optimized for the RP dataset). The old value
-     "gbtree" still works and is an alias for "gbtreeRP".
+     "gbtree" still works and is now an alias for "gbtreeDefault".
    - Improved documentation of the return value (i.e. `frm` objects are fully
      specified now).
    - Added type checking for each user input.
@@ -79,6 +86,15 @@ API Improvements:
      dataset before the ridge regression is trained).
 7. `adjust_frm()`:
    - Added argument `seed` to allow reproducible results.
+   - Added argument `do_cv` to control whether cross-validation should be
+     performed for performance estimation. Default is TRUE.
+   - Added argument `adj_type` to conrol which model should be trained for
+     adjustment: supported options are "lm", "lasso", "ridge", or "gbtree".
+     Prviously, only "lm" was supported. To stay backwards compatible, the default
+     is "lm".
+   - Added argument `add_cds` to control whether chemical descriptors should be
+     added to the input data using `getCDs()`. Only recommended for adj_type other
+     than "lm".
    - Added support for mapping by SMILES+INCHIKEY in addition to SMILES+NAME.
      SMILES+INCHIKEY is used by default if both columns are present in the
      adjusted and the original training data. Otherwise SMILES+NAME is used as
@@ -106,6 +122,9 @@ API Improvements:
    - New utility function for clipping predicted RTs to be within a sensible
      range. Used internally by `train_frm()`, `predict.frm()` and
      `adjust_frm()`.
+10. `get_predictors()`:
+    - Added arguments `base` and `adjust` to control whether predictors for the
+      base model, the adjustment model or both should be returned.
 
 Bugfixes:
 
@@ -142,11 +161,8 @@ Internal Improvements:
 2. Removed `caret` dependency by adding custom implementations for:
    - `createFolds()`
    - `nearZeroVar()`
-3. Extracted fitting of base models inside `train_frm()` into a separate helper
-   function `train_frm_internal()` (not exported) that handles preprocessing and
-   parsing of user params. This makes it a lot easier to call the exact same
-   model fitting logic on the whole dataset as well as on the training folds
-   during cross-validation.
+3. Extract mapping and merging part of `adjust_frm()` into a private function
+   `merge_dfs()`.
 4. Replaced `fit_glmnet()`, `fit_lasso()` and `fit_ridge()` with a single
    function `fit_glmnet()`, that takes the method ("lasso" or "ridge") as
    parameter. Instead of a dataframe `df` that has to contain only predictors
@@ -160,7 +176,10 @@ Internal Improvements:
 6. Improved `fit_gbtree` by exposing lots of hardcoded internal xgboost
    parameters as function parameters with sensible defaults. In particular, the
    user can now set `xpar` to "default", "rpopt" or a predefined grid-size to
-   train the model with different hyperparameter settings.
+   train the model with different hyperparameter settings. Furthermore, the
+   function is now written in a way that works with both, version 1.7.9.1 and
+   the new 3.1.2.1 version published on 2025/12/03 (yes, version 2.x was skipped
+   completely).
 7. Added helper function `get_param_grid()` for returning predefined
    hyperparameter grids for xgboost model training based on keywords like
    "tiny", "small" or "large".

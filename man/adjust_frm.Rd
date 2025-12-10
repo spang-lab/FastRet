@@ -5,12 +5,15 @@
 \title{Adjust an existing FastRet model for use with a new column}
 \usage{
 adjust_frm(
-  frm = train_frm(),
-  new_data = read_rpadj_xlsx(),
+  frm,
+  new_data,
   predictors = 1:6,
   nfolds = 5,
   verbose = 1,
-  seed = NULL
+  seed = NULL,
+  do_cv = TRUE,
+  adj_type = "lm",
+  add_cds = NULL
 )
 }
 \arguments{
@@ -21,9 +24,10 @@ adjust_frm(
 Each row must match at least one row in \code{frm$df}.
 The exact matching behavior is described in 'Details'.}
 
-\item{predictors}{Numeric vector specifying which predictors to include in the model in
-addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
-5=exp(RT), 6=sqrt(RT).}
+\item{predictors}{Numeric vector specifying which transformations to include in the model.
+Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT),
+6=sqrt(RT). Note that predictor 1 (RT) is always included, even if not
+specified explicitly.}
 
 \item{nfolds}{The number of folds for cross validation.}
 
@@ -31,23 +35,42 @@ addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
 
 \item{seed}{An integer value to set the seed for random number generation to allow for
 reproducible results.}
+
+\item{do_cv}{A logical value indicating whether to perform cross-validation. If FALSE,
+the \code{cv} element in the returned adjustment object will be NULL.}
+
+\item{adj_type}{A string representing the adjustment model type. Either "lm", "lasso",
+"ridge", or "gbtree".}
+
+\item{add_cds}{A logical value indicating whether to add chemical descriptors as predictors
+to new data. Default is TRUE if \code{adj_type} is "lasso", "ridge" or "gbtree"
+and FALSE if \code{adj_type} is "lm".}
 }
 \value{
 An object of class \code{frm}, as returned by \code{\link[=train_frm]{train_frm()}}, but with an
-additional element \code{adj} containing the adjustment model. Components are:
+additional element \code{adj} containing the adjustment model. Components of \code{adj}
+are:
 \itemize{
-\item \code{model}: The fitted adjustment model of class \code{lm}.
-\item \code{df}: The data frame used for training the adjustment model.
-\item \code{cv}: A named list containing the cross validation results. Elements are:
+\item \code{model}: The fitted adjustment model. Class depends on \code{adj_type} and is
+one of \code{lm}, \code{glmnet}, or \code{xgb.Booster}.
+\item \code{df}: The data frame used for training the adjustment model. Including
+columns "NAME", "SMILES", "RT", "RT_ADJ" and optionally "INCHIKEY", as well
+as any additional predictors specified via the \code{predictors} argument.
+\item \code{cv}: A named list containing the cross validation results (see 'Details'),
+or NULL if \code{do_cv = FALSE}. When not NULL, elements are:
 \itemize{
 \item \code{folds}: A list of integer vectors specifying the samples in each fold.
 \item \code{models}: A list of adjustment models trained on each fold.
-\item \code{preds}: Retention time predictions obtained in CV as numeric vector.
-\item \code{preds_adjonly}: Retention time predictions obtained in CV by applying
-the adjustment model to the observed RT values of \code{new_data}.
+\item \code{stats}: A list of vectors with RMSE, Rsquared, MAE, pBelow1Min per fold.
+Added with v1.3.0.
+\item \code{preds}: Retention time predictions obtained during CV by applying the
+adjustment model to the hold-out data.
+\item \code{preds_adjonly}: Removed (i.e. NULL) since v1.3.0.
 }
-\item \code{args}: Function arguments used for adjustment (excluding \code{frm} and
-\code{new_data}). Added with v1.3.0.
+\item \code{args}: Function arguments used for adjustment (excluding \code{frm}, \code{new_data}
+and \code{verbose}). Added with v1.3.0.
+\item \code{version}: The version of the FastRet package used to train the adjustment
+model. Added with v1.3.0.
 }
 }
 \description{
@@ -82,10 +105,20 @@ PAIRED <- data.frame(
     RT_ADJ = c(2.5,  5.5,  5.7,  5.6)  # Taken from NEW
 )
 }\if{html}{\out{</div>}}
+
+If \code{do_cv} is TRUE, the adjustment procedure is evaluated in
+cross-validation. However, care must be taken when interpreting the CV
+results, as the model performance depends on both the adjustment layer and
+the original model, which was trained on the full base dataset. Therefore,
+the observed CV metrics should be read as "expected performance when
+predicting RTs for molecules that were part of the base-model training but
+not part of the adjustment set" instead of "expected performance when
+predicting RTs for completely new molecules".
 }
 \examples{
 frm <- read_rp_lasso_model_rds()
 new_data <- read_rpadj_xlsx()
 frm_adj <- adjust_frm(frm, new_data, verbose = 0)
+
 }
 \keyword{public}

@@ -19,7 +19,8 @@ test_that("adjust_frm merges by INCHIKEY when available", {
     # make sure that the duplicated entry is at different positions within
     # new_data.
     idx <- c(seq(1, 401, 40), 1)
-    new <- frm$df[idx, c("NAME", "SMILES", "RT", "INCHIKEY")]
+    cols <- intersect(c("NAME", "SMILES", "RT", "INCHIKEY"), colnames(frm$df))
+    new <- frm$df[idx, cols]
     new$RT <- new$RT + rnorm(nrow(new), mean = 3, sd = 0.5)  # Slightly perturb RTs
 
     # Run adjustment; this should use INCHIKEY+SMILES and not error
@@ -77,32 +78,63 @@ test_that("adjust_frm merges by INCHIKEY when available", {
     }
 })
 
+
 test_that("adjust_frm works with do_cv = FALSE", {
     # Load pretrained model for speed-up
     frm <- readRDS(pkg_file("extdata/RP_lasso_model.rds"))
-    
+
     # Build new_data from a small subset
     idx <- seq(1, 401, 40)
     new <- frm$df[idx, c("NAME", "SMILES", "RT")]
     new$RT <- new$RT + rnorm(nrow(new), mean = 3, sd = 0.5)
-    
+
     # Test with do_cv=FALSE
-    afm1 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1, do_cv = FALSE)
-    
+    afm1 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1:2, do_cv = FALSE)
+
     # Test with do_cv=TRUE
-    afm2 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1, do_cv = TRUE)
-    
+    afm2 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1:2, do_cv = TRUE)
+
     # Model with do_cv=FALSE should have NULL cv element
-    expect_null(afm1$adj$cv)
     expect_true(is.list(afm1$adj))
     expect_equal(names(afm1$adj), c("model", "df", "cv", "args"))
-    
+    expect_null(afm1$adj$cv)
+
     # Model with do_cv=TRUE should have cv element
-    expect_false(is.null(afm2$adj$cv))
+    expect_true(is.list(afm2$adj))
+    expect_equal(names(afm1$adj), c("model", "df", "cv", "args"))
     expect_true(is.list(afm2$adj$cv))
-    expect_equal(names(afm2$adj$cv), c("folds", "models", "preds", "preds_adjonly"))
-    
+    expect_equal(names(afm2$adj$cv), c("folds", "models", "stats", "preds"))
+
     # The actual adjustment models should be the same (only cv differs)
-    expect_equal(coef(afm1$adj$model), coef(afm2$adj$model))
-    expect_equal(afm1$adj$df, afm2$adj$df)
+    afm2_nocv <- afm2
+    afm2_nocv$adj["cv"] <- list(NULL)
+    afm2_nocv$adj$args$do_cv <- FALSE
+    expect_equal(afm1, afm2_nocv)
+})
+
+
+test_that("adjust_frm works with lm, lasso, ridge, gbtree", {
+
+    frm <- readRDS(pkg_file("extdata/RP_lasso_model.rds"))
+    idx <- seq(1, 401, by = 20)
+    cols <- intersect(c("NAME", "SMILES", "RT", "INCHIKEY"), colnames(frm$df))
+    new <- frm$df[idx, cols]
+    new$RT <- new$RT + rnorm(nrow(new), sd = 0.25)
+
+    withr::local_options(FastRet.adj_gbtree_nrounds = 5)
+    adj_lasso <- adjust_frm(frm = frm, new_data = new, nfolds = 2, verbose = 0, seed = 7, adj_type = "lasso")
+    adj_gbtre <- adjust_frm(frm = frm, new_data = new, nfolds = 2, verbose = 0, seed = 7, adj_type = "gbtree")
+
+    expect_s3_class(adj_lasso$adj$model, "glmnet")
+    expect_true(inherits(adj_gbtre$adj$model, "xgb.Booster"))
+    expect_identical(adj_lasso$adj$args$adj_type, "lasso")
+    expect_identical(adj_gbtre$adj$args$adj_type, "gbtree")
+
+    yhat_lasso <- predict(adj_lasso, df = new, adjust = TRUE, verbose = 0)
+    yhat_gbtre <- predict(adj_gbtre, df = new, adjust = TRUE, verbose = 0)
+
+    expect_equal(length(yhat_lasso), length(idx))
+    expect_equal(length(yhat_gbtre), length(idx))
+
+    expect_error(adjust_frm(frm, new, adj_type = "foo"))
 })

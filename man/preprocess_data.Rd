@@ -12,7 +12,9 @@ preprocess_data(
   nw = 1,
   rm_near_zero_var = TRUE,
   rm_na = TRUE,
-  add_cds = TRUE
+  add_cds = TRUE,
+  rm_ucs = TRUE,
+  rt_terms = 1
 )
 }
 \arguments{
@@ -41,6 +43,14 @@ interaction terms.}
 \item{rm_na}{Remove NA values?}
 
 \item{add_cds}{Add chemical descriptors using \code{\link[=getCDs]{getCDs()}}? See 'Details'.}
+
+\item{rm_ucs}{Remove unsupported columns?}
+
+\item{rt_terms}{Which retention-time transformations to append as extra predictors. Supply a
+numeric vector referencing predefined rt_terms (1=RT, 2=I(RT^2),
+3=I(RT^3), 4=log(RT), 5=exp(RT), 6=sqrt(RT)) or a character vector with the
+explicit transformation terms. Character values are passed to \code{\link[=model.frame]{model.frame()}},
+so they must use valid formula syntax (e.g. "I(RT^2)" rather than "RT^2").}
 }
 \value{
 A dataframe with the preprocessed data.
