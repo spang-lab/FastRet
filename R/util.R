@@ -206,7 +206,7 @@ as_str <- function(x) {
     paste(nams, sep, vals, sep = "", collapse = ", ")
 }
 
-#' @noRd
+#' @export
 #' @title Canonicalize SMILES
 #' @description Convert SMILES to canonical form.
 #' @param smiles Character vector of SMILES.
