@@ -3,31 +3,52 @@
 \name{read_retip_hilic_data}
 \alias{read_retip_hilic_data}
 \title{Read the HILIC dataset from the Retip package}
+\source{
+\url{https://github.com/oloBion/Retip/raw/master/data/HILIC.RData}
+}
 \usage{
 read_retip_hilic_data(verbose = 1)
 }
 \arguments{
-\item{verbose}{Verbosity level. Set to 1 to enable progress messages,
-0 to suppress them.}
+\item{verbose}{Verbosity. 1 for messages, 0 to suppress them.}
 }
 \value{
-A data frame containing the Retip HILIC dataset.
+A data frame with 970 rows and the following columns:
+\itemize{
+\item \code{NAME}: Molecule name
+\item \code{INCHIKEY}: InChIKey
+\item \code{SMILES}: Canonical SMILES string
+\item \code{RT}: Retention time in Minutes
+}
 }
 \description{
-If the \href{https://www.retip.app/}{Retip} package is installed, its HILIC
-dataset is read from its installation directory. If not, the dataset is
-downloaded from
-\verb{https://github.com/oloBion/Retip/raw/master/data/HILIC.RData} to a temporary
-file and then read from there.
+Reads the \code{Retip::HILIC} dataset (CC BY 4.0) from the Retip package or, if
+Retip is not installed, downloads the dataset directly from the \href{https://github.com/oloBion/Retip}{Retip GitHub repository}. Before returning the dataset,
+SMILES strings are canonicalized and the original \code{tibble} object is
+converted to a base R \code{data.frame}.
+}
+\details{
+Attribution as required by CC BY 4.0:\cr
+\itemize{
+\item Original dataset by:
+Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and
+Oliver Fiehn as part of the Retip project.\cr
+\item Source repository: \url{https://github.com/oloBion/Retip}\cr
+\item Original file: \url{https://github.com/oloBion/Retip/raw/master/data/HILIC.RData}\cr
+\item License: CC BY 4.0 (\url{https://creativecommons.org/licenses/by/4.0/})\cr
+\item Modifications in FastRet:
+\itemize{
+\item converted tibble to data.frame
+\item canonicalized SMILES using \code{\link[=as_canonical]{as_canonical()}}
+}
+}
 }
 \examples{
 df <- read_retip_hilic_data(verbose = 0)
-
 }
 \references{
-Retip: Retention Time Prediction for Compound Annotation in Untargeted
-Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar
-Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI:
-10.1021/acs.analchem.9b05765
+Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics\cr
+Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn\cr
+Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
 }
 \keyword{dataset}

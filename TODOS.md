@@ -1,33 +1,103 @@
 # Todos
 
-- [x] Allow disabling of cross-validation
-- [x] Add gbtree and glmnet as adjustment models
-- [x] Allow Adjustment based on chemical descriptors
-- [x] Fix failing tests in Github CI
-- [ ] Update included Measurements
-- [ ] Ensure Test Coverage
-- [ ] Ensure backwards compatibility
-- [ ] Resubmit to CRAN
-- [ ] Remove RP
+- [Open](#open)
+  - [Make sure tests run on Linux and MacOS](#make-sure-tests-run-on-linux-and-macos)
+  - [Update included Measurements](#update-included-measurements)
+  - [Add tests for the shiny GUI](#add-tests-for-the-shiny-gui)
+  - [Remove RP](#remove-rp)
+  - [Ensure test coverage](#ensure-test-coverage)
+  - [Ensure backwards compatibility](#ensure-backwards-compatibility)
+  - [Resubmit to CRAN](#resubmit-to-cran)
+- [Done](#done)
+  - [Allow disabling of cross-validation](#allow-disabling-of-cross-validation)
+  - [Fix failing tests in Github CI](#fix-failing-tests-in-github-ci)
+  - [Allow Adjustment based on chemical descriptors](#allow-adjustment-based-on-chemical-descriptors)
+  - [Add gbtree and glmnet as adjustment models](#add-gbtree-and-glmnet-as-adjustment-models)
 
-## Add gbtree and glmnet as adjustment models
+## Open
 
-Currently, adjustment models are only fitted using `lm`. In addition, `glment`
-and `gbtree` models (as returned by `fit_glmnet()` and `fit_gbtree()`) should be
-supported as well. Introduce a new argument `adj_type` to `adjust_frm()` that
-can take values `"lm"` (default), `"glmnet"`, and `"gbtree"` and based on this
-value decide which adjustment model to fit.
+### Make sure tests run on Linux and MacOS
+
+Currently failing tests:
+
+```log
+══ Failed tests ════════════════════════════════════════════════════════════════
+── Error ('test-fit_gbtree.R:47:5'): fit_gbtree works with xgboost 1.7 ─────────
+<callr_status_error/callr_error/rlib_error_3_0/rlib_error/error/condition>
+Error: Error: ! in callr subprocess.
+Caused by error:
+! Expected `packageVersion("xgboost", lib.loc = new_lib) == package_version("1.7.9.1")` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE
+
+Installed xgboost version: 1.7.11.1
+
+[ FAIL 1 | WARN 0 | SKIP 1 | PASS 94 ]
+Error:
+! Test failures.
+Execution halted
+```
 
 
-## Allow Adjustment based on chemical descriptors
+### Update included Measurements
 
-In `adjust_frm` allow `predictors = 1:7` where 7 means "include CDs". If `7 %in%
-predictors`, chemical descriptors should be calculated using `preprocess_data()`
-(as done in `train_frm()`) but always without interaction terms and without
-polynomial terms. The resulting CDs should be included in the adjustment model.
+- Remove `inst/extdata/Measurements_v8.xlsx`
+- Add `data/datasets.rda`, containing datasets described in
+  [../freda/README.md](../freda/README.md), i.e., HILIC_1, HILIC_2,
+  HILIC_Retip_1, HILIC_Retip_2, RP_1, RP_2, RP_AXMM_1, RP_AXMM_2, RP_B_1,
+  RP_B_2, RP_Flat, RP_FR25_Flat, RP_Steep, RP_T25_Flat, RP_T25_FR25_Flat,
+  RP_T25_FR25_Steep, RP_Val, RP_Val_Flat, RP_Val_FR25_Flat, RP_Val_Steep,
+  RP_Val_T25_Flat, RP_Val_T25_FR25_Flat, RP_Val_T25_FR25_Steep.
 
+### Add tests for the shiny GUI
 
-## Fix failing tests in Github CI
+Do some research about best-practices for testing shiny applications.
+If no good options exists, define a minimal set of tests that ensure that the
+shiny application works as expected. And then execute each test manually.
+
+### Remove RP
+
+Replace all mentions of the following objects with corresponding objects from
+the new `datasets.rda` object. See issue 'Update included Measurements'.
+
+- `RP.rda`
+- `RP.xlsx`
+- `RP_adj.xlsx`
+- `RP_lass_model.rds`
+- `Measurements_v8.xlsx`
+
+Then mark the all old objects as deprecated in the documentation
+
+### Ensure test coverage
+
+Ensure we have tests for the following scenarios:
+
+1. Train a ridge model, predict with it, adjust with lm/RT, predict with adjusted model
+2. Train a lasso model, predict with it, adjust with gbtree/RTTCD, predict with adjusted model
+3. Train a gbtree model, predict with it, adjust with lasso/RTCD, predict with adjusted model
+
+### Ensure backwards compatibility
+
+Include an adjusted lasso and gbtree model that was trained and adjusted with
+FastRet version 1.2.2 or earlier. Write testcase to ensure that all *.frm
+functions like adjust_frm, predict.frm, get_predictors, coef.frm, plot.frm work
+as expected with those.
+
+### Resubmit to CRAN
+
+Resubmit FastRet v1.3.0 to CRAN.
+
+## Done
+
+### Allow disabling of cross-validation
+
+In `adjust_frm` allow `docv = FALSE` (do-cross-validation). In `train_frm` allow
+`docv = FALSE` (do-cross-validation). The corresponding `cv` element of the
+returned object should be `NULL` in those cases. The docs and tests must be
+adjusted accordingly.
+
+### Fix failing tests in Github CI
 
 The following tests:
 
@@ -90,72 +160,17 @@ Instead of
 
 in `.github/workflows/r-cmd-check.yaml`.
 
-## Update included Measurements
+### Allow Adjustment based on chemical descriptors
 
-- Remove `inst/extdata/Measurements_v8.xlsx`
-- Add `data/datasets.rda`, containing datasets described in
-  [../freda/README.md](../freda/README.md), i.e.:
-  - HILIC_1:
-  - HILIC_2:
-  - HILIC_Retip_1:
-  - HILIC_Retip_2:
-  - RP_1:
-  - RP_2:
-  - RP_AXMM_1:
-  - RP_AXMM_2:
-  - RP_B_1:
-  - RP_B_2:
-  - RP_Flat:
-  - RP_FR25_Flat:
-  - RP_Steep:
-  - RP_T25_Flat:
-  - RP_T25_FR25_Flat:
-  - RP_T25_FR25_Steep:
-  - RP_Val:
-  - RP_Val_Flat:
-  - RP_Val_FR25_Flat:
-  - RP_Val_Steep:
-  - RP_Val_T25_Flat:
-  - RP_Val_T25_FR25_Flat:
-  - RP_Val_T25_FR25_Steep:
+In `adjust_frm` add argument `add_cds`. If `add_cds = TRUE` chemical descriptors
+should be calculated using `preprocess_data()` (as done in `train_frm()`) but
+always without interaction terms and without polynomial terms. The resulting CDs
+should be included in the adjustment model.
 
-## Remove RP
+### Add gbtree and glmnet as adjustment models
 
-Replace all mentions of the following objects with corresponding objects from
-the new `datasets.rda` object. See issue 'Update included Measurements'.
-
-- `RP.rda`
-- `RP.xlsx`
-- `RP_adj.xlsx`
-- `RP_lass_model.rds`
-- `Measurements_v8.xlsx`
-
-Then mark the all old objects as deprecated in the documentation
-
-## Ensure test coverage
-
-Ensure we have tests for the following scenarios:
-
-1. Train a ridge model, predict with it, adjust with lm/RT, predict with adjusted model
-2. Train a lasso model, predict with it, adjust with gbtree/RTTCD, predict with adjusted model
-3. Train a gbtree model, predict with it, adjust with lasso/RTCD, predict with adjusted model
-
-## Ensure backwards compatibility
-
-Include an adjusted lasso and gbtree model that was trained and adjusted with
-FastRet version 1.2.2 or earlier. Write testcase to ensure that all *.frm
-functions like adjust_frm, predict.frm, get_predictors, coef.frm, plot.frm work
-as expected with those.
-
-## Resubmit to CRAN
-
-Resubmit FastRet v1.3.0 to CRAN.
-
-# Done
-
-## Allow disabling of cross-validation
-
-In `adjust_frm` allow `docv = FALSE` (do-cross-validation). In `train_frm` allow
-`docv = FALSE` (do-cross-validation). The corresponding `cv` element of the
-returned object should be `NULL` in those cases. The docs and tests must be
-adjusted accordingly.
+Currently, adjustment models are only fitted using `lm`. In addition, `glmnet`
+and `gbtree` models (as returned by `fit_glmnet()` and `fit_gbtree()`) should be
+supported as well. Introduce a new argument `adj_type` to `adjust_frm()` that
+can take values `"lm"` (default), `"glmnet"`, and `"gbtree"` and based on this
+value decide which adjustment model to fit.
