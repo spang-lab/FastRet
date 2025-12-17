@@ -14,7 +14,8 @@ preprocess_data(
   rm_na = TRUE,
   add_cds = TRUE,
   rm_ucs = TRUE,
-  rt_terms = 1
+  rt_terms = 1,
+  mandatory = c("NAME", "RT", "SMILES")
 )
 }
 \arguments{
@@ -51,6 +52,9 @@ numeric vector referencing predefined rt_terms (1=RT, 2=I(RT^2),
 3=I(RT^3), 4=log(RT), 5=exp(RT), 6=sqrt(RT)) or a character vector with the
 explicit transformation terms. Character values are passed to \code{\link[=model.frame]{model.frame()}},
 so they must use valid formula syntax (e.g. "I(RT^2)" rather than "RT^2").}
+
+\item{mandatory}{Character vector of mandatory columns that must be present in \code{data}. If any
+of these columns are missing, an error is raised.}
 }
 \value{
 A dataframe with the preprocessed data.

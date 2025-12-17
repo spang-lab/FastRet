@@ -2,9 +2,9 @@ Package: FastRet
 Title: Retention Time Prediction in Liquid Chromatography
 Version: 1.3.0
 Authors@R: c(
+    person(given = "Tobias", family = "Schmidt", role = c("aut", "cre", "cph"), email = "tobias.schmidt331@gmail.com", comment = c(ORCID = "0000-0001-9681-9253")),
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cph"), email = "christian-amesoeder@web.de", comment = c(ORCID = "0000-0002-1668-8351")),
     person(given = "Marian", family = "Schoen", role = c("aut", "cph"), email = "marian.schoen@klinik.uni-regensburg.de"),
-    person(given = "Tobias", family = "Schmidt", role = c("aut", "cre", "cph"), email = "tobias.schmidt331@gmail.com", comment = c(ORCID = "0000-0001-9681-9253")),
     person(given = "Fadi", family = "Fadil", role = c("ctb", "cph"), email = "fadi.fadil@klinik.uni-regensburg.de", comment = c(ORCID = "0000-0002-9532-1901")),
     person(given = "Katja", family = "Dettmer", role = c("ths", "cph"), email = "Katja.Dettmer@klinik.uni-regensburg.de", comment = c(ORCID = "0000-0001-7337-2380")),
     person(given = "Peter", family = "Oefner", role = c("ths", "cph"), email = "Peter.Oefner@klinik.uni-regensburg.de", comment = c(ORCID = "0000-0002-1499-3977"))

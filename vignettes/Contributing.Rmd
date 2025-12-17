@@ -80,6 +80,8 @@ devtools::check_win_release()
 devtools::check_win_devel()
 devtools::check_mac_release()
 
+# Update cran-comments.md with the results of the above checks.
+
 # Use the following command to submit the package to CRAN of submit via the web
 # interface available at https://cran.r-project.org/submit.html.
 devtools::submit_cran()

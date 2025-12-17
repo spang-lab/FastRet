@@ -34,6 +34,9 @@
 #' 3=I(RT^3), 4=log(RT), 5=exp(RT), 6=sqrt(RT)) or a character vector with the
 #' explicit transformation terms. Character values are passed to [model.frame()],
 #' so they must use valid formula syntax (e.g. "I(RT^2)" rather than "RT^2").
+#' @param mandatory
+#' Character vector of mandatory columns that must be present in `data`. If any
+#' of these columns are missing, an error is raised.
 #'
 #' @details
 #' If `add_cds = TRUE`, chemical descriptors are added using [getCDs()]. If
@@ -57,7 +60,9 @@ preprocess_data <- function(data,
                             rm_na = TRUE,
                             add_cds = TRUE,
                             rm_ucs = TRUE,
-                            rt_terms = 1) {
+                            rt_terms = 1,
+                            mandatory = c("NAME", "RT", "SMILES")
+                            ) {
 
     if (FALSE) stub(preprocess_data, data=head(RP, 3), rt_terms=c(1:2,6))
 
@@ -83,7 +88,6 @@ preprocess_data <- function(data,
     rt_terms <- rt_terms[rt_terms != "RT"] # RT is 'mandatory' anyways
 
     # Check for missing columns
-    mandatory <- c("NAME", "RT", "SMILES")
     optional <- c("INCHIKEY", "RT_ADJ")
     supported <- c(mandatory, optional, rt_terms, CDFeatures)
     is_supported <- colnames(data) %in% supported

@@ -500,7 +500,11 @@ predict.frm <- function(object = train_frm(),
     }
     if (!all(cd_pds %in% colnames(df))) {
         logf("Chemical descriptors not found in newdata. Trying to calculate them from the provided SMILES.")
-        df <- preprocess_data(df, dgp, iat, verbose, 1, rm_nzv, rm_na, add_cds)
+        df <- preprocess_data(
+            df, dgp, iat, verbose, 1, rm_nzv, rm_na, add_cds,
+            rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES")
+        )
+
     }
     if (!all(cd_pds %in% colnames(df))) {
         missing <- paste(setdiff(cd_pds, colnames(df)), collapse = ", ")
@@ -519,7 +523,11 @@ predict.frm <- function(object = train_frm(),
             # We don't store interaction terms and/or polynomial features in
             # the training data frame, so we need to preprocess it again to get
             # these features.
-            train_df <- preprocess_data(train_df, dgp, iat, verbose, 1, FALSE, FALSE, TRUE)
+            train_df <- preprocess_data(
+                train_df, dgp, iat, verbose,
+                nw = 1, rm_near_zero_var = FALSE, rm_na = FALSE, add_cds = TRUE,
+                rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES")
+            )
         }
         for (p in nap) {
             col_mean <- mean(train_df[[p]], na.rm = TRUE)

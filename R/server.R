@@ -134,8 +134,8 @@ init_extended_task_handlers <- function(SE) {
 init_reactives <- function(SE) {
     SE$R <- list()
     SE$R$predDfCombined <- shiny::reactive({
-        smiles <- SE$RV$predSmiles
-        df <- SE$RV$predDf
+        smiles <- SE$RV$predSmiles # data.frame(NAME = "Input SMILES", SMILES = smiles)
+        df <- SE$RV$predDf # data.frame(NAME = names, SMILES = smiles)
         if (is.null(smiles) && is.null(df)) return(NULL)
         if (is.null(smiles)) return(df)
         if (is.null(df)) return(smiles)
@@ -160,7 +160,7 @@ init_action_button_handlers <- function(SE) {
     }
     SE$ABH$btnPred <- function(SE) {
         frm <- SE$RV$inpFRM
-        df <- SE$R$predDfCombined()
+        df <- SE$R$predDfCombined() # data.frame(NAME, SMILES)
         if (is.null(frm) || is.null(frm$model)) stop("Please upload a valid model first")
         if (is.null(df) || nrow(df) == 0) stop("Please enter a valid SMILES string first or upload a list of SMILES as xlsx")
         SE$ET$btnPred$invoke( # takes same argument as [predict()]
@@ -203,11 +203,11 @@ init_input_handlers <- function(SE) {
             } else {
                 catf("Validating SMILES string")
                 # Validate SMILES by trying to parse it with rCDK
-                tmp <- try({
+                tmp <- try(silent = TRUE, {
                     obj <- rcdk::parse.smiles(smiles)[[1]]
                     rcdk::convert.implicit.to.explicit(obj)
                     TRUE
-                }, silent = TRUE)
+                })
                 if (inherits(tmp, "try-error")) {
                     catf("Validation failed. Displaying 'Error: SMILES string is invalid'")
                     SE$RV$predSmiles <- NULL
