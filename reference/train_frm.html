@@ -9,7 +9,7 @@ the specified method."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,8 @@ the specified method.</p>
 <span>  rm_near_zero_var <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  rm_na <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  rm_ns <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  do_cv <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -77,8 +78,9 @@ calculated using the function <code><a href="preprocess_data.html">preprocess_da
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>A string representing the prediction algorithm. Either "lasso", "ridge" or
-"gbtree".</p></dd>
+<dd><p>A string representing the prediction algorithm. Either "lasso", "ridge",
+"gbtree", "gbtreeDefault" or "gbtreeRP". Method "gbtree" is an alias for
+"gbtreeDefault".</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -103,17 +105,13 @@ specified degree are included in the model.</p></dd>
 
 
 <dt id="arg-rm-near-zero-var">rm_near_zero_var<a class="anchor" aria-label="anchor" href="#arg-rm-near-zero-var"></a></dt>
-<dd><p>A logical value indicating whether to remove near zero variance predictors.
-Setting this to TRUE can cause the CV results to be overoptimistic, as the
-variance filtering is done on the whole dataset, i.e. information from the
-test folds is used for feature selection.</p></dd>
+<dd><p>A logical value indicating whether to remove near zero variance predictors.</p></dd>
 
 
 <dt id="arg-rm-na">rm_na<a class="anchor" aria-label="anchor" href="#arg-rm-na"></a></dt>
-<dd><p>A logical value indicating whether to remove NA values. Setting this to TRUE
-can cause the CV results to be overoptimistic, as the filtering is done on
-the whole dataset, i.e. information from the test folds is used for feature
-selection.</p></dd>
+<dd><p>A logical value indicating whether to remove NA values before training.
+Highly recommended to avoid issues during model fitting. Setting this to
+FALSE with <code>method = "lasso"</code> will most likely lead to errors.</p></dd>
 
 
 <dt id="arg-rm-ns">rm_ns<a class="anchor" aria-label="anchor" href="#arg-rm-ns"></a></dt>
@@ -126,18 +124,35 @@ of an independent dataset. Currently not used.</p></dd>
 <dd><p>An integer value to set the seed for random number generation to allow for
 reproducible results.</p></dd>
 
+
+<dt id="arg-do-cv">do_cv<a class="anchor" aria-label="anchor" href="#arg-do-cv"></a></dt>
+<dd><p>A logical value indicating whether to perform cross-validation. If FALSE,
+the <code>cv</code> element in the returned object will be NULL.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A trained FastRet model.</p>
-    </div>
+    <p>A 'FastRet Model', i.e., an object of class <code>frm</code>. Components are:</p><ul><li><p><code>model</code>: The fitted base model. This can be an object of class <code>glmnet</code>
+(for Lasso or Ridge regression) or <code>xgb.Booster</code> (for GBTree models).</p></li>
+<li><p><code>df</code>: The data frame used for training the model. The data frame contains
+all user-provided columns (including mandatory columns RT, SMILES and NAME)
+as well the calculated chemical descriptors. (But no interaction terms or
+polynomial features, as these can be recreated within a few milliseconds).</p></li>
+<li><p><code>cv</code>: A named list containing the cross validation results, or NULL if
+<code>do_cv = FALSE</code>. When not NULL, elements are:</p><ul><li><p><code>folds</code>: A list of integer vectors specifying the samples in each fold.</p></li>
+<li><p><code>models</code>: A list of models trained on each fold.</p></li>
+<li><p><code>stats</code>: A list of vectors with RMSE, Rsquared, MAE, pBelow1Min per fold.</p></li>
+<li><p><code>preds</code>: Retention time predictions obtained in CV as numeric vector.</p></li>
+</ul></li>
+<li><p><code>seed</code>: The seed used for random number generation.</p></li>
+<li><p><code>version</code>: The version of the FastRet package used to train the model.</p></li>
+<li><p><code>args</code>: The value of function arguments besides <code>df</code> as named list.</p></li>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">train_frm</span><span class="op">(</span><span class="va">RP</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">80</span>, <span class="op">]</span>, method <span class="op">=</span> <span class="st">"lasso"</span>, nfolds <span class="op">=</span> <span class="fl">2</span>, nw <span class="op">=</span> <span class="fl">1</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    user  system elapsed </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.287   0.015   0.302 </span>
-<span class="r-in"><span><span class="co"># For the sake of a short runtime, only the first 80 rows of the RP dataset</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">train_frm</span><span class="op">(</span>df <span class="op">=</span> <span class="va">RP</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">40</span>, <span class="op">]</span>, method <span class="op">=</span> <span class="st">"lasso"</span>, nfolds <span class="op">=</span> <span class="fl">2</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># For the sake of a short runtime, only the first 40 rows of the RP dataset</span></span></span>
 <span class="r-in"><span><span class="co"># are used in this example. In practice, you should always use the entire</span></span></span>
 <span class="r-in"><span><span class="co"># training dataset for model training.</span></span></span>
 </code></pre></div>
@@ -147,11 +162,11 @@ reproducible results.</p></dd>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Christian Amesoeder, Marian Schoen, Tobias Schmidt.</p>
+  <p>Developed by Tobias Schmidt, Christian Amesoeder, Marian Schoen.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

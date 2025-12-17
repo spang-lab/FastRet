@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,11 @@
 <span>  verbose <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  nw <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  rm_near_zero_var <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  rm_na <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  rm_na <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  add_cds <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  rm_ucs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  rt_terms <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  mandatory <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NAME"</span>, <span class="st">"RT"</span>, <span class="st">"SMILES"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -64,48 +68,78 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Dataframe with columns RT, NAME, SMILES</p></dd>
+<dd><p>Dataframe with following columns:</p><ul><li><p>Mandatory: NAME, RT and SMILES.</p></li>
+<li><p>Recommmended: INCHIKEY.</p></li>
+<li><p>Optional: Any of the chemical descriptors listed in <a href="CDFeatures.html">CDFeatures</a>.
+All other columns will be removed.
+See 'Details'.</p></li>
+</ul></dd>
 
 
 <dt id="arg-degree-polynomial">degree_polynomial<a class="anchor" aria-label="anchor" href="#arg-degree-polynomial"></a></dt>
-<dd><p>Defines how many polynomials get added (if 3 quadratic and cubic terms get
-added).</p></dd>
+<dd><p>Add predictors with polynomial terms up to the specified degree, e.g. 2 means
+"add squares", 3 means "add squares and cubes". Set to 1 to leave descriptors
+unchanged.</p></dd>
 
 
 <dt id="arg-interaction-terms">interaction_terms<a class="anchor" aria-label="anchor" href="#arg-interaction-terms"></a></dt>
-<dd><p>If TRUE all interaction terms get added to data set.</p></dd>
+<dd><p>Add interaction terms? Polynomial terms are not included in the generation of
+interaction terms.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>0 == no output, 1 == show progress, 2 == show progress and warnings</p></dd>
+<dd><p>0: no output, 1: show progress, 2: progress and warnings.</p></dd>
 
 
 <dt id="arg-nw">nw<a class="anchor" aria-label="anchor" href="#arg-nw"></a></dt>
-<dd><p>number of workers to use for parallel processing</p></dd>
+<dd><p>Number of workers to use for parallel processing.</p></dd>
 
 
 <dt id="arg-rm-near-zero-var">rm_near_zero_var<a class="anchor" aria-label="anchor" href="#arg-rm-near-zero-var"></a></dt>
-<dd><p>A logical value indicating whether to remove near zero variance predictors.
-Setting this to TRUE can cause the CV results to be overoptimistic, as the
-variance filtering is done on the whole dataset, i.e. information from the
-test folds is used for feature selection.</p></dd>
+<dd><p>Remove near zero variance predictors?</p></dd>
 
 
 <dt id="arg-rm-na">rm_na<a class="anchor" aria-label="anchor" href="#arg-rm-na"></a></dt>
-<dd><p>A logical value indicating whether to remove NA values. Setting this to TRUE
-can cause the CV results to be overoptimistic, as the filtering is done on
-the whole dataset, i.e. information from the test folds is used for feature
-selection.</p></dd>
+<dd><p>Remove NA values?</p></dd>
+
+
+<dt id="arg-add-cds">add_cds<a class="anchor" aria-label="anchor" href="#arg-add-cds"></a></dt>
+<dd><p>Add chemical descriptors using <code><a href="getCDs.html">getCDs()</a></code>? See 'Details'.</p></dd>
+
+
+<dt id="arg-rm-ucs">rm_ucs<a class="anchor" aria-label="anchor" href="#arg-rm-ucs"></a></dt>
+<dd><p>Remove unsupported columns?</p></dd>
+
+
+<dt id="arg-rt-terms">rt_terms<a class="anchor" aria-label="anchor" href="#arg-rt-terms"></a></dt>
+<dd><p>Which retention-time transformations to append as extra predictors. Supply a
+numeric vector referencing predefined rt_terms (1=RT, 2=I(RT^2),
+3=I(RT^3), 4=log(RT), 5=exp(RT), 6=sqrt(RT)) or a character vector with the
+explicit transformation terms. Character values are passed to <code><a href="https://rdrr.io/r/stats/model.frame.html" class="external-link">model.frame()</a></code>,
+so they must use valid formula syntax (e.g. "I(RT^2)" rather than "RT^2").</p></dd>
+
+
+<dt id="arg-mandatory">mandatory<a class="anchor" aria-label="anchor" href="#arg-mandatory"></a></dt>
+<dd><p>Character vector of mandatory columns that must be present in <code>data</code>. If any
+of these columns are missing, an error is raised.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A dataframe with the preprocessed data</p>
+    <p>A dataframe with the preprocessed data.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>If <code>add_cds = TRUE</code>, chemical descriptors are added using <code><a href="getCDs.html">getCDs()</a></code>. If
+<strong>all</strong> chemical descriptors listed in <a href="CDFeatures.html">CDFeatures</a> are already present in
+the input <code>data</code> object, <code><a href="getCDs.html">getCDs()</a></code> will leave them unchanged. If one or more
+chemical descriptors are missing, <strong>all</strong> chemical descriptors will be
+recalculated and existing ones will be overwritten.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">RP</span>, <span class="fl">3</span><span class="op">)</span> <span class="co"># Only use first three rows to speed up example runtime</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">RP</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pre</span> <span class="op">&lt;-</span> <span class="fu">preprocess_data</span><span class="op">(</span><span class="va">data</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
@@ -114,11 +148,11 @@ selection.</p></dd>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Christian Amesoeder, Marian Schoen, Tobias Schmidt.</p>
+  <p>Developed by Tobias Schmidt, Christian Amesoeder, Marian Schoen.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,116 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.0" id="fastret-130-">FastRet 1.3.0 <!-- Commit Date: 2025-11-12 -->
+<a class="anchor" aria-label="anchor" href="#fastret-130-"></a></h2>
+<p>API Improvements:</p>
+<ol style="list-style-type: decimal"><li>
+<code><a href="../reference/getCDs.html">getCDs()</a></code>:
+<ul><li>Calculation of CDs is skipped, if all CDs are already present in the input dataframe.</li>
+<li>In addition to a dataframe with column “SMILES”, a plain character vector of SMILES strings can now be provided as input.</li>
+<li>Improved progress output.</li>
+<li>More Smiles are now pre-cached internally to speed up retrieval of CDs for large datasets.</li>
+</ul></li>
+<li>
+<code><a href="../reference/plot_frm.html">plot_frm()</a></code>:
+<ul><li>Now available as exported function (the function existed before, but was only exposed via the Graphical User Interface). Now users can call it directly from R scripts.</li>
+<li>Added semi-transparent background to legends for better readability</li>
+<li>Changed the point character from unfilled circles with colored borders to filled circles with black borders for better visibility.</li>
+<li>Constant predictions (causing correlation to be NA) do no longer cause a warning.</li>
+</ul></li>
+<li>
+<code><a href="../reference/preprocess_data.html">preprocess_data()</a></code>:
+<ul><li>Added argument <code>add_cds</code> to control whether chemical descriptors should be added to the input data using <code><a href="../reference/getCDs.html">getCDs()</a></code>.</li>
+<li>Added argument <code>rm_ucs</code> to control whether unsupported columns (i.e. columns that are neither mandatory nor optional) should be removed from the input data.</li>
+</ul></li>
+</ol><ul><li>Added argument <code>rt_terms</code> to control whether transformations of the RT column (square, cube, log, exp, sqrt) should be added to the input data.</li>
+<li>In case of missing mandatory columns (SMILES, RT, NAME) an error is now raised.</li>
+<li>INCHIKEY and Chemical Descriptors listed in <code>CDFeatures</code> are allowed as optional columns.</li>
+<li>Columns that are neither mandatory nor optional are automatically removed.</li>
+<li>Improved runtime for generation of polynomial features and/or interaction terms.</li>
+<li>Removal of NA and/or near-zero-variance predictors is now done after adding polynomial features and/or interaction terms.</li>
+<li>Improved progress output.</li>
+</ul><ol start="4" style="list-style-type: decimal"><li>
+<code><a href="../reference/train_frm.html">train_frm()</a></code>:
+<ul><li>Added argument <code>do_cv</code> to control whether cross-validation should be performed for performance estimation. Default is TRUE.</li>
+<li>Removal of near-zero-variance predictors and/or removal of NA values is now done as part of the internal model training, i.e. it happens separately for each fold during cross-validation. This prevents data leakage from the training set to the validation set. The corresponding hint about “overoptimistic cross-validation results” has consequently been removed from the documentation.</li>
+<li>Argument <code>method</code> now accepts two values for training models with xgbtree base: “gbtreeDefault” (train xgboost with default params) and “gbtreeRP” (train xgboost with parameters optimized for the RP dataset). The old value “gbtree” still works and is now an alias for “gbtreeDefault”.</li>
+<li>Improved documentation of the return value (i.e. <code>frm</code> objects are fully specified now).</li>
+<li>Added type checking for each user input.</li>
+<li>Performance estimation via cross-validation now uses the new clipping mechanism provided by <code><a href="../reference/clip_predictions.html">clip_predictions()</a></code>. Of course, the clipping is always based on the RT range of training folds, not the whole original training data.</li>
+<li>Calculating proportion of variance explained (R²) no longer throws a warning for constant predictions (causing correlation to be NA). Instead, R² is set to 0 in such cases.</li>
+</ul></li>
+<li>
+<code><a href="../reference/predict.frm.html">predict.frm()</a></code>:
+<ul><li>Data transformations applied to the training data (adding polynomial features and/or adding interaction terms) are now automatically applied to new data as well. This was not the case before, leading to errors when trying to predict RTs using models trained with <code>degree_polynomial&gt;1</code> and/or <code>interaction_terms=TRUE</code>, unless the transformations were manually applied to the new data beforehand.</li>
+<li>Added argument <code>clip</code> to allow clipping of predictions to be within the RT range of the training data. Works for both adjusted and unadjusted models.</li>
+<li>Predictions are now clipped to be within a sensible range by default. To produce unclipped predictions, set <code>clip=FALSE</code>. See <code><a href="../reference/clip_predictions.html">clip_predictions()</a></code> for details.</li>
+<li>If a chemical descriptor is NA in the new data, but required by the model, the NA value is now replaced by the mean of that descriptor in the training data. Previously, the prediction for such entries was NA. The old behavior can be restored by setting <code>impute=FALSE</code> in <code><a href="../reference/predict.frm.html">predict.frm()</a></code>.</li>
+</ul></li>
+<li>
+<code><a href="../reference/selective_measuring.html">selective_measuring()</a></code>:
+<ul><li>Added argument <code>rt_coef</code>, allowing user to control the influence of RT on the clustering. A value of 0 means that RT is ignored, a value of “max_ridge_coefficient” means that RT has the same weight as the most important chemical descriptor and a value of 1 means no scaling at all (except standardization to z-scores, which is applied before to the whole dataset before the ridge regression is trained).</li>
+</ul></li>
+<li>
+<code><a href="../reference/adjust_frm.html">adjust_frm()</a></code>:
+<ul><li>Added argument <code>seed</code> to allow reproducible results.</li>
+<li>Added argument <code>do_cv</code> to control whether cross-validation should be performed for performance estimation. Default is TRUE.</li>
+<li>Added argument <code>adj_type</code> to control which model should be trained for adjustment: supported options are “lm”, “lasso”, “ridge”, or “gbtree”. Previously, only “lm” was supported. To stay backwards compatible, the default is “lm”.</li>
+<li>Added argument <code>add_cds</code> to control whether chemical descriptors should be added to the input data using <code><a href="../reference/getCDs.html">getCDs()</a></code>. Only recommended for adj_type other than “lm”.</li>
+<li>Added support for mapping by SMILES+INCHIKEY in addition to SMILES+NAME. SMILES+INCHIKEY is used by default if both columns are present in the adjusted and the original training data. Otherwise SMILES+NAME is used as before.</li>
+<li>Improved error handling. Previously, unmappable entries in the new data had been ignored silently. Now, an error is raised in such cases.</li>
+<li>Function arguments are now stored in the returned frm object for better reproducibility.</li>
+<li>Mapping is now performed by matching each new entry to the average RT of all original training entries with the same key (SMILES+INCHIKEY or SMILES+NAME). Example: if the new dataset contains a key twice, and the original training data contains the key three times, both new entries are mapped to the average RT of the three original entries.</li>
+<li>Performance estimation via cross-validation now uses the new clipping mechanism provided by <code><a href="../reference/clip_predictions.html">clip_predictions()</a></code>. Of course, the clipping is always based on the RT range of training folds, not the whole original training data.</li>
+<li>Calculating proportion of variance explained (R²) no longer throws a warning for constant predictions (causing correlation to be NA). Instead, R² is set to 0 in such cases.</li>
+</ul></li>
+<li>
+<code>print.frm()</code>:
+<ul><li>frm objects can now be printed directly to the console in a user-friendly format.</li>
+</ul></li>
+<li>
+<code><a href="../reference/clip_predictions.html">clip_predictions()</a></code>:
+<ul><li>New utility function for clipping predicted RTs to be within a sensible range. Used internally by <code><a href="../reference/train_frm.html">train_frm()</a></code>, <code><a href="../reference/predict.frm.html">predict.frm()</a></code> and <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code>.</li>
+</ul></li>
+<li>
+<code><a href="../reference/get_predictors.html">get_predictors()</a></code>:
+<ul><li>Added arguments <code>base</code> and <code>adjust</code> to control whether predictors for the base model, the adjustment model or both should be returned.</li>
+</ul></li>
+</ol><p>Bugfixes:</p>
+<ol style="list-style-type: decimal"><li>Interaction terms generated by <code><a href="../reference/preprocess_data.html">preprocess_data()</a></code> are now generated correctly as product of the involved features instead of a division. This follows common practice in regression modeling and avoids division by zero issues. Passing older models, trained with division-based interaction terms, to downstream functions like <code><a href="../reference/predict.frm.html">predict.frm()</a></code> or <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code> will now lead to an error. (This is not a breaking change, as <code><a href="../reference/predict.frm.html">predict.frm()</a></code> and friends have in fact never been able to handle such models).</li>
+<li>
+<code><a href="../reference/plot_frm.html">plot_frm()</a></code> with type “scatter.cv.adj” or “scatter.train.adj” now correctly shows retention times from the new data (used for model adjustment) as x-axis values instead of the original training retention times.</li>
+<li>
+<code><a href="../reference/catf.html">catf()</a></code> now only emits escape codes (i.e. colored output), it the output is directed to a terminal. If the output is redirected to a file or a pipe, no escape codes are emitted anymore. Since <code><a href="../reference/catf.html">catf()</a></code> is used throughout the package for logging, this fixes the output for the whole package.</li>
+</ol><p>Internal Improvements:</p>
+<ol style="list-style-type: decimal"><li>Added or improved unit tests for:
+<ul><li><code><a href="../reference/adjust_frm.html">adjust_frm()</a></code></li>
+<li><code>fit_gbtree()</code></li>
+<li><code>fit_glmnet()</code></li>
+<li><code>get_param_grid()</code></li>
+<li><code><a href="../reference/get_predictors.html">get_predictors()</a></code></li>
+<li><code><a href="../reference/getCDs.html">getCDs()</a></code></li>
+<li><code><a href="../reference/plot_frm.html">plot_frm()</a></code></li>
+<li><code>predict_frm()</code></li>
+<li><code><a href="../reference/preprocess_data.html">preprocess_data()</a></code></li>
+<li><code><a href="../reference/selective_measuring.html">selective_measuring()</a></code></li>
+<li><code><a href="../reference/train_frm.html">train_frm()</a></code></li>
+<li><code>validate_inputdata()</code></li>
+</ul></li>
+<li>Removed <code>caret</code> dependency by adding custom implementations for:
+<ul><li><code>createFolds()</code></li>
+<li><code>nearZeroVar()</code></li>
+</ul></li>
+<li>Extract mapping and merging part of <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code> into a private function <code>merge_dfs()</code>.</li>
+<li>Replaced <code>fit_glmnet()</code>, <code>fit_lasso()</code> and <code>fit_ridge()</code> with a single function <code>fit_glmnet()</code>, that takes the method (“lasso” or “ridge”) as parameter. Instead of a dataframe <code>df</code> that has to contain only predictors plus the RT column (as reponse), the function now takes a matrix of predictors <code>X</code> and a vector of responses <code>y</code>. This makes the function more flexible and easier to test.</li>
+<li>Replaced <code>fit_gbtree_grid()</code> with a much simpler function <code>find_params_best()</code>. Instead of allowing the specification of every grid parameter, the new function instead accepts a keyword <code>searchspace</code> for specifying predefined grids to choose from.</li>
+<li>Improved <code>fit_gbtree</code> by exposing lots of hardcoded internal xgboost parameters as function parameters with sensible defaults. In particular, the user can now set <code>xpar</code> to “default”, “rpopt” or a predefined grid-size to train the model with different hyperparameter settings. Furthermore, the function is now written in a way that works with both, version 1.7.9.1 and the new 3.1.2.1 version published on 2025/12/03 (yes, version 2.x was skipped completely).</li>
+<li>Added helper function <code>get_param_grid()</code> for returning predefined hyperparameter grids for xgboost model training based on keywords like “tiny”, “small” or “large”.</li>
+<li>Added function <code>benchmark_find_params()</code> to benchmark runtime of <code>find_params_best()</code> for different numbers of cores and/or threads. As it turns out, choosing a higher number of cores is usually more efficient (at the cost of worse progress output).</li>
+<li>Added utility functions <code>named()</code>, <code>as_str()</code>, <code>is_valid_smiles()</code> and <code><a href="../reference/as_canonical.html">as_canonical()</a></code>
+</li>
+</ol></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.2" id="fastret-122-">FastRet 1.2.2 <!-- Commit Date: 2025-11-05 -->
 <a class="anchor" aria-label="anchor" href="#fastret-122-"></a></h2>
 <ul><li>Improved <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code> by aligning glmnet coefficients to columns by name (more stable) and by including RT, scaled by <code>max(abs(coefs))</code>, in PAM clustering.</li>
@@ -50,17 +160,23 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.1" id="fastret-121-">FastRet 1.2.1 <!-- Branch: 2025-09-23 -->
 <a class="anchor" aria-label="anchor" href="#fastret-121-"></a></h2>
-<ul><li><p>Add updated Measurements <code>Measurements_v8.xlsx</code> to <code>inst/extdata/</code>. The new list contains corrections to the old <code>RP</code> dataset plus 1660 new measurements measured on a total of 18 different chromatographic environments.</p></li>
-<li><p>Reintroduced RAM caching (although hugely simplified). # FastRet 1.2.0 <!-- Commit Date: 2025-09-22 --></p></li>
-<li><p>Added <code>seed</code> parameter to <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code> function for reproducible clustering results</p></li>
-<li><p>Enhanced documentation for <code><a href="../reference/train_frm.html">train_frm()</a></code> function</p></li>
-<li><p>Removed <code>digest</code> and <code>shinybusy</code> dependencies</p></li>
-<li><p>Major refactoring of caching system and related functions</p></li>
-<li><p>Removed mock files from <code>inst/mockdata/</code></p></li>
-<li><p>Removed objects: <code>getCDsFor1Molecule()</code>, <code>get_cache_dir()</code>, <code>ram_cache</code> (these were exported, but declared as internal)</p></li>
-<li><p>Added private function <code>parLapply2</code></p></li>
-<li><p>Added comprehensive GitHub Copilot instructions file</p></li>
-<li><p>Improved code organization and documentation across multiple R files</p></li>
+<ul><li>Add updated Measurements <code>Measurements_v8.xlsx</code> to <code>inst/extdata/</code>. The new list contains corrections to the old <code>RP</code> dataset plus 1660 new measurements measured on a total of 18 different chromatographic environments.</li>
+<li>Reintroduced RAM caching (although hugely simplified).</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="fastret-120-">FastRet 1.2.0 <!-- Commit Date: 2025-09-22 -->
+<a class="anchor" aria-label="anchor" href="#fastret-120-"></a></h2>
+<ul><li>Added <code>seed</code> parameter to <code><a href="../reference/selective_measuring.html">selective_measuring()</a></code> function for reproducible clustering results</li>
+<li>Enhanced documentation for <code><a href="../reference/train_frm.html">train_frm()</a></code> function</li>
+<li>Removed <code>digest</code> and <code>shinybusy</code> dependencies</li>
+<li>Major refactoring of caching system and related functions</li>
+<li>Removed mock files from <code>inst/mockdata/</code>
+</li>
+<li>Removed objects: <code>getCDsFor1Molecule()</code>, <code>get_cache_dir()</code>, <code>ram_cache</code> (these were exported, but declared as internal)</li>
+<li>Added private function <code>parLapply2</code>
+</li>
+<li>Added comprehensive GitHub Copilot instructions file</li>
+<li>Improved code organization and documentation across multiple R files</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.5" id="fastret-115-">FastRet 1.1.5 <!-- Commit Date: 2025-06-26 -->
@@ -204,7 +320,7 @@
 <a class="anchor" aria-label="anchor" href="#fastret-0991-"></a></h2>
 <ul><li>
 <p>Initial version.</p>
-<p>Copy of commit <code>cd243aa82a56df405df8060b84535633cf06b692</code> of <a href="https://github.com/ChristianAmes/FastRet.git" class="external-link">Christian Amesöders Repository</a>. (Christian wrote this initial version of FastRet as part of his master thesis at the Institute of functional Genomics, University of Regensburg).</p>
+<p>Copy of commit <code>cd243aa82a56df405df8060b84535633cf06b692</code> of <a href="https://github.com/ChristianAmes/FastRet" class="external-link">Christian Amesöders Repository</a>. (Christian wrote this initial version of FastRet as part of his master thesis at the Institute of functional Genomics, University of Regensburg).</p>
 </li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -212,11 +328,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Christian Amesoeder, Marian Schoen, Tobias Schmidt.</p>
+  <p>Developed by Tobias Schmidt, Christian Amesoeder, Marian Schoen.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

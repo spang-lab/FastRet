@@ -1,0 +1,27 @@
+# CLI Usage
+
+FastRet comes with a GUI for easy and intuitive use. However, sometimes
+it’s preferable to use FastRet programmatically. This vignette will show
+you how to use FastRet from the R command line.
+
+The four modes that are available via the FastRet GUI are [Train new
+Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#train-new-model),
+[Predict Retention
+Times](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#predict-retention-times),
+[Selective
+Measuring](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#selective-measuring)
+and [Adjust existing
+Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#adjusting-measurements-using-a-linear-model).
+Each of these modes has a corresponding function, which can be called
+from the command line. The mode-function mapping is as follows:
+
+| Mode                    | Function                                                                                      |
+|-------------------------|-----------------------------------------------------------------------------------------------|
+| Train new Model         | [train_frm](https://spang-lab.github.io/FastRet/reference/train_frm.html)                     |
+| Predict Retention Times | [predict.frm](https://spang-lab.github.io/FastRet/reference/predict.frm.html)                 |
+| Selective Measuring     | [selective_measuring](https://spang-lab.github.io/FastRet/reference/selective_measuring.html) |
+| Adjust existing Model   | [adjust_frm](https://spang-lab.github.io/FastRet/reference/adjust_frm.html)                   |
+
+For details about each function, like parameter descriptions, usage
+examples and return values, click on the function name to open the
+corresponding help page.

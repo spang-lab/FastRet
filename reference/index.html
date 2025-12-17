@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,8 +45,7 @@
 
       <div class="section-desc"><p>FastRet’s Public User Interface</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -57,43 +56,64 @@
 
         </dt>
         <dd>Adjust an existing FastRet model for use with a new column</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="clip_predictions.html">clip_predictions()</a></code>
+
+        </dt>
+        <dd>Clip predictions to observed range</dd>
+
+        <dt>
 
           <code><a href="fastret_app.html">fastret_app()</a></code>
 
         </dt>
         <dd>The FastRet GUI</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="getCDs.html">getCDs()</a></code>
 
         </dt>
         <dd>Get Chemical Descriptors for a list of molecules</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="plot_frm.html">plot_frm()</a></code>
+
+        </dt>
+        <dd>Plot predictions for a FastRet model</dd>
+
+        <dt>
 
           <code><a href="predict.frm.html">predict(<i>&lt;frm&gt;</i>)</a></code>
 
         </dt>
         <dd>Predict retention times using a FastRet Model</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="preprocess_data.html">preprocess_data()</a></code>
 
         </dt>
         <dd>Preprocess data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="selective_measuring.html">selective_measuring()</a></code>
 
         </dt>
         <dd>Selective Measuring</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="start_gui.html">start_gui()</a></code>
 
         </dt>
         <dd>Start the FastRet GUI</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="train_frm.html">train_frm()</a></code>
 
@@ -104,8 +124,7 @@
 
       <div class="section-desc"><p>Internal helper functions. Although exported, they should not be used directly. They are only exported to speed up cluster creation during parallel calculations, as this would require explicit function exporting of every required private function. Additionally, exporting these functions allows them to be referenced in the documentation of public API functions.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -116,73 +135,92 @@
 
         </dt>
         <dd>Chemical Descriptor Features</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="CDNames.html">CDNames</a></code>
 
         </dt>
         <dd>Chemical Descriptors Names</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="analyzeCDNames.html">analyzeCDNames()</a></code>
 
         </dt>
         <dd>Analyze Chemical Descriptors Names</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="as_canonical.html">as_canonical()</a></code>
+
+        </dt>
+        <dd>Canonicalize SMILES</dd>
+
+        <dt>
 
           <code><a href="catf.html">catf()</a></code>
 
         </dt>
         <dd>catf function</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="collect.html">collect()</a></code>
 
         </dt>
         <dd>Collect elements from a list of lists</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_predictors.html">get_predictors()</a></code>
 
         </dt>
         <dd>Extract predictor names from an 'frm' object</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="init_log_dir.html">init_log_dir()</a></code>
 
         </dt>
         <dd>Initialize log directory</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="now.html">now()</a></code>
 
         </dt>
         <dd>now</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="pkg_file.html">pkg_file()</a></code>
 
         </dt>
         <dd>Get package file</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="withLineEnd.html">withLineEnd()</a></code>
 
         </dt>
         <dd>Add line end</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="withSink.html">withSink()</a></code>
 
         </dt>
         <dd>Execute an expression while redirecting output to a file</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="withStopMessage.html">withStopMessage()</a></code>
 
         </dt>
         <dd>Try expression with predefined error message</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="withTimeout.html">withTimeout()</a></code>
 
@@ -193,8 +231,7 @@
 
       <div class="section-desc"><p>Datasets used in FastRet’s examples and vignettes.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -205,25 +242,29 @@
 
         </dt>
         <dd>Retention Times (RT) measured on a Reverse Phase (RP) Column</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="read_retip_hilic_data.html">read_retip_hilic_data()</a></code>
 
         </dt>
         <dd>Read the HILIC dataset from the Retip package</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="read_rp_lasso_model_rds.html">read_rp_lasso_model_rds()</a></code>
 
         </dt>
         <dd>LASSO Model trained on RP dataset</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="read_rp_xlsx.html">read_rp_xlsx()</a></code>
 
         </dt>
         <dd>Read retention times (RT) measured on a reverse phase (RP) column</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="read_rpadj_xlsx.html">read_rpadj_xlsx()</a></code>
 
@@ -235,11 +276,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Christian Amesoeder, Marian Schoen, Tobias Schmidt.</p>
+  <p>Developed by Tobias Schmidt, Christian Amesoeder, Marian Schoen.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
