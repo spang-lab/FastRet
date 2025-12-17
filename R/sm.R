@@ -38,6 +38,18 @@
 #' An optional random seed for reproducibility, set at the beginning of the
 #' function.
 #'
+#' @param rt_coef
+#' Which coefficient to use for scaling RT before clustering. Options are:
+#' - max_ridge_coef: scale with the maximum absolute coefficient obtained in
+#'   ridge regression. I.e., RT will have approximately the same weight as the
+#'   most important chemical descriptor.
+#' - 1: do not scale RT any further, i.e., use standardized RT. The effect of
+#'   leaving RT unscaled is kind of unpredictable, as the ridge coefficients
+#'   depend on the dataset. If the maximum absolute coefficient is much smaller
+#'   than 1, RT will dominate the clustering. If it is much larger than 1, RT
+#'   will have little influence on the clustering.
+#' - 0: exclude RT from the clustering.
+#'
 #' @return
 #' A list containing the following elements:
 #'
@@ -52,7 +64,6 @@
 #' - `dfzb`: The features scaled by the coefficients (betas) of the Ridge
 #'   Regression model.
 #'
-#'
 #' @examples
 #' x <- selective_measuring(RP[1:50, ], k = 5, verbose = 0)
 #' # For the sake of a short runtime, only the first 50 rows of the RP dataset
@@ -62,56 +73,54 @@
 selective_measuring <- function(raw_data,
                                 k_cluster = 25,
                                 verbose = 1,
-                                seed = NULL) {
+                                seed = NULL,
+                                rt_coef = "max_ridge_coef"
+                                ) {
 
-    if (!is.null(seed)) set.seed(seed)
+    logf <- if (verbose >= 1) catf else null
 
-    # Configure logging behaviours
-    catf <- if (verbose >= 1) catf else function(...) {}
-    catf("Starting Selective Measuring")
+    logf("Starting Selective Measuring")
+    if (is.numeric(seed)) set.seed(seed)
 
-    catf("Preprocessing input data")
-    validate_inputdata(raw_data, min_cds = 0)
+    logf("Preprocessing input data")
     df <- preprocess_data(raw_data, verbose = verbose)
+    # Now df contains only NAME, SMILES, RT [,INCHIKEY] and CDs
 
-    catf("Standardizing features")
-    dfz <- scale(df[, setdiff(colnames(df), c("NAME", "SMILES")), drop = FALSE])
-    dfz_noRT <- dfz[, setdiff(colnames(dfz), "RT"), drop = FALSE]
+    logf("Standardizing features")
+    nonmeta <- !colnames(df) %in% c("NAME", "SMILES", "INCHIKEY")
+    df <- df[, nonmeta, drop = FALSE]
+    dfz <- as.data.frame(scale(df)) # z-score standardized (mean 0, sd 1)
 
-    catf("Training Ridge Regression model")
-    model <- fit_ridge(dfz, verbose = verbose)
+    logf("Training Ridge Regression model")
+    Xz <- as.matrix(dfz[, colnames(dfz) != "RT", drop = FALSE])
+    y <- as.numeric(dfz[, "RT"])
+    model <- fit_glmnet(Xz, y, method = "ridge", seed = seed)
 
-    catf("Scaling features by coefficients of Ridge Regression model")
-    coef_mat <- glmnet::coef.glmnet(model)
-    coefs <- as.numeric(coef_mat)[-1]
-    names(coefs) <- rownames(coef_mat)[-1]
-    stopifnot(all(colnames(dfz_noRT) %in% names(coefs))) # (1)
-    dfzb_mat <- sweep(as.matrix(dfz_noRT), 2, coefs[colnames(dfz_noRT)], `*`)
-    dfzb <- as.data.frame(dfzb_mat)
-    colnames(dfzb) <- colnames(dfz_noRT)
-    # (1) Probably not necessary, but let's make sure everything worked as expected
+    logf("Scaling features by coefficients of Ridge Regression model")
+    coef_mat <- glmnet::coef.glmnet(model) # (m+1) x 1 matrix
+    coefs <- as.numeric(coef_mat)[-1] # remove intercept
+    coefs <- setNames(coefs, rownames(coef_mat)[-1])
+    coefs <- coefs[colnames(Xz)] # ensure correct order
+    Xzb <- sweep(Xz, 2, coefs, `*`) # z-score standardized and beta-scaled
 
-    # Include RT in the clustering. Scale RT to be comparable to the other scaled features.
-    # Sensible default: scale RT by the maximum absolute coefficient magnitude so its
-    # influence is similar to the most influential descriptor (max(abs(coefs))).
-    rt_coef <- max(abs(coefs), na.rm = TRUE)
-    if (!is.finite(rt_coef) || rt_coef == 0) rt_coef <- 1
-    dfzb$RT <- as.numeric(dfz[, "RT"]) * rt_coef
+    logf("Scaling RT by %s before clustering", rt_coef)
+    rtc <- if (rt_coef == "max_ridge_coef") {
+        max(abs(coefs), na.rm = TRUE)
+    } else {
+        as.numeric(rt_coef)
+    }
+    dfzb <- data.frame(RT = dfz$RT * rtc, Xzb)
 
-    catf("Applying PAM clustering")
+    logf("Applying PAM clustering")
     clobj <- cluster::pam(dfzb, k = as.numeric(k_cluster))
 
-    catf("Returning clustering results")
+    logf("Returning clustering results")
     CLUSTER = clobj$clustering
     IS_MEDOID = seq_len(nrow(raw_data)) %in% clobj$id.med
     ret <- list(
         clustering = data.frame(raw_data, CLUSTER, IS_MEDOID),
-        clobj = clobj,
-        coefs = coefs,
-        model = model,
-        df = df,
-        dfz = dfz,
-        dfzb = dfzb
+        clobj = clobj, coefs = coefs, model = model,
+        df = df, dfz = dfz, dfzb = dfzb
     )
     ret
 }

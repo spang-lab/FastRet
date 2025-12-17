@@ -1,4 +1,4 @@
-# Read From Disk (Public) #####
+# Public #####
 
 #' @export
 #' @keywords dataset
@@ -33,42 +33,76 @@ read_rp_xlsx <- function() {
 #' @title Read the HILIC dataset from the Retip package
 #'
 #' @description
-#' If the [Retip](https://www.retip.app/) package is installed, its HILIC
-#' dataset is read from its installation directory. If not, the dataset is
-#' downloaded from
-#' `https://github.com/oloBion/Retip/raw/master/data/HILIC.RData` to a temporary
-#' file and then read from there.
+#' Reads the `Retip::HILIC` dataset (CC BY 4.0) from the Retip package or, if
+#' Retip is not installed, downloads the dataset directly from the [Retip GitHub
+#' repository](https://github.com/oloBion/Retip). Before returning the dataset,
+#' SMILES strings are canonicalized and the original `tibble` object is
+#' converted to a base R `data.frame`.
 #'
-#' @param verbose Verbosity level. Set to 1 to enable progress messages,
-#' 0 to suppress them.
+#' @param verbose Verbosity. 1 for messages, 0 to suppress them.
 #'
-#' @return
-#' A data frame containing the Retip HILIC dataset.
+#' @return A data frame with 970 rows and the following columns:
+#' - `NAME`: Molecule name
+#' - `INCHIKEY`: InChIKey
+#' - `SMILES`: Canonical SMILES string
+#' - `RT`: Retention time in Minutes
+#'
+#' @details
+#' Attribution as required by CC BY 4.0:\cr
+#' + Original dataset by:
+#'   Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and
+#'   Oliver Fiehn as part of the Retip project.\cr
+#' + Source repository: <https://github.com/oloBion/Retip>\cr
+#' + Original file: <https://github.com/oloBion/Retip/raw/master/data/HILIC.RData>\cr
+#' + License: CC BY 4.0 (<https://creativecommons.org/licenses/by/4.0/>)\cr
+#' + Modifications in FastRet:
+#'   - converted tibble to data.frame
+#'   - canonicalized SMILES using [as_canonical()]
+#'   - renamed column 'INCHKEY' to 'INCHIKEY'
+#'
+#' @source
+#' <https://github.com/oloBion/Retip/raw/master/data/HILIC.RData>
 #'
 #' @references
-#' Retip: Retention Time Prediction for Compound Annotation in Untargeted
-#' Metabolomics Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar
-#' Barupal, and Oliver Fiehn Analytical Chemistry 2020 92 (11), 7515-7522 DOI:
-#' 10.1021/acs.analchem.9b05765
+#' Retip: Retention Time Prediction for Compound Annotation in Untargeted Metabolomics\cr
+#' Paolo Bonini, Tobias Kind, Hiroshi Tsugawa, Dinesh Kumar Barupal, and Oliver Fiehn\cr
+#' Analytical Chemistry 2020 92 (11), 7515-7522 DOI: 10.1021/acs.analchem.9b05765
 #'
 #' @examples
 #' df <- read_retip_hilic_data(verbose = 0)
-#'
 read_retip_hilic_data <- function(verbose = 1) {
-    if (eval(parse(text = "requireNamespace('Retip', quietly = TRUE)"))) {
-        return(eval(parse(text = "Retip::HILIC")))
-        # We do this absurd eval trick to avoid R CMD check
-        # complaining about Retip not being a suggested package.
-        # (We would suggest it, but it is not on CRAN or any other
-        # CRAN-like repository, so we cannot suggest it without
-        # triggering further warnings.)
+    logf <- if (verbose) catf else null
+    if (is.data.frame(getOption("FastRet.HILIC_Retip"))) {
+        logf("Reading Retip::HILIC from RAM cache")
+        return(getOption("FastRet.HILIC_Retip"))
+    } else if (eval(parse(text = "requireNamespace('Retip', quietly = TRUE)"))) {
+        logf("Reading Retip::HILIC from Retip installation.")
+        tbl <- eval(parse(text = "Retip::HILIC"))
+        # We do this absurd eval trick to avoid R CMD check complaining about
+        # Retip not being a suggested package. (We would suggest it, but it is
+        # not on CRAN or any other CRAN-like repository, so we cannot suggest it
+        # without triggering further warnings.)
+    } else {
+        logf("Retip package not found. Downloading from GitHub instead.")
+        logf("Tip: install Retip from GitHub to avoid this download in the future.")
+        logf("See https://github.com/oloBion/Retip for installation instructions.")
+        # Encourage installation of Retip, to support the original project.
+        url <- "https://github.com/oloBion/Retip/raw/master/data/HILIC.RData"
+        destfile <- tempfile("HILIC", fileext = ".RData")
+        download.file(url, destfile, mode = "wb", quiet = !verbose)
+        HILIC <- NULL # will be loaded in the next line
+        load(destfile)
+        tbl <- HILIC
     }
-    url <- "https://github.com/oloBion/Retip/raw/master/data/HILIC.RData"
-    destfile <- tempfile("HILIC", fileext = ".RData")
-    download.file(url, destfile, mode = "wb", quiet = !verbose)
-    HILIC <- NULL # will be loaded in the next line
-    load(destfile)
-    df <- HILIC
+    logf("Converting from tibble to data.frame")
+    df <- as.data.frame(tbl)
+    logf("Canonicalizing SMILES strings")
+    df$SMILES <- as_canonical(df$SMILES)
+    logf("Renaming column 'INCHKEY' to 'INCHIKEY'")
+    names(df)[names(df) == "INCHKEY"] <- "INCHIKEY"
+    logf("Caching Retip::HILIC in RAM for future calls")
+    options(FastRet.HILIC_Retip = df) # cache for future calls
+    df
 }
 
 #' @export
@@ -105,9 +139,6 @@ read_rp_lasso_model_rds <- function() {
     readRDS(pkg_file("extdata/RP_lasso_model.rds"))
 }
 
-
-# Lazyload Objects (Public) #####
-
 ## RP #####
 
 #' @keywords dataset
@@ -133,7 +164,7 @@ read_rp_lasso_model_rds <- function() {
 #' @seealso read_rp_xlsx
 "RP"
 
-# Make Lazyload Objects (Private) #####
+# Private #####
 
 make_lazyload_objs <- function(HILIC, RP, RP_Mod, RP_Val) {
     # Read in data from Excel files

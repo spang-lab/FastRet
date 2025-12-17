@@ -76,7 +76,7 @@ init_extended_task_handlers <- function(SE) {
             NAME <- frm$df$NAME
             SMILES <- frm$df$SMILES
             RT_PREDICTED <- round(predict(frm), 2)
-            RT_PREDICTED_CV <- round(frm$cv$preds, 2)
+            RT_PREDICTED_CV <- if (!is.null(frm$cv)) round(frm$cv$preds, 2) else rep(NA, nrow(frm$df))
             SE$RV$trainedFRM <- frm
             SE$RV$tblTrainResults <- cbind(RT, RT_PREDICTED, RT_PREDICTED_CV, NAME, SMILES, cds)
             catf("Showing buttons: dbSaveModel, dbSavePredictorSet")
@@ -134,8 +134,8 @@ init_extended_task_handlers <- function(SE) {
 init_reactives <- function(SE) {
     SE$R <- list()
     SE$R$predDfCombined <- shiny::reactive({
-        smiles <- SE$RV$predSmiles
-        df <- SE$RV$predDf
+        smiles <- SE$RV$predSmiles # data.frame(NAME = "Input SMILES", SMILES = smiles)
+        df <- SE$RV$predDf # data.frame(NAME = names, SMILES = smiles)
         if (is.null(smiles) && is.null(df)) return(NULL)
         if (is.null(smiles)) return(df)
         if (is.null(df)) return(smiles)
@@ -160,7 +160,7 @@ init_action_button_handlers <- function(SE) {
     }
     SE$ABH$btnPred <- function(SE) {
         frm <- SE$RV$inpFRM
-        df <- SE$R$predDfCombined()
+        df <- SE$R$predDfCombined() # data.frame(NAME, SMILES)
         if (is.null(frm) || is.null(frm$model)) stop("Please upload a valid model first")
         if (is.null(df) || nrow(df) == 0) stop("Please enter a valid SMILES string first or upload a list of SMILES as xlsx")
         SE$ET$btnPred$invoke( # takes same argument as [predict()]
@@ -203,11 +203,11 @@ init_input_handlers <- function(SE) {
             } else {
                 catf("Validating SMILES string")
                 # Validate SMILES by trying to parse it with rCDK
-                tmp <- try({
+                tmp <- try(silent = TRUE, {
                     obj <- rcdk::parse.smiles(smiles)[[1]]
                     rcdk::convert.implicit.to.explicit(obj)
                     TRUE
-                }, silent = TRUE)
+                })
                 if (inherits(tmp, "try-error")) {
                     catf("Validation failed. Displaying 'Error: SMILES string is invalid'")
                     SE$RV$predSmiles <- NULL
@@ -303,7 +303,7 @@ init_upload_handlers <- function(SE) {
             xlsx <- SE$input$ubInpXlsx$datapath
             catf("Reading and validating %s", xlsx)
             inpDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
-            inpDf <- validate_inputdata(inpDf, min_cds = 0)
+            inpDf <- validate_inputdata(inpDf, min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$inpDf and SE$output$toInpXlsxError.")
             SE$RV$inpDf <- inpDf
             SE$output$toInpXlsxError <- shiny::renderText("")
@@ -319,7 +319,7 @@ init_upload_handlers <- function(SE) {
             xlsx <- SE$input$ubPredXlsx$datapath
             catf("Reading and validating %s", xlsx)
             pred_df <- openxlsx::read.xlsx(xlsx, sheet = 1)
-            pred_df <- validate_inputdata(pred_df, require = c("NAME", "SMILES"), min_cds = 0)
+            pred_df <- validate_inputdata(pred_df, require = c("NAME", "SMILES"), min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$predDf and SE$output$toPredXlsxError.")
             SE$RV$predDf <- pred_df
             SE$output$toPredXlsxError <- NULL
@@ -335,7 +335,7 @@ init_upload_handlers <- function(SE) {
             xlsx <- SE$input$ubAdjXlsx$datapath
             catf("Reading and validating %s", xlsx)
             adjDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
-            adjDf <- validate_inputdata(adjDf, min_cds = 0)
+            adjDf <- validate_inputdata(adjDf, min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$adjDf and SE$output$toAdjXlsxError.")
             SE$RV$adjDf <- adjDf
             SE$output$toAdjXlsxError <- shiny::renderText("")
@@ -885,4 +885,41 @@ renderTbl <- function(expr,
         scrollX = scrollX
     )
     DT::renderDT(expr = expr, rownames = rownames, options = opts)
+}
+
+validate_inputdata <- function(df,
+                               require = c("RT", "SMILES", "NAME"),
+                               min_cds = 1,
+                               stop_on_unknown = TRUE) {
+    missing_cols <- setdiff(require, colnames(df))
+    if (length(missing_cols) > 0) stop(sprintf("missing columns: %s", paste(missing_cols, collapse = ", ")))
+    n_cds <- sum(colnames(df) %in% CDFeatures)
+    if (n_cds < min_cds) {
+        msg <- sprintf("At least %d chemical descriptors are required, but only %d are present", min_cds, n_cds)
+        stop(msg)
+    }
+    unnown_cols <- setdiff(colnames(df), c("RT", "SMILES", "NAME", CDFeatures))
+    if (stop_on_unknown && length(unnown_cols) > 0) {
+        msg <- sprintf("Unknown columns present: %s", paste(unnown_cols, collapse = ", "))
+        stop(msg)
+    }
+    invisible(df)
+}
+
+validate_inputmodel <- function(model) {
+    model_nams <- names(model)
+    expected_names <- c("model", "df", "cv")
+    n_missing <- sum(!expected_names %in% model_nams)
+    if (n_missing > 0) {
+        if (n_missing < length(expected_names)) {
+            missing <- paste(setdiff(expected_names, model_nams), collapse = ", ")
+            errmsg1 <- sprintf("Model object is missing required elements: %s.", missing)
+        } else {
+            errmsg1 <- sprintf("Model object is invalid.")
+        }
+        errmsg2 <- sprintf("Please upload a model trained with FastRet version %s or greater.", packageVersion("FastRet"))
+        errmsg <- paste(errmsg1, errmsg2)
+        stop(errmsg)
+    }
+    invisible(model)
 }

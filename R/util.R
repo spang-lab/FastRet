@@ -10,16 +10,20 @@
 # anyways. Loading 3rd party packages can significantly slow down package
 # loading. E.g. glmnet or xgboost both take almost 1s to load.
 
-# Colors (Private) #####
+# Public #####
 
-GREY <- "\033[1;30m"
-RED <- "\033[1;31m"
-GREEN <- "\033[1;32m"
-YELLOW <- "\033[1;33m"
-BLUE <- "\033[1;34m"
-RESET <- "\033[0m"
-
-# Misc (Public) #####
+#' @export
+#' @title Get package file
+#' @description Returns the path to a file within the FastRet package.
+#' @param path The path to the file within the package.
+#' @param mustWork If TRUE, an error is thrown if the file does not exist.
+#' @return The path to the file.
+#' @keywords internal
+#' @examples
+#' path <- pkg_file("extdata/RP.xlsx")
+pkg_file <- function(path, mustWork = FALSE) {
+    system.file(path, package = "FastRet", mustWork = mustWork)
+}
 
 #' @export
 #' @keywords internal
@@ -59,7 +63,15 @@ now <- function(format = "%Y-%m-%d %H:%M:%OS2") {
 catf <- function(...,
                  prefix = .Options$FastRet.catf.prefix,
                  end = .Options$FastRet.catf.end) {
-    prefixstr <- if (is.null(prefix)) sprintf("%s%s%s ", GREY, now(), RESET) else prefix()
+    prefixstr <- if (is.null(prefix)) {
+        if (isatty(stdout())) {
+            sprintf("%s%s%s ", GREY, now(), RESET)
+        } else {
+            sprintf("%s ", now())
+        }
+    } else {
+        prefix()
+    }
     endstr <- if (is.null(end)) "\n" else end
     middlestr <- sprintf(...)
     msg <- sprintf("%s%s%s", prefixstr, middlestr, endstr)
@@ -96,6 +108,67 @@ collect <- function(xx) {
 
 # Misc (Private) #####
 
+cor <- function(x, y, on_zero_sd = NA) {
+    sd_x <- sd(x)
+    sd_y <- sd(y)
+    if (sd_x == 0 || sd_y == 0) {
+        return(on_zero_sd)
+    }
+    stats::cor(x, y)
+}
+
+#' @noRd
+#' @title Find Random Positions of x in y
+#' @description
+#' Like `match(x, y)`, but if `y` contains multiple occurrences of
+#' `x[i]`, a random occurrence is returned (instead of always the first,
+#' like `match` does).
+#' @param x Vector of values to match.
+#' @param y Vector of values to match against.
+#' @param seed Random seed for reproducibility.
+match_random <- function(x, y, seed = NULL) {
+    if (!is.null(seed)) set.seed(seed)
+    perm <- sample.int(length(y)) # shuffle indices of y
+    yshuf <- y[perm]
+    pos <- match(x, yshuf) # first match in shuffled y -> random occurrence
+    perm[pos] # map back to original indices
+}
+
+#' @noRd
+#' @title Create automatically named List
+#' @description
+#' Like normal `list()`, except that unnamed elements are automatically named according to their symbol
+#'
+#' COPIED OVER FROM TOSCUTIL. Can be replaced with original toscutil version as
+#' soon as all NAMESPACE imports from toscutil have been removed (right now
+#' loading toscutil takes 22ms, and we want to avoid that).
+#'
+#' @param ... List elements
+#' @return Object of type `list` with names attribute set
+#' @seealso [list()]
+#' @keywords internal
+#' @examples
+#' a <- 1:10
+#' b <- "helloworld"
+#' l1 <- list(a, b)
+#' names(l1) <- c("a", "b")
+#' l2 <- named(a, b)
+#' stopifnot(identical(l1, l2))
+#' l3 <- list(z = a, b = b)
+#' l4 <- named(z = a, b)
+#' stopifnot(identical(l3, l4))
+named <- function(...) {
+    .symbols <- as.character(substitute(list(...)))[-1]
+    .elems <- list(...)
+    .idx <- if (is.null(names(.elems))) {
+        rep(TRUE, length(.elems))
+    } else {
+        names(.elems) == ""
+    }
+    names(.elems)[.idx] <- .symbols[.idx]
+    .elems
+}
+
 #' @noRd
 #' @title Null Function
 #' @description A function that always returns invisibly NULL, ignoring all arguments.
@@ -113,22 +186,56 @@ null <- function(...) {
     !(x %in% y)
 }
 
-# Caching (Public) #####
-
-#' @export
-#' @title Get package file
-#' @description Returns the path to a file within the FastRet package.
-#' @param path The path to the file within the package.
-#' @param mustWork If TRUE, an error is thrown if the file does not exist.
-#' @return The path to the file.
-#' @keywords internal
-#' @examples
-#' path <- pkg_file("extdata/RP.xlsx")
-pkg_file <- function(path, mustWork = FALSE) {
-    system.file(path, package = "FastRet", mustWork = mustWork)
+`%||%` <- function(a, b) {
+    if (!is.null(a)) a else b
 }
 
-# Multicore (Private) #####
+#' @noRd
+#' @title Convert Vector to String
+#' @description Converts a vector to a string representation.
+#' @param x Vector
+#' @return String representation of the vector
+#' @examples
+#' as_str(x = c(1, 2, 3))                   # "1, 2, 3"
+#' as_str(x = c(a = 1, b = 2, c = "Hello")) # "a=1, b=2, c=Hello"
+#' as_str(x = c(a = 1, 2, c = "Hello"))     # "a=1, 2, c=Hello"
+as_str <- function(x) {
+    vals <- as.character(x)
+    nams <- names(x) %||% rep("", length(x))
+    sep <- ifelse(nams == "", "", "=")
+    paste(nams, sep, vals, sep = "", collapse = ", ")
+}
+
+#' @export
+#' @title Canonicalize SMILES
+#' @description Convert SMILES to canonical form.
+#' @param smiles Character vector of SMILES.
+#' @return Character vector of canonical SMILES.
+#' @keywords internal
+#' @examples
+#' as_canonical(c("CCO", "C(C)O"))
+as_canonical <- function(smiles) {
+    canons <- rep("INVALID", length(smiles))
+    is_valid <- is_valid_smiles(smiles)
+    molecules <- rcdk::parse.smiles(smiles[is_valid])
+    flavor <- rcdk::smiles.flavors("Canonical")
+    canons[is_valid] <- sapply(molecules, rcdk::get.smiles, flavor)
+    canons
+}
+
+#' @noRd
+#' @title Validate SMILES
+#' @description Check if SMILES strings are valid.
+#' @details Attention: this documentation has been generated automatically by
+#' GitHub Copilot and has NOT been reviewed.
+#' @param smiles Character vector of SMILES.
+#' @return Logical vector of validity.
+#' @examples
+#' is_valid_smiles(c("CCO", "invalid"))
+is_valid_smiles <- function(smiles) {
+    molecules <- suppressWarnings(rcdk::parse.smiles(smiles))
+    !sapply(molecules, is.null)
+}
 
 #' @noRd
 #' @description Calculate the number of workers for parallel processing
@@ -208,3 +315,70 @@ enable_function_tracing <- function() {
     })
     options(FastRet.onFuncEntry = onFuncEntry)
 }
+
+# Caret Replacements (Private) #####
+
+#' @noRd
+#' @title Create cross-validation folds
+#' @param y Vector of indices/numeric values for splitting.
+#' @param k
+#' Number of folds. Default 10. If `k` is larger equal `length(y)`, k will be
+#' silently set to `length(y)`.
+#' @return A list of integer vectors with fold indices.
+createFolds <- function(y, k = 10) {
+    if (k >= length(y)) k <- length(y)
+    foldnrs <- sample(rep(1:k, length.out = length(y)))
+    folds <- split(seq_along(y), foldnrs)
+    names(folds) <- paste0("Fold", seq_len(k))
+    folds
+}
+
+#' @noRd
+#' @title nearZeroVar
+#' @description
+#' Lightweight replacement for `caret::nearZeroVar`. Identifies predictors with
+#' (a) a very large frequency ratio of the most common value to the second most
+#' common value and (b) a low percent of distinct values. (a) and (b) must both
+#' be true at the same time to consider a variable as near-zero-variance. This
+#' mirrors the behavior used from `caret::nearZeroVar`.
+#' @param X A data.frame.
+#' @param freqCut Frequency ratio cutoff (default 95/5).
+#' @param uniqueCut Percent unique cutoff (default 10).
+#' @return
+#' An integer vector with column indices of "near-zero-variance" predictors.
+nearZeroVar <- function(X, freqCut = 95/5, uniqueCut = 10) {
+  X <- as.data.frame(X, stringsAsFactors = FALSE)
+  which(vapply(X, hasNearZeroVar, logical(1), freqCut, uniqueCut, USE.NAMES = FALSE))
+}
+
+#' @noRd
+#' @title Check whether a predictor has near-zero variance
+#' @description
+#' Checks whether a predictor has near-zero variance based on frequency ratio
+#' and percent unique values. Mirrors the behavior of `caret::nearZeroVar`.
+#' @param x A vector of predictor values.
+#' @param freqCut Frequency ratio cutoff (default 95/5).
+#' @param uniqueCut Percent unique cutoff (default 10).
+#' @return
+#' A logical value indicating whether the predictor has near-zero variance.
+hasNearZeroVar <- function(x, freqCut = 95/5, uniqueCut = 10) {
+    n <- length(x)
+    x <- x[!is.na(x)]
+    if (!length(x)) return(TRUE)
+    tab <- table(x)
+    nUniq <- length(tab)
+    if (nUniq <= 1) return(TRUE)
+    top <- sort(tab, TRUE)
+    freqRatio <- if (length(top) == 1) Inf else top[1] / top[2]
+    pctUnique <- 100 * nUniq / n
+    freqRatio > freqCut & pctUnique < uniqueCut || (is.numeric(x) && sd(x) == 0)
+}
+
+# Colors (Private) #####
+
+GREY <- "\033[1;30m"
+RED <- "\033[1;31m"
+GREEN <- "\033[1;32m"
+YELLOW <- "\033[1;33m"
+BLUE <- "\033[1;34m"
+RESET <- "\033[0m"

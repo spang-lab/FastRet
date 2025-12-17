@@ -5,47 +5,120 @@
 \title{Adjust an existing FastRet model for use with a new column}
 \usage{
 adjust_frm(
-  frm = train_frm(),
-  new_data = read_rpadj_xlsx(),
+  frm,
+  new_data,
   predictors = 1:6,
   nfolds = 5,
-  verbose = 1
+  verbose = 1,
+  seed = NULL,
+  do_cv = TRUE,
+  adj_type = "lm",
+  add_cds = NULL
 )
 }
 \arguments{
 \item{frm}{An object of class \code{frm} as returned by \code{\link[=train_frm]{train_frm()}}.}
 
-\item{new_data}{Dataframe with columns "RT", "NAME", "SMILES" and optionally a set of
-chemical descriptors.}
+\item{new_data}{Data frame with required columns "RT", "NAME", "SMILES"; optional "INCHIKEY".
+"RT" must be the retention time measured on the adjusted column.
+Each row must match at least one row in \code{frm$df}.
+The exact matching behavior is described in 'Details'.}
 
-\item{predictors}{Numeric vector specifying which predictors to include in the model in
-addition to RT. Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT),
-5=exp(RT), 6=sqrt(RT).}
+\item{predictors}{Numeric vector specifying which transformations to include in the model.
+Available options are: 1=RT, 2=RT^2, 3=RT^3, 4=log(RT), 5=exp(RT),
+6=sqrt(RT). Note that predictor 1 (RT) is always included, even if not
+specified explicitly.}
 
-\item{nfolds}{An integer representing the number of folds for cross validation.}
+\item{nfolds}{The number of folds for cross validation.}
 
-\item{verbose}{A logical value indicating whether to print progress messages.}
+\item{verbose}{Show progress messages?}
+
+\item{seed}{An integer value to set the seed for random number generation to allow for
+reproducible results.}
+
+\item{do_cv}{A logical value indicating whether to perform cross-validation. If FALSE,
+the \code{cv} element in the returned adjustment object will be NULL.}
+
+\item{adj_type}{A string representing the adjustment model type. Either "lm", "lasso",
+"ridge", or "gbtree".}
+
+\item{add_cds}{A logical value indicating whether to add chemical descriptors as predictors
+to new data. Default is TRUE if \code{adj_type} is "lasso", "ridge" or "gbtree"
+and FALSE if \code{adj_type} is "lm".}
 }
 \value{
-An object of class \code{frm}, which is a list with the following elements:
+An object of class \code{frm}, as returned by \code{\link[=train_frm]{train_frm()}}, but with an
+additional element \code{adj} containing the adjustment model. Components of \code{adj}
+are:
 \itemize{
-\item \code{model}: A list containing details about the original model.
-\item \code{df}: The data frame used for training the model.
-\item \code{cv}: A list containing the cross validation results.
-\item \code{seed}: The seed used for random number generation.
-\item \code{version}: The version of the FastRet package used to train the model.
-\item \code{adj}: A list containing details about the adjusted model.
+\item \code{model}: The fitted adjustment model. Class depends on \code{adj_type} and is
+one of \code{lm}, \code{glmnet}, or \code{xgb.Booster}.
+\item \code{df}: The data frame used for training the adjustment model. Including
+columns "NAME", "SMILES", "RT", "RT_ADJ" and optionally "INCHIKEY", as well
+as any additional predictors specified via the \code{predictors} argument.
+\item \code{cv}: A named list containing the cross validation results (see 'Details'),
+or NULL if \code{do_cv = FALSE}. When not NULL, elements are:
+\itemize{
+\item \code{folds}: A list of integer vectors specifying the samples in each fold.
+\item \code{models}: A list of adjustment models trained on each fold.
+\item \code{stats}: A list of vectors with RMSE, Rsquared, MAE, pBelow1Min per fold.
+Added with v1.3.0.
+\item \code{preds}: Retention time predictions obtained during CV by applying the
+adjustment model to the hold-out data.
+\item \code{preds_adjonly}: Removed (i.e. NULL) since v1.3.0.
+}
+\item \code{args}: Function arguments used for adjustment (excluding \code{frm}, \code{new_data}
+and \code{verbose}). Added with v1.3.0.
+\item \code{version}: The version of the FastRet package used to train the adjustment
+model. Added with v1.3.0.
 }
 }
 \description{
 The goal of this function is to train a model that predicts RT_ADJ (retention
 time measured on a new, adjusted column) from RT (retention time measured on
-the original column) and to attach this "adjustmodel" to an existing FastRet
-model.
+the original column) and to attach this adjustment model to an existing
+FastRet model.
+}
+\details{
+Matching is done via "SMILES"+"INCHIKEY" if both datasets have non-missing
+INCHIKEYs for all rows; otherwise via "SMILES"+"NAME". If multiple rows in
+\code{frm$df} match the same row in \code{new_data}, their RT values are averaged
+first, and this average is used for training the adjustment model.
+
+Example: if \code{frm$df} equals data.frame OLD shown below and \code{new_data} equals
+data.frame NEW, then the resulting, paired data.frame will look like PAIRED.
+
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{OLD <- data.frame(
+    NAME   = c("A", "B",  "B",  "C"  ),
+    SMILES = c("C", "CC", "CC", "CCC"),
+    RT     = c(5.0,  8.0,  8.2,  9.0 )
+)
+NEW <- data.frame(
+    NAME   = c("A", "B",  "B",  "B"),
+    SMILES = c("C", "CC", "CC", "CC"),
+    RT     = c(2.5,  5.5,  5.7,  5.6)
+)
+PAIRED <- data.frame(
+    NAME   = c("A", "B",  "B",  "B"),
+    SMILES = c("C", "CC", "CC", "CC"),
+    RT     = c(5.0,  8.1,  8.1,  8.1), # Average of OLD$RT[2:3]
+    RT_ADJ = c(2.5,  5.5,  5.7,  5.6)  # Taken from NEW
+)
+}\if{html}{\out{</div>}}
+
+If \code{do_cv} is TRUE, the adjustment procedure is evaluated in
+cross-validation. However, care must be taken when interpreting the CV
+results, as the model performance depends on both the adjustment layer and
+the original model, which was trained on the full base dataset. Therefore,
+the observed CV metrics should be read as "expected performance when
+predicting RTs for molecules that were part of the base-model training but
+not part of the adjustment set" instead of "expected performance when
+predicting RTs for completely new molecules".
 }
 \examples{
 frm <- read_rp_lasso_model_rds()
 new_data <- read_rpadj_xlsx()
-frmAdjusted <- adjust_frm(frm, new_data, verbose = 0)
+frm_adj <- adjust_frm(frm, new_data, verbose = 0)
+
 }
 \keyword{public}

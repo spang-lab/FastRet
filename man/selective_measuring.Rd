@@ -4,7 +4,13 @@
 \alias{selective_measuring}
 \title{Selective Measuring}
 \usage{
-selective_measuring(raw_data, k_cluster = 25, verbose = 1, seed = NULL)
+selective_measuring(
+  raw_data,
+  k_cluster = 25,
+  verbose = 1,
+  seed = NULL,
+  rt_coef = "max_ridge_coef"
+)
 }
 \arguments{
 \item{raw_data}{The raw data to be processed.
@@ -16,6 +22,19 @@ Must be a dataframe with columns NAME, RT and SMILES.}
 
 \item{seed}{An optional random seed for reproducibility, set at the beginning of the
 function.}
+
+\item{rt_coef}{Which coefficient to use for scaling RT before clustering. Options are:
+\itemize{
+\item max_ridge_coef: scale with the maximum absolute coefficient obtained in
+ridge regression. I.e., RT will have approximately the same weight as the
+most important chemical descriptor.
+\item 1: do not scale RT any further, i.e., use standardized RT. The effect of
+leaving RT unscaled is kind of unpredictable, as the ridge coefficients
+depend on the dataset. If the maximum absolute coefficient is much smaller
+than 1, RT will dominate the clustering. If it is much larger than 1, RT
+will have little influence on the clustering.
+\item 0: exclude RT from the clustering.
+}}
 }
 \value{
 A list containing the following elements:
