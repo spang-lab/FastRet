@@ -14,3 +14,4 @@ reproduce_results.html
 reproduce_results.md
 test.log
 tests/testthat/Rplots.pdf
+.DS_Store

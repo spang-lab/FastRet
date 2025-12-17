@@ -40,6 +40,7 @@ Oliver Fiehn as part of the Retip project.\cr
 \itemize{
 \item converted tibble to data.frame
 \item canonicalized SMILES using \code{\link[=as_canonical]{as_canonical()}}
+\item renamed column 'INCHKEY' to 'INCHIKEY'
 }
 }
 }

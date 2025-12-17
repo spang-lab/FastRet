@@ -17,11 +17,6 @@ A dataframe of 442 metabolites with columns \code{RT}, \code{SMILES} and \code{N
 Reads retention times from a reverse phase liquid chromatography experiment,
 performed at 35\eqn{^\circ}C and a flow rate of 0.3 mL/min. The data is also available
 as a dataframe in the package; to access it directly, use \link{RP}.
-
-Starting in FastRet 1.3.0, selected NAME, SMILES, and RT entries were corrected,
-a few measurements were removed, and additional measurements were added. As a
-result, RP dataset outputs can differ between releases before 1.3.0 and those
-from version 1.3.0 onward.
 }
 \examples{
 x <- read_rp_xlsx()

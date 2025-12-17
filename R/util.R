@@ -146,7 +146,7 @@ match_random <- function(x, y, seed = NULL) {
 #' @param ... List elements
 #' @return Object of type `list` with names attribute set
 #' @seealso [list()]
-#' @keywords base
+#' @keywords internal
 #' @examples
 #' a <- 1:10
 #' b <- "helloworld"
@@ -211,6 +211,7 @@ as_str <- function(x) {
 #' @description Convert SMILES to canonical form.
 #' @param smiles Character vector of SMILES.
 #' @return Character vector of canonical SMILES.
+#' @keywords internal
 #' @examples
 #' as_canonical(c("CCO", "C(C)O"))
 as_canonical <- function(smiles) {

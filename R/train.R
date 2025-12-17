@@ -147,7 +147,22 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
             rm_near_zero_var = rm_nzv, rm_na = rm_na, rm_ns = rm_ns,
             seed = seed, do_cv = FALSE
         )
-        preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
+
+        m <- models[[1]]
+        toscutil::stub(
+            predict.frm,
+            object = models[[1]],
+            df = test_dfs[[1]],
+            adjust = NULL,
+            verbose = 0,
+            clip = TRUE,
+            impute = TRUE,
+            ... = list()
+        )
+
+        preds_per_fold <- mapply(predict.frm, models, test_dfs, SIMPLIFY = FALSE)
+
+
         preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
         stats <- mapply(get_stats, test_dfs, models, SIMPLIFY = FALSE)
         frm$cv <- named(folds, models, stats, preds)
@@ -354,12 +369,18 @@ adjust_frm <- function(frm,
         test_dfs <- lapply(folds, function(idx) df[idx, ])
         verbose <-  max(verbose - 1, 0)
         seeds <- sample.int(.Machine$integer.max, nfolds)
+        dbgf("Training adjustment models for %d folds", nfolds)
         models <- mapply(
             adjust_frm, list(frm), train_dfs, list(predictors),
             nfolds, verbose, seeds, FALSE, adj_type,
             SIMPLIFY = FALSE, USE.NAMES = FALSE
         )
-        preds_per_fold <- mapply(predict, models, test_dfs, SIMPLIFY = FALSE)
+        dbgf("Predicting RT_ADJ for hold-out data in each fold")
+        preds_per_fold <- mapply(predict.frm,
+            models, test_dfs,
+            MoreArgs = list(adjust = TRUE, verbose = verbose, clip = TRUE, impute = TRUE),
+            SIMPLIFY = FALSE
+        )
         preds <- unname(unlist(preds_per_fold)[order(unlist(folds))])
         stats <- mapply(get_stats, test_dfs, models, SIMPLIFY = FALSE)
         frm$adj$cv <- named(folds, models, stats, preds)
@@ -460,25 +481,17 @@ predict.frm <- function(object = train_frm(),
                         ...) {
 
     # Load required packages
-    pkgs <- if (inherits(object$model, "glmnet")) "glmnet" else "xgboost"
-    if (!is.null(object$adj)) {
-        adj_type <- object$adj$type %||% if (inherits(object$adj$model, "glmnet")) "glmnet" else "lm"
-        adj_pkg <- switch(adj_type, "glmnet" = "glmnet", "gbtree" = "xgboost", NULL)
-        pkgs <- unique(c(pkgs, adj_pkg))
-    }
-    for (pkg in pkgs) {
-        if (!is.null(pkg)) withr::local_package(pkg)
-    }
+    pkgs <- get_req_pkgs(object)
+    for (pkg in pkgs) withr::local_package(pkg)
 
     # Init locals
-    logf <- if (verbose == 1) catf else null
+    logf <- if (verbose >= 1) catf else null
     cd_pds <- get_predictors(object, base = TRUE, adjust = FALSE)
     dgp <- get_dgp(cd_pds)
     iat <- any(grepl(":", cd_pds))
     rm_nzv <- FALSE
     rm_na <- FALSE
     add_cds <- TRUE
-
 
     # Check arguments
     if (isTRUE(adjust) && is.null(object$adj)) {
@@ -537,8 +550,8 @@ predict.frm <- function(object = train_frm(),
             )
         }
         adj_df <- adj_df[, adj_pds, drop = FALSE]
-        if (inherits(object$adj$model, "glmnet")) adj_df <- as.matrix(adj_df)
-        yhat <- as.numeric(stats::predict(object$adj$model, adj_df))
+        X_adj <- if (inherits(object$adj$model, "lm")) adj_df else as.matrix(adj_df)
+        x <- try(yhat <- as.numeric(predict(object$adj$model, X_adj)))
     }
 
     # Clip predictions if requested
@@ -550,6 +563,27 @@ predict.frm <- function(object = train_frm(),
 
     # Return predictions
     as.numeric(yhat)
+}
+
+get_req_pkgs <- function(frm) {
+    model_types <- get_model_type(frm)
+    pkgs <- c(
+        if ("glmnet" %in% model_types) "glmnet" else NULL,
+        if ("xgboost" %in% model_types) "xgboost" else NULL
+    )
+    pkgs <- unique(pkgs)
+}
+
+get_model_type <- function(frm) {
+    bm <- if (inherits(frm$model, "glmnet")) "glmnet"
+        else if (inherits(frm$model, "xgb.Booster")) "xgboost"
+        else stop("Unknown model type")
+    am <- if (is.null(frm$adj)) character(0)
+        else if (inherits(frm$adj$model, "glmnet")) "glmnet"
+        else if (inherits(frm$adj$model, "xgb.Booster")) "xgboost"
+        else if (inherits(frm$adj$model, "lm")) "lm"
+        else stop("Unknown adjustment model type")
+    c(bm, am)
 }
 
 #' @export
@@ -568,12 +602,22 @@ get_predictors <- function(frm, base = TRUE, adjust = FALSE) {
     bp <- if (isFALSE(base)) character(0)
         else if (inherits(bm, "glmnet")) rownames(bm$beta)
         else if (inherits(bm, "lm")) names(stats::coef(bm))[-1]
-        else variable.names(bm)
+        else if (inherits(bm, "xgb.Booster")) {
+            # For xgboost < 2.0, feature_names is present. For >= 2.0,
+            # variable.names() works.
+            bm$feature_names %||% variable.names(bm)
+        } else {
+            stop("Unknown model type")
+        }
     am <- frm$adj$model
     ap <- if (isFALSE(adjust) || is.null(am)) character(0)
         else if (inherits(am, "glmnet")) rownames(am$beta)
         else if (inherits(am, "lm")) names(stats::coef(am))[-1]
-        else variable.names(am)
+        else if (inherits(am, "xgb.Booster")) {
+            am$feature_names %||% variable.names(am)
+        } else {
+            stop("Unknown model type")
+        }
     unique(c(bp, ap))
 }
 
@@ -781,7 +825,6 @@ fit_glmnet <- function(X, y = NULL, method = "lasso", seed = NULL) {
         "ridge" = 0,
         stop("method must be 'lasso' or 'ridge', not '", method, "'.")
     )
-
     cvobj <- glmnet::cv.glmnet(
         x = as.matrix(X), y = y, alpha = alpha, standardize = TRUE,
         family = "gaussian", type.measure = "mse", grouped = FALSE

@@ -25,7 +25,8 @@ test_that("predict.frm works with interaction terms", {
                 degree_polynomial = 1,
                 interaction_terms = TRUE,
                 rm_near_zero_var = FALSE,
-                rm_na = TRUE
+                rm_na = TRUE,
+                seed = 42
             )
 
             # Ensure at least one interaction term was part of the trained model

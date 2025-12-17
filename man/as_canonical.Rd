@@ -18,3 +18,4 @@ Convert SMILES to canonical form.
 \examples{
 as_canonical(c("CCO", "C(C)O"))
 }
+\keyword{internal}

@@ -16,6 +16,9 @@ Bonini
 bpdata
 Bugfixes
 catf
+Canonicalize
+canonicalize
+canonicalized
 ccccc
 CDFeatures
 CDNames
@@ -60,6 +63,8 @@ https
 IAtomContainers
 INCHIKEY
 INCHIKEYs
+INCHKEY
+InChIKey
 initalized
 io
 JavaSoft
@@ -111,9 +116,11 @@ subprocesses
 subworkers
 suiteable
 tmp
+tibble
 Tsugawa
 ubuntu
 UI
+unclipped
 unadjusted
 unmappable
 unscaled

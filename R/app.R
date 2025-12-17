@@ -136,8 +136,7 @@ start_gui_in_devmode <- function(strategy = "sequential",
     catf("Setting development options")
     withr::local_options(list(
         shiny.autoreload = TRUE,
-        FastRet.UI.startMode = startMode,
-        warn = 1
+        FastRet.UI.startMode = startMode
     ))
 
     catf("Initializing cluster")
