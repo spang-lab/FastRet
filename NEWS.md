@@ -26,7 +26,7 @@ API Improvements:
    - Added argument `rm_ucs` to control whether unsupported columns (i.e.
      columns that are neither mandatory nor optional) should be removed from the
      input data.
-  - Added argument `rt_terms` to control whether transformations of the RT column
+   - Added argument `rt_terms` to control whether transformations of the RT column
      (square, cube, log, exp, sqrt) should be added to the input data.
    - In case of missing mandatory columns (SMILES, RT, NAME) an error is now raised.
    - INCHIKEY and Chemical Descriptors listed in `CDFeatures` are allowed as
@@ -80,7 +80,7 @@ API Improvements:
 6. `selective_measuring()`:
    - Added argument `rt_coef`, allowing user to control the influence of RT on
      the clustering. A value of 0 means that RT is ignored, a value of
-    "max_ridge_coefficient" means that RT has the same weight as the most
+     "max_ridge_coefficient" means that RT has the same weight as the most
      important chemical descriptor and a value of 1 means no scaling at all
      (except standardization to z-scores, which is applied before to the whole
      dataset before the ridge regression is trained).
@@ -88,10 +88,10 @@ API Improvements:
    - Added argument `seed` to allow reproducible results.
    - Added argument `do_cv` to control whether cross-validation should be
      performed for performance estimation. Default is TRUE.
-    - Added argument `adj_type` to control which model should be trained for
-      adjustment: supported options are "lm", "lasso", "ridge", or "gbtree".
-      Previously, only "lm" was supported. To stay backwards compatible, the default
-      is "lm".
+   - Added argument `adj_type` to control which model should be trained for
+     adjustment: supported options are "lm", "lasso", "ridge", or "gbtree".
+     Previously, only "lm" was supported. To stay backwards compatible, the default
+     is "lm".
    - Added argument `add_cds` to control whether chemical descriptors should be
      added to the input data using `getCDs()`. Only recommended for adj_type other
      than "lm".
@@ -105,9 +105,9 @@ API Improvements:
      reproducibility.
    - Mapping is now performed by matching each new entry to the average RT of
      all original training entries with the same key (SMILES+INCHIKEY or
-    SMILES+NAME). Example: if the new dataset contains a key twice, and the
-    original training data contains the key three times, both new entries are
-    mapped to the average RT of the three original entries.
+     SMILES+NAME). Example: if the new dataset contains a key twice, and the
+     original training data contains the key three times, both new entries are
+     mapped to the average RT of the three original entries.
    - Performance estimation via cross-validation now uses the new clipping
      mechanism provided by `clip_predictions()`. Of course, the clipping is
      always based on the RT range of training folds, not the whole original
