@@ -25,15 +25,17 @@ function.}
 
 \item{rt_coef}{Which coefficient to use for scaling RT before clustering. Options are:
 \itemize{
-\item max_ridge_coef: scale with the maximum absolute coefficient obtained in
-ridge regression. I.e., RT will have approximately the same weight as the
-most important chemical descriptor.
-\item 1: do not scale RT any further, i.e., use standardized RT. The effect of
+\item \code{0}: exclude RT from the clustering.
+\item 'max' / 'max_ridge_coef': scale with the maximum absolute coefficient
+obtained in ridge regression. I.e., RT will have approximately the same
+weight as the most important chemical descriptor.
+\item \code{1}: do not scale RT any further, i.e., use standardized RT. The effect of
 leaving RT unscaled is kind of unpredictable, as the ridge coefficients
 depend on the dataset. If the maximum absolute coefficient is much smaller
 than 1, RT will dominate the clustering. If it is much larger than 1, RT
 will have little influence on the clustering.
-\item 0: exclude RT from the clustering.
+\item 'inf': set all chemical descriptor values to zero, i.e., RT is "infinitely"
+more important than any chemical descriptor.
 }}
 }
 \value{
@@ -59,7 +61,7 @@ selects a sensible subset of molecules from the original dataset for
 re-measurement. The selection process includes:
 \enumerate{
 \item Generating chemical descriptors from the SMILES strings of the molecules.
-These are the features used by \code{\link[=train_frm]{train_frm()}} and \code{\link[=adjust_frm]{adjust_frm()}}.
+These are the features used by \code{\link[=train_frm]{train_frm()}} and \code{\link[=adjust_frm]{adjust_frm()}}.˝
 \item Standardizing chemical descriptors to have zero mean and unit variance.
 \item Training a Ridge Regression model with the standardized chemical
 descriptors as features and the retention times as the target variable.
