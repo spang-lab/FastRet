@@ -13,7 +13,7 @@
 #' re-measurement. The selection process includes:
 #'
 #' 1. Generating chemical descriptors from the SMILES strings of the molecules.
-#'    These are the features used by [train_frm()] and [adjust_frm()].
+#'    These are the features used by [train_frm()] and [adjust_frm()].˝
 #' 2. Standardizing chemical descriptors to have zero mean and unit variance.
 #' 3. Training a Ridge Regression model with the standardized chemical
 #'    descriptors as features and the retention times as the target variable.
@@ -40,15 +40,17 @@
 #'
 #' @param rt_coef
 #' Which coefficient to use for scaling RT before clustering. Options are:
-#' - max_ridge_coef: scale with the maximum absolute coefficient obtained in
-#'   ridge regression. I.e., RT will have approximately the same weight as the
-#'   most important chemical descriptor.
-#' - 1: do not scale RT any further, i.e., use standardized RT. The effect of
+#' - `0`: exclude RT from the clustering.
+#' - 'max' / 'max_ridge_coef': scale with the maximum absolute coefficient
+#'   obtained in ridge regression. I.e., RT will have approximately the same
+#'   weight as the most important chemical descriptor.
+#' - `1`: do not scale RT any further, i.e., use standardized RT. The effect of
 #'   leaving RT unscaled is kind of unpredictable, as the ridge coefficients
 #'   depend on the dataset. If the maximum absolute coefficient is much smaller
 #'   than 1, RT will dominate the clustering. If it is much larger than 1, RT
 #'   will have little influence on the clustering.
-#' - 0: exclude RT from the clustering.
+#' - 'inf': set all chemical descriptor values to zero, i.e., RT is "infinitely"
+#'   more important than any chemical descriptor.
 #'
 #' @return
 #' A list containing the following elements:
@@ -77,6 +79,15 @@ selective_measuring <- function(raw_data,
                                 rt_coef = "max_ridge_coef"
                                 ) {
 
+    stopifnot(
+        is.data.frame(raw_data),
+        all(c("NAME", "SMILES", "RT") %in% colnames(raw_data)),
+        is.numeric(k_cluster), length(k_cluster) == 1, !is.na(k_cluster), k_cluster >= 2,
+        is.logical(verbose) || is.numeric(verbose),
+        is.null(seed) || is.numeric(seed),
+        is.numeric(rt_coef) || is.character(rt_coef), length(rt_coef) == 1, !is.na(rt_coef)
+    )
+    rt_coef <- try_as_numeric(rt_coef, fallback = rt_coef)
     logf <- if (verbose >= 1) catf else null
 
     logf("Starting Selective Measuring")
@@ -91,25 +102,31 @@ selective_measuring <- function(raw_data,
     df <- df[, nonmeta, drop = FALSE]
     dfz <- as.data.frame(scale(df)) # z-score standardized (mean 0, sd 1)
 
-    logf("Training Ridge Regression model")
-    Xz <- as.matrix(dfz[, colnames(dfz) != "RT", drop = FALSE])
-    y <- as.numeric(dfz[, "RT"])
-    model <- fit_glmnet(Xz, y, method = "ridge", seed = seed)
-
-    logf("Scaling features by coefficients of Ridge Regression model")
-    coef_mat <- glmnet::coef.glmnet(model) # (m+1) x 1 matrix
-    coefs <- as.numeric(coef_mat)[-1] # remove intercept
-    coefs <- setNames(coefs, rownames(coef_mat)[-1])
-    coefs <- coefs[colnames(Xz)] # ensure correct order
-    Xzb <- sweep(Xz, 2, coefs, `*`) # z-score standardized and beta-scaled
-
-    logf("Scaling RT by %s before clustering", rt_coef)
-    rtc <- if (rt_coef == "max_ridge_coef") {
-        max(abs(coefs), na.rm = TRUE)
+    if (rt_coef %in% c(Inf, "inf")) {
+        logf("Setting CDs to zero because rt_coef is Inf")
+        coefs <- rep(0, ncol(dfz) - 1)
+        names(coefs) <- colnames(dfz)[colnames(dfz) != "RT"]
+        model <- NULL
+        dfzb <- data.frame(RT = dfz$RT)
     } else {
-        as.numeric(rt_coef)
+        logf("Training Ridge Regression model")
+        Xz <- as.matrix(dfz[, colnames(dfz) != "RT", drop = FALSE])
+        y <- as.numeric(dfz[, "RT"])
+        model <- fit_glmnet(Xz, y, method = "ridge", seed = seed)
+
+        logf("Scaling features by coefficients of Ridge Regression model")
+        coef_mat <- glmnet::coef.glmnet(model) # (m+1) x 1 matrix
+        coefs <- as.numeric(coef_mat)[-1] # remove intercept
+        coefs <- setNames(coefs, rownames(coef_mat)[-1])
+        coefs <- coefs[colnames(Xz)] # ensure correct order
+        Xzb <- sweep(Xz, 2, coefs, `*`) # z-score standardized and beta-scaled
+
+        logf("Scaling RT by %s before clustering", rt_coef)
+        rtc <- if (grepl("max", rt_coef)) max(abs(coefs), na.rm = TRUE)
+            else if (is.numeric(rt_coef)) as.numeric(rt_coef)
+            else stop("Invalid value for rt_coef: ", rt_coef)
+        dfzb <- data.frame(RT = dfz$RT * rtc, Xzb)
     }
-    dfzb <- data.frame(RT = dfz$RT * rtc, Xzb)
 
     logf("Applying PAM clustering")
     clobj <- cluster::pam(dfzb, k = as.numeric(k_cluster))
@@ -123,4 +140,10 @@ selective_measuring <- function(raw_data,
         df = df, dfz = dfz, dfzb = dfzb
     )
     ret
+}
+
+try_as_numeric <- function(x, fallback = x) {
+    if (length(x) != 1) stop("scalar expected")
+    y <- suppressWarnings(as.numeric(x))
+    if (!is.na(y)) y else fallback
 }

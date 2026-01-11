@@ -88,7 +88,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     stopifnot(
         is.data.frame(df),
         all(c("NAME", "RT", "SMILES") %in% colnames(df)),
-        method %in% c("lasso", "ridge", "gbtree", "gbtreeDefault", "gbtreeRP"),
+        is.character(method), length(method) == 1, !is.na(method),
         is.numeric(nfolds), nfolds >= 2,
         is.numeric(nw), nw >= 1,
         is.numeric(degree_polynomial), degree_polynomial >= 1,
@@ -101,6 +101,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     )
 
     # Init variables
+    method <- normalize_train_method(method)
     if (is.numeric(seed)) set.seed(seed)
     if (method == "gbtree") method <- "gbtreeDefault"
     args <- named(
@@ -325,12 +326,13 @@ adjust_frm <- function(frm,
         is.logical(verbose) || is.numeric(verbose),
         is.null(seed) || is.numeric(seed),
         is.logical(do_cv),
-        is.character(adj_type), adj_type %in% c("lm", "lasso", "ridge", "gbtree"),
+        is.character(adj_type), length(adj_type) == 1, !is.na(adj_type),
         is.null(add_cds) || is.logical(add_cds),
         is.logical(match_rts), length(match_rts) == 1, !is.na(match_rts),
         is.null(match_keys) || (is.character(match_keys) && length(match_keys) >= 1 &&
             all(match_keys %in% c("INCHIKEY", "SMILES", "NAME")))
     )
+    adj_type <- normalize_adj_type(adj_type)
     if (is.null(seed)) seed <- sample.int(.Machine$integer.max, 1)
     if (is.null(add_cds)) add_cds <- if (adj_type == "lm") FALSE else TRUE
     if (length(predictors) == 1 && isFALSE(add_cds) && adj_type != "lm") {
@@ -710,7 +712,29 @@ clip_predictions <- function(yhat, y) {
     yhat
 }
 
-# Preprocessing #####
+# Helpers #####
+
+normalize_train_method <- function(method) {
+    stopifnot(is.character(method), length(method) == 1, !is.na(method))
+    igrepl <- function(pattern, x) grepl(pattern, x, ignore.case = TRUE)
+    if (igrepl("^(lasso)$", method)) return("lasso")
+    if (igrepl("^(ridge)$", method)) return("ridge")
+    if (igrepl("^(gbtree|gbtreeDefault|BRT)$", method)) return("gbtree")
+    if (igrepl("^(gbtreeRP|BRTRP)$", method)) return("gbtreeRP")
+    fmt <- "Invalid method '%s'. Allowed values: lasso, ridge, gbtree, gbtreeRP."
+    stop(sprintf(fmt, method))
+}
+
+normalize_adj_type <- function(adj_type) {
+    stopifnot(is.character(adj_type), length(adj_type) == 1, !is.na(adj_type))
+    igrepl <- function(pattern, x) grepl(pattern, x, ignore.case = TRUE)
+    if (igrepl("^(lm)$", adj_type)) return("lm")
+    if (igrepl("^(lasso)$", adj_type)) return("lasso")
+    if (igrepl("^(ridge)$", adj_type)) return("ridge")
+    if (igrepl("^(gbtree|gbtreeDefault|BRT)$", adj_type)) return("gbtree")
+    fmt <- "Invalid adj_type '%s'. Allowed values: lm, lasso, ridge, gbtree."
+    stop(sprintf(fmt, adj_type))
+}
 
 #' @noRd
 #' @title Build adjustment data

@@ -1,4 +1,16 @@
 
+
+# FastRet 1.3.3 <!-- Commit Date: 2026-01-11 -->
+
+API Improvements:
+
+1. `selective_measuring()` accepts `"max"` and `"inf"` as additional values
+   for its `rt_coef` parameter:
+   - `"max"` is an alias for the existing `"max_ridge_coef"`
+   - `"inf"` sets all chemical descriptor features to zero before clustering so that
+     RT alone drives the distance metric (i.e., it is "infinitely" more important
+     than the chemical descriptors).
+
 # FastRet 1.3.2 <!-- Commit Date: 2026-01-11 -->
 
 Bugfix:
