@@ -1,4 +1,13 @@
 
+# FastRet 1.3.2 <!-- Commit Date: 2026-01-11 -->
+
+Bugfix:
+
+1. `adjust_frm()` automatically switched to "lm" adjustment if `predictors`
+   contained only one predictor, regardless of whether `add_cds` was TRUE or
+   FALSE. This has now been fixed, so that "lasso", "ridge" and "gbtree"
+   adjustment is now possible if either `add_cds` is TRUE, `add_cds` is
+   `NULL` or `predictors` contains more than one predictor.
 
 # FastRet 1.3.1 <!-- Commit Date: 2026-01-11 -->
 

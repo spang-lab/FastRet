@@ -331,13 +331,13 @@ adjust_frm <- function(frm,
         is.null(match_keys) || (is.character(match_keys) && length(match_keys) >= 1 &&
             all(match_keys %in% c("INCHIKEY", "SMILES", "NAME")))
     )
-    if (length(predictors) == 1 && predictors != 7 && adj_type != "lm") {
+    if (is.null(seed)) seed <- sample.int(.Machine$integer.max, 1)
+    if (is.null(add_cds)) add_cds <- if (adj_type == "lm") FALSE else TRUE
+    if (length(predictors) == 1 && isFALSE(add_cds) && adj_type != "lm") {
         fmt <- "Adjustment via '%s' requires 2+ predictors. Setting 'adj_type' to 'lm'."
         warning(sprintf(fmt, adj_type))
         adj_type <- "lm"
     }
-    if (is.null(seed)) seed <- sample.int(.Machine$integer.max, 1)
-    if (is.null(add_cds)) add_cds <- if (adj_type == "lm") FALSE else TRUE
 
     # Configure logging
     logf <- if (verbose >= 1) catf else null
