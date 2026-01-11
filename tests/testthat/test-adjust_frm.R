@@ -62,7 +62,7 @@ test_that("adjust_frm merges by INCHIKEY when available", {
 
     # Now change a few NAMES as well, so that even the SMILES+NAME fallback
     # cannot find matches for all entries
-    new$NAME[8:10] <- NA
+    new$NAME[8:10] <- paste0("missing_", seq_len(3))
     expect_error(
         afm3 <- adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 42, predictors = 1),
         "Could not map 3 new entries"
@@ -76,6 +76,64 @@ test_that("adjust_frm merges by INCHIKEY when available", {
         plot_frm(afm, type = "scatter.cv.adj")
         par(mfrow = c(1, 1))
     }
+})
+
+
+test_that("adjust_frm can skip RT matching and use predictions", {
+
+    frm <- readRDS(pkg_file("extdata/RP_lasso_model.rds"))
+    idx <- seq(2, 200, by = 20)
+    new <- frm$df[idx, c("NAME", "SMILES", "RT")]
+    set.seed(19)
+    new$RT <- new$RT + runif(nrow(new), min = -0.2, max = 0.2)
+
+    base_preds <- predict(frm, df = new, adjust = FALSE, verbose = 0)
+    afm <- adjust_frm(
+        frm = frm,
+        new_data = new,
+        nfolds = 2,
+        verbose = 0,
+        seed = 19,
+        predictors = 1:2,
+        adj_type = "lasso",
+        match_rts = FALSE
+    )
+
+    expect_equal(afm$adj$df$RT, base_preds)
+    expect_equal(afm$adj$df$RT_ADJ, new$RT)
+    expect_false(afm$adj$args$match_rts)
+    expect_true(is.null(afm$adj$args$match_keys))
+    expect_equal(nrow(afm$adj$df), nrow(new))
+})
+
+
+test_that("adjust_frm respects custom match_keys", {
+
+    frm <- readRDS(pkg_file("extdata/RP_lasso_model.rds"))
+    frm$df$INCHIKEY <- NULL
+    idx <- seq(3, 120, by = 15)
+    new <- frm$df[idx, c("NAME", "SMILES", "RT")]
+    new$NAME <- paste0(new$NAME, "__new")
+
+    expect_error(
+        adjust_frm(frm, new, nfolds = 2, verbose = 0, seed = 5),
+        regexp = "Could not map"
+    )
+
+    afm <- adjust_frm(
+        frm, new,
+        nfolds = 2,
+        verbose = 0,
+        seed = 5,
+        predictors = 1:2,
+        adj_type = "lasso",
+        match_keys = "SMILES"
+    )
+
+    expect_equal(nrow(afm$adj$df), nrow(new))
+    expect_identical(afm$adj$args$match_keys, "SMILES")
+    expect_true(all(afm$adj$df$SMILES == new$SMILES))
+    expect_equal(afm$adj$df$RT_ADJ, new$RT)
 })
 
 
