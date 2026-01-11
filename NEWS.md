@@ -1,4 +1,19 @@
 
+
+# FastRet 1.3.1 <!-- Commit Date: 2026-01-11 -->
+
+API Improvements:
+
+1. Added arguments `match_rts` and `match_keys` to `adjust_frm()`:
+   - If `match_rts=TRUE` (default), RTs are obtained by matching rows in
+     `new_data` to rows in `frm$df` based on `match_keys`.
+   - If `match_rts=FALSE`, RTs are obtained by applying the base model to
+     `new_data`.
+   - `match_keys` can be any combination of "INCHIKEY", "SMILES" and "NAME". If
+     left at default NULL, SMILES+INCHIKEY is used if both columns are present
+     in the adjusted and the original training data. Otherwise, SMILES+NAME is
+     used.
+
 # FastRet 1.3.0 <!-- Commit Date: 2025-11-12 -->
 
 API Improvements:
