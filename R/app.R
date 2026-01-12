@@ -49,8 +49,7 @@ start_gui <- function(port = 8080,
     # Use [start_gui_in_devmode()] for development
     catf("Checking CDK version")
     check_cdk_version()
-    oldplan <- future::plan("multisession", workers = nw)
-    on.exit(future::plan(oldplan), add = TRUE)
+    with(future::plan("multisession", workers = nw), local = TRUE)
     catf("Starting FastRet GUI")
     app <- fastret_app(port, host, reload, nsw)
     shiny::runApp(app)
@@ -140,8 +139,7 @@ start_gui_in_devmode <- function(strategy = "sequential",
     ))
 
     catf("Initializing cluster")
-    oldplan <- future::plan(strategy)
-    on.exit(future::plan(oldplan), add = TRUE, after = FALSE)
+    with(future::plan(strategy), local = TRUE)
 
     catf("Starting FastRet GUI in development mode")
     pkg_root <- dirname(system.file("DESCRIPTION", package = "FastRet"))
