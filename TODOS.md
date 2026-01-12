@@ -1,44 +1,21 @@
 # Todos
 
 - [Open](#open)
-  - [Make sure tests run on Linux and MacOS](#make-sure-tests-run-on-linux-and-macos)
   - [Update included Measurements](#update-included-measurements)
   - [Add tests for the shiny GUI](#add-tests-for-the-shiny-gui)
   - [Remove RP](#remove-rp)
   - [Ensure test coverage](#ensure-test-coverage)
   - [Ensure backwards compatibility](#ensure-backwards-compatibility)
-  - [Resubmit to CRAN](#resubmit-to-cran)
 - [Done](#done)
   - [Allow disabling of cross-validation](#allow-disabling-of-cross-validation)
   - [Fix failing tests in Github CI](#fix-failing-tests-in-github-ci)
   - [Allow Adjustment based on chemical descriptors](#allow-adjustment-based-on-chemical-descriptors)
   - [Add gbtree and glmnet as adjustment models](#add-gbtree-and-glmnet-as-adjustment-models)
+  - [Make sure tests run on Linux and MacOS](#make-sure-tests-run-on-linux-and-macos)
+  - [Resubmit to CRAN](#resubmit-to-cran)
+  - [Improve Future Handling](#improve-future-handling)
 
 ## Open
-
-### Make sure tests run on Linux and MacOS
-
-Currently failing tests:
-
-```log
-══ Failed tests ════════════════════════════════════════════════════════════════
-── Error ('test-fit_gbtree.R:47:5'): fit_gbtree works with xgboost 1.7 ─────────
-<callr_status_error/callr_error/rlib_error_3_0/rlib_error/error/condition>
-Error: Error: ! in callr subprocess.
-Caused by error:
-! Expected `packageVersion("xgboost", lib.loc = new_lib) == package_version("1.7.9.1")` to be TRUE.
-Differences:
-`actual`:   FALSE
-`expected`: TRUE
-
-Installed xgboost version: 1.7.11.1
-
-[ FAIL 1 | WARN 0 | SKIP 1 | PASS 94 ]
-Error:
-! Test failures.
-Execution halted
-```
-
 
 ### Update included Measurements
 
@@ -83,10 +60,6 @@ Include an adjusted lasso and gbtree model that was trained and adjusted with
 FastRet version 1.2.2 or earlier. Write testcase to ensure that all *.frm
 functions like adjust_frm, predict.frm, get_predictors, coef.frm, plot.frm work
 as expected with those.
-
-### Resubmit to CRAN
-
-Resubmit FastRet v1.3.0 to CRAN.
 
 ## Done
 
@@ -174,3 +147,57 @@ and `gbtree` models (as returned by `fit_glmnet()` and `fit_gbtree()`) should be
 supported as well. Introduce a new argument `adj_type` to `adjust_frm()` that
 can take values `"lm"` (default), `"glmnet"`, and `"gbtree"` and based on this
 value decide which adjustment model to fit.
+
+### Make sure tests run on Linux and MacOS
+
+Currently failing tests:
+
+```log
+══ Failed tests ════════════════════════════════════════════════════════════════
+── Error ('test-fit_gbtree.R:47:5'): fit_gbtree works with xgboost 1.7 ─────────
+<callr_status_error/callr_error/rlib_error_3_0/rlib_error/error/condition>
+Error: Error: ! in callr subprocess.
+Caused by error:
+! Expected `packageVersion("xgboost", lib.loc = new_lib) == package_version("1.7.9.1")` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE
+
+Installed xgboost version: 1.7.11.1
+
+[ FAIL 1 | WARN 0 | SKIP 1 | PASS 94 ]
+Error:
+! Test failures.
+Execution halted
+```
+
+### Resubmit to CRAN
+
+Resubmit FastRet v1.3.0 to CRAN.
+
+### Improve Future Handling
+
+In issue, HenrikBengtsson recommends the following:
+
+FYI, instead of:
+
+FastRet/R/app.R (Lines 52 to 53 in 62ede6d)
+
+> oldplan <- future::plan("multisession", workers = nw)
+> on.exit(future::plan(oldplan), add = TRUE)
+
+you can now do:
+
+> with(future::plan("multisession", workers = nw), local = TRUE)
+> It works the same, but you might find new alternative cleaner.
+
+There's also:
+
+FastRet/R/app.R (Lines 143 to 144 in 62ede6d)
+
+> oldplan <- future::plan(strategy)
+> on.exit(future::plan(oldplan), add = TRUE, after = FALSE)
+
+which can be replaced by:
+
+> with(future::plan(strategy), local = TRUE)

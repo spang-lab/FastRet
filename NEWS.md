@@ -1,5 +1,13 @@
 
 
+# FastRet 1.3.4 <!-- Commit Date: 2026-01-12 -->
+
+Internal Improvements:
+
+1. `start_gui()` and `start_gui_in_devmode()` now rely on
+  `with(future::plan(...), local = TRUE)` so that temporary future plans are
+  restored automatically without manual bookkeeping.
+
 # FastRet 1.3.3 <!-- Commit Date: 2026-01-11 -->
 
 API Improvements:
