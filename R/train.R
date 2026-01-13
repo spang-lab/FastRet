@@ -297,7 +297,7 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
 #' frm <- read_rp_lasso_model_rds()
 #' new_data <- read_rpadj_xlsx()
 #' frm_adj <- adjust_frm(frm, new_data, verbose = 0)
-#'
+#' frm_adj <- adjust_frm(frm, new_data, verbose = 0, adj_type = "lasso")
 adjust_frm <- function(frm,
                        new_data,
                        predictors = 1:6,
@@ -508,9 +508,9 @@ predict.frm <- function(object = train_frm(),
 
     # Init locals
     logf <- if (verbose >= 1) catf else null
-    cd_pds <- get_predictors(object, base = TRUE, adjust = FALSE)
-    dgp <- get_dgp(cd_pds)
-    iat <- any(grepl(":", cd_pds))
+    pds <- get_predictors(object, base = TRUE, adjust = FALSE)
+    dgp <- get_dgp(pds)
+    iat <- any(grepl(":", pds))
     rm_nzv <- FALSE
     rm_na <- FALSE
     add_cds <- TRUE
@@ -520,47 +520,40 @@ predict.frm <- function(object = train_frm(),
         errmsg <- "Model has not been adjusted yet. Please adjust the model first using `adjust_frm()`."
         stop(errmsg)
     }
-    if (!all(cd_pds %in% colnames(df))) {
-        logf("Chemical descriptors not found in newdata. Trying to calculate them from the provided SMILES.")
+    if (!all(pds %in% colnames(df))) {
+        logf("Predictors not found in newdata. Trying to calculate them from the provided SMILES.")
         df <- preprocess_data(
             df, dgp, iat, verbose, 1, rm_nzv, rm_na, add_cds,
             rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES")
         )
 
     }
-    if (!all(cd_pds %in% colnames(df))) {
-        missing <- paste(setdiff(cd_pds, colnames(df)), collapse = ", ")
-        errmsg <- paste("The following cd_pds are missing in `df`: ", missing)
+    if (!all(pds %in% colnames(df))) {
+        missing <- paste(setdiff(pds, colnames(df)), collapse = ", ")
+        errmsg <- paste("The following predictors are missing in `df`: ", missing)
         stop(errmsg)
     }
 
     # Impute missing values
-    if (impute && any(is.na(df[, cd_pds]))) {
-        nap <- cd_pds[colSums(is.na(df[, cd_pds])) > 0]
-        napstr <- paste(nap, collapse = ", ")
-        logf("NA values found for following cd_pds: %s", napstr)
-        logf("Replacing NA values by column means of training data")
+    if (impute) {
         train_df <- object$df
-        if (!all(cd_pds %in% colnames(train_df))) {
+        if (!all(pds %in% colnames(train_df))) {
             # We don't store interaction terms and/or polynomial features in
             # the training data frame, so we need to preprocess it again to get
-            # these features.
+            # these features, if they are required for imputation.
             train_df <- preprocess_data(
                 train_df, dgp, iat, verbose,
                 nw = 1, rm_near_zero_var = FALSE, rm_na = FALSE, add_cds = TRUE,
                 rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES")
             )
         }
-        for (p in nap) {
-            col_mean <- mean(train_df[[p]], na.rm = TRUE)
-            df[[p]][is.na(df[[p]])] <- col_mean
-        }
+        df <- impute_missing_predictors(df, pds, train_df, logf)
     }
 
     # Predict retention times using base model
     adjust <- !is.null(object$adj) && (isTRUE(adjust) || is.null(adjust))
     logf("Predicting retention times")
-    yhat <- as.numeric(predict(object$model, as.matrix(df[, cd_pds])))
+    yhat <- as.numeric(predict(object$model, as.matrix(df[, pds])))
 
     # Adjust predictions if requested
     if (adjust) {
@@ -580,6 +573,11 @@ predict.frm <- function(object = train_frm(),
             )
         }
         adj_df <- adj_df[, adj_pds, drop = FALSE]
+
+        # Impute missing values for adjustment predictors (can happen for
+        # exotic compounds where CD calculation fails for a few features).
+        if (impute) adj_df <- impute_missing_predictors(adj_df, adj_pds, object$adj$df, logf)
+
         X_adj <- if (inherits(object$adj$model, "lm")) adj_df else as.matrix(adj_df)
         x <- try(yhat <- as.numeric(predict(object$adj$model, X_adj)))
     }
@@ -593,6 +591,37 @@ predict.frm <- function(object = train_frm(),
 
     # Return predictions
     as.numeric(yhat)
+}
+
+impute_missing_predictors <- function(df, pds, train_df, logf = null) {
+    if (length(pds) == 0) return(df)
+    if (!all(pds %in% colnames(df))) {
+        missing <- paste(setdiff(pds, colnames(df)), collapse = ", ")
+        stop(sprintf("The following predictors are missing in `df`: %s", missing))
+    }
+    if (!all(pds %in% colnames(train_df))) {
+        missing <- paste(setdiff(pds, colnames(train_df)), collapse = ", ")
+        fmt <- "Required predictors missing in training data: %s. This indicates a model/training-data mismatch."
+        stop(sprintf(fmt, missing))
+    }
+
+    bad <- !is.finite(as.matrix(df[, pds, drop = FALSE]))
+    if (any(bad)) df[, pds][bad] <- NA
+    if (!anyNA(df[, pds, drop = FALSE])) return(df)
+
+    nap <- pds[colSums(is.na(df[, pds, drop = FALSE])) > 0]
+    if (length(nap) == 0) return(df)
+
+    logf("NA values found for following predictors: %s", paste(nap, collapse = ", "))
+    logf("Replacing NA values by column means of training data")
+
+    for (p in nap) {
+        col_mean <- mean(train_df[[p]], na.rm = TRUE)
+        if (!is.finite(col_mean) || is.na(col_mean)) col_mean <- 0
+        df[[p]][is.na(df[[p]])] <- col_mean
+    }
+
+    df
 }
 
 get_req_pkgs <- function(frm) {

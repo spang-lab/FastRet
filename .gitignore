@@ -5,6 +5,7 @@
 .Rproj.user
 .vscode/
 *.bkp
+*.log
 check/
 docs/
 FastRet.Rproj
