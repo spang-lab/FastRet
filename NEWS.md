@@ -1,4 +1,17 @@
 
+# FastRet 1.3.5 <!-- Commit Date: 2026-01-13 -->
+
+Bugfix:
+
+1. `predict.frm()` now imputes missing/non-finite values not only for base model
+   predictors, but also for adjustment model predictors. This prevents `NA`
+   predictions if the adjustment model depends on predictors that are
+   missing/non-finite in the new data.
+
+Internal Improvements:
+
+1. Consolidated the imputation logic in `predict.frm()` into a shared internal
+   helper.
 
 # FastRet 1.3.4 <!-- Commit Date: 2026-01-12 -->
 
