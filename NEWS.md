@@ -1,4 +1,13 @@
 
+# FastRet 1.3.6 <!-- Commit Date: 2026-06-11 -->
+
+Documentation:
+
+1. Improved the GUI documentation: corrected the description of the *Selective
+   Measuring* algorithm (PAM / k-medoids clustering, not k-means), added
+   step-by-step instructions and a Java/CDK troubleshooting note to the
+   `GUI-Usage` vignette, and fixed minor wording in the GUI help texts.
+
 # FastRet 1.3.5 <!-- Commit Date: 2026-01-13 -->
 
 Bugfix:
