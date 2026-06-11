@@ -9,6 +9,7 @@ To start the GUI, [install the package](#installation) and then run the
 following command in an interactive R terminal:
 
 ``` r
+
 FastRet::start_gui()
 ```
 
@@ -28,10 +29,17 @@ symbols next to input
 fields](GUI-Usage/mode-help.png)](https://spang-lab.github.io/FastRet/articles/GUI-Usage/mode-help.png)
 
 By default, the GUI opens in mode *Train new Model*. To apply or adjust
-pretrained models, select mode *Predict Retention Time* or *Adjust
+pretrained models, select mode *Predict Retention Times* or *Adjust
 existing Model* instead. For more information about the individual modes
 and the various input fields, click on the little question mark symbols
 next to the different input fields or read the following sections.
+
+If
+[`start_gui()`](https://spang-lab.github.io/FastRet/reference/start_gui.md)
+stops with an error about the CDK version (FastRet requires CDK 2.9 or
+greater, which in turn requires a working Java installation), see the
+[Installation](https://spang-lab.github.io/FastRet/articles/Installation.html)
+article for how to set up Java and `rcdk`.
 
 ## Train new Model
 
@@ -45,6 +53,7 @@ print the file path of this excel file and a preview of its contents,
 enter the following lines an interactive R session:
 
 ``` r
+
 path <- system.file("extdata", "RP.xlsx", package = "FastRet")
 cat(path, "\n", sep = "")
 #> /home/runner/work/_temp/Library/FastRet/extdata/RP.xlsx
@@ -136,11 +145,26 @@ adjustment interface with file upload options
 
 ## Selective Measuring
 
-This mode calculates, for a given data set, the best k molecules to be
-measured for a retention time prediction on a new experiment setup. It
-uses a combination of Ridge Regression and k-means to determine the best
-representatives of your dataset. Representatives as well as their
-corresponding clusters can be downloaded afterwards as an excel file.
-This step should be used once you have a predictive model and/or data
-set and want to adjust it to work for a new column with adjusted
-chromatographic properties such as gradient, temperature, etc.
+This mode calculates, for a given data set, the best `k` molecules to be
+measured on a new experiment setup. It combines Ridge Regression with
+PAM (Partitioning Around Medoids, also known as k-medoids) clustering to
+determine the most representative molecules of your dataset. These
+representatives, together with their corresponding clusters, can then be
+downloaded as an Excel file.
+
+Use this mode when you already have a predictive model and/or data set
+and want to adapt it to a new column with different chromatographic
+properties (gradient, temperature, etc.): measuring only the selected
+representatives on the new column keeps the experimental effort low
+while still capturing the diversity of your dataset, so the resulting
+measurements can be used to [adjust your
+model](#adjusting-existing-model).
+
+To use this mode:
+
+1.  Upload an Excel file containing columns NAME, SMILES and RT via the
+    *Browse* button
+2.  Set the number of molecules to select in the *k Cluster* field
+3.  Click the *Calculate clusters and medoids* button
+4.  Click *Download clustering as xlsx* to save the selected
+    representatives and their clusters

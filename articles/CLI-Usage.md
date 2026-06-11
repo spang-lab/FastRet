@@ -15,12 +15,12 @@ Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#adjusting-mea
 Each of these modes has a corresponding function, which can be called
 from the command line. The mode-function mapping is as follows:
 
-| Mode                    | Function                                                                                      |
-|-------------------------|-----------------------------------------------------------------------------------------------|
-| Train new Model         | [train_frm](https://spang-lab.github.io/FastRet/reference/train_frm.html)                     |
-| Predict Retention Times | [predict.frm](https://spang-lab.github.io/FastRet/reference/predict.frm.html)                 |
-| Selective Measuring     | [selective_measuring](https://spang-lab.github.io/FastRet/reference/selective_measuring.html) |
-| Adjust existing Model   | [adjust_frm](https://spang-lab.github.io/FastRet/reference/adjust_frm.html)                   |
+| Mode | Function |
+|----|----|
+| Train new Model | [train_frm](https://spang-lab.github.io/FastRet/reference/train_frm.html) |
+| Predict Retention Times | [predict.frm](https://spang-lab.github.io/FastRet/reference/predict.frm.html) |
+| Selective Measuring | [selective_measuring](https://spang-lab.github.io/FastRet/reference/selective_measuring.html) |
+| Adjust existing Model | [adjust_frm](https://spang-lab.github.io/FastRet/reference/adjust_frm.html) |
 
 For details about each function, like parameter descriptions, usage
 examples and return values, click on the function name to open the

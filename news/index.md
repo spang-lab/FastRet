@@ -1,6 +1,82 @@
 # Changelog
 
+## FastRet 1.3.6
+
+Documentation:
+
+1.  Improved the GUI documentation: corrected the description of the
+    *Selective Measuring* algorithm (PAM / k-medoids clustering, not
+    k-means), added step-by-step instructions and a Java/CDK
+    troubleshooting note to the `GUI-Usage` vignette, and fixed minor
+    wording in the GUI help texts.
+
+## FastRet 1.3.5
+
+Bugfix:
+
+1.  [`predict.frm()`](https://spang-lab.github.io/FastRet/reference/predict.frm.md)
+    now imputes missing/non-finite values not only for base model
+    predictors, but also for adjustment model predictors. This prevents
+    `NA` predictions if the adjustment model depends on predictors that
+    are missing/non-finite in the new data.
+
+Internal Improvements:
+
+1.  Consolidated the imputation logic in
+    [`predict.frm()`](https://spang-lab.github.io/FastRet/reference/predict.frm.md)
+    into a shared internal helper.
+
+## FastRet 1.3.4
+
+Internal Improvements:
+
+1.  [`start_gui()`](https://spang-lab.github.io/FastRet/reference/start_gui.md)
+    and `start_gui_in_devmode()` now rely on
+    `with(future::plan(...), local = TRUE)` so that temporary future
+    plans are restored automatically without manual bookkeeping.
+
+## FastRet 1.3.3
+
+API Improvements:
+
+1.  [`selective_measuring()`](https://spang-lab.github.io/FastRet/reference/selective_measuring.md)
+    accepts `"max"` and `"inf"` as additional values for its `rt_coef`
+    parameter:
+    - `"max"` is an alias for the existing `"max_ridge_coef"`
+    - `"inf"` sets all chemical descriptor features to zero before
+      clustering so that RT alone drives the distance metric (i.e., it
+      is “infinitely” more important than the chemical descriptors).
+
+## FastRet 1.3.2
+
+Bugfix:
+
+1.  [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md)
+    automatically switched to “lm” adjustment if `predictors` contained
+    only one predictor, regardless of whether `add_cds` was TRUE or
+    FALSE. This has now been fixed, so that “lasso”, “ridge” and
+    “gbtree” adjustment is now possible if either `add_cds` is TRUE,
+    `add_cds` is `NULL` or `predictors` contains more than one
+    predictor.
+
+## FastRet 1.3.1
+
+API Improvements:
+
+1.  Added arguments `match_rts` and `match_keys` to
+    [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md):
+    - If `match_rts=TRUE` (default), RTs are obtained by matching rows
+      in `new_data` to rows in `frm$df` based on `match_keys`.
+    - If `match_rts=FALSE`, RTs are obtained by applying the base model
+      to `new_data`.
+    - `match_keys` can be any combination of “INCHIKEY”, “SMILES” and
+      “NAME”. If left at default NULL, SMILES+INCHIKEY is used if both
+      columns are present in the adjusted and the original training
+      data. Otherwise, SMILES+NAME is used.
+
 ## FastRet 1.3.0
+
+CRAN release: 2025-12-17
 
 API Improvements:
 
@@ -30,22 +106,20 @@ API Improvements:
     - Added argument `rm_ucs` to control whether unsupported columns
       (i.e. columns that are neither mandatory nor optional) should be
       removed from the input data.
-
-- Added argument `rt_terms` to control whether transformations of the RT
-  column (square, cube, log, exp, sqrt) should be added to the input
-  data.
-- In case of missing mandatory columns (SMILES, RT, NAME) an error is
-  now raised.
-- INCHIKEY and Chemical Descriptors listed in `CDFeatures` are allowed
-  as optional columns.
-- Columns that are neither mandatory nor optional are automatically
-  removed.
-- Improved runtime for generation of polynomial features and/or
-  interaction terms.
-- Removal of NA and/or near-zero-variance predictors is now done after
-  adding polynomial features and/or interaction terms.
-- Improved progress output.
-
+    - Added argument `rt_terms` to control whether transformations of
+      the RT column (square, cube, log, exp, sqrt) should be added to
+      the input data.
+    - In case of missing mandatory columns (SMILES, RT, NAME) an error
+      is now raised.
+    - INCHIKEY and Chemical Descriptors listed in `CDFeatures` are
+      allowed as optional columns.
+    - Columns that are neither mandatory nor optional are automatically
+      removed.
+    - Improved runtime for generation of polynomial features and/or
+      interaction terms.
+    - Removal of NA and/or near-zero-variance predictors is now done
+      after adding polynomial features and/or interaction terms.
+    - Improved progress output.
 4.  [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md):
     - Added argument `do_cv` to control whether cross-validation should
       be performed for performance estimation. Default is TRUE.

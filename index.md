@@ -18,6 +18,7 @@ You can install the development version of FastRet from
 session:
 
 ``` r
+
 if (Sys.which("java")[1] == "") stop("Please install a Java SDK first.")
 install.packages("pak")
 pak::pkg_install("spang-lab/FastRet")
@@ -33,6 +34,7 @@ The easiest way to use FastRet is through its GUI. To start the GUI,
 in an interactive R terminal:
 
 ``` r
+
 FastRet::start_gui()
 ```
 

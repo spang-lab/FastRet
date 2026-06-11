@@ -29,6 +29,7 @@ Numeric vector of clipped (bounded) predictions.
 ## Examples
 
 ``` r
+
 # Draw only a few samples (10) and clip based on these. The allowed range will
 # be much bigger than the observed range.
 

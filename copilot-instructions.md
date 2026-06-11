@@ -258,6 +258,7 @@ Rscript -e "devtools::load_all(); devtools::test()" | tee test.log
 - **Test structure**: Follow the standard `testthat` pattern:
 
   ``` r
+
   test_that("function_name works correctly", {
       # Setup
       # Test execution  
@@ -310,6 +311,7 @@ before running tests - **Check**: Variables like `read_disk`,
 ### Model Training Pattern
 
 ``` r
+
 # 1. Validate input data
 validate_inputdata(df, require = c("RT", "SMILES", "NAME"))
 
@@ -337,6 +339,7 @@ class(frm) <- "frm"
 ### Chemical Descriptor Pattern
 
 ``` r
+
 # 1. Check RAM cache first
 if (smi %in% rownames(ram_cache$CDs)) {
     return(ram_cache$CDs[smi, ])

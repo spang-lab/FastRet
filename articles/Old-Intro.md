@@ -8,6 +8,7 @@ Welcome to this introduction vignette for FastRet. This tutorial will
 show you how to use FastRet and what to pay attention to when using it.
 
 ``` r
+
 library(FastRet)
 ```
 
@@ -16,6 +17,7 @@ might have it laying around. The resulting excel file does need to have
 three columns, RT, SMILES and NAME.
 
 ``` r
+
 data(RP)
 print(tibble::as_tibble(RP))
 #> # A tibble: 442 × 3
@@ -39,6 +41,7 @@ Starting the interface is done with one line of code. From now on there
 is no need to use R anymore.
 
 ``` r
+
 FastRet()
 ```
 

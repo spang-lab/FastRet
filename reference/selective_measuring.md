@@ -12,7 +12,7 @@ re-measurement. The selection process includes:
     molecules. These are the features used by
     [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md)
     and
-    [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md).
+    [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md).˝
 
 2.  Standardizing chemical descriptors to have zero mean and unit
     variance.
@@ -67,18 +67,22 @@ selective_measuring(
   Which coefficient to use for scaling RT before clustering. Options
   are:
 
-  - max_ridge_coef: scale with the maximum absolute coefficient obtained
-    in ridge regression. I.e., RT will have approximately the same
-    weight as the most important chemical descriptor.
+  - `0`: exclude RT from the clustering.
 
-  - 1: do not scale RT any further, i.e., use standardized RT. The
+  - 'max' / 'max_ridge_coef': scale with the maximum absolute
+    coefficient obtained in ridge regression. I.e., RT will have
+    approximately the same weight as the most important chemical
+    descriptor.
+
+  - `1`: do not scale RT any further, i.e., use standardized RT. The
     effect of leaving RT unscaled is kind of unpredictable, as the ridge
     coefficients depend on the dataset. If the maximum absolute
     coefficient is much smaller than 1, RT will dominate the clustering.
     If it is much larger than 1, RT will have little influence on the
     clustering.
 
-  - 0: exclude RT from the clustering.
+  - 'inf': set all chemical descriptor values to zero, i.e., RT is
+    "infinitely" more important than any chemical descriptor.
 
 ## Value
 

@@ -42,6 +42,7 @@ When installing a JDK, there a few things to look out for, e.g.:
 This can be done by entering the following command in an R session:
 
 ``` r
+
 install.packages("pak")
 ```
 
@@ -51,6 +52,7 @@ To install FastRet from the GitHub repository, enter the following
 command in an R session:
 
 ``` r
+
 pak::pkg_install("FastRet")
 ```
 
@@ -78,7 +80,7 @@ If the installation of the `rJava` package fails:
     (JDK)](#install-java-development-kit-jdk).
 2.  Reinstall the `rJava` package by entering the following command in
     an R session: `install.packages("rJava")`.
-3.  Run [`library("rJava")`](http://www.rforge.net/rJava/) to ensure
+3.  Run [`library("rJava")`](https://www.rforge.net/rJava/) to ensure
     that the package can be loaded.
 
 If this doesn’t solve your problem, have a look the [Troubleshooting
