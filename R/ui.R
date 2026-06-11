@@ -157,7 +157,7 @@ ui_mode_selection <- function() {
             "<h3>Train new Model</h2>",
             "<p>This is usually the first step you take, this mode allows you to create and evaluate a Model on your own new data. Model parameters are optimized automatically using cross validation. Afterwards, the regression model as well as the predictor set can be downloaded. This step outputs one scatterplot and one boxplot showing the model's general performance.</p>",
             "<h3>Selective Measuring</h2>",
-            "<p>This mode calculates on a given dataset the best k molecules to be measured for a retention time prediction. It uses a combination of Ridge Regression and k-means to determine the best representatives of your dataset. Representatives as well as their corresponding clusters can be downloaded afterwards as an excel file. This step should be used once you have a predictive model ond/or data set and want to adjust it for a new chromatography column with a different gradient or temperature etc.</p>",
+            "<p>This mode calculates on a given dataset the best k molecules to be measured for a retention time prediction. It uses a combination of Ridge Regression and PAM (k-medoids) clustering to determine the best representatives of your dataset. Representatives as well as their corresponding clusters can be downloaded afterwards as an excel file. This step should be used once you have a predictive model and/or data set and want to adjust it for a new chromatography column with a different gradient or temperature etc.</p>",
             "<h3>Predict Retention Times</h2>",
             "<p>This step requires you to upload a pretrained model. After the upload, you can use your model to predict retention times of new metabolites by providing either a single SMILE ID combination or a whole list of molecules.</p>",
             "<h3>Adjust existing Model</h2>",
@@ -339,7 +339,7 @@ ui_sm_controls <- function() {
             ),
             content = paste(
                 "<h2>Cluster Calculation</h1>",
-                "<p>Here you can choose how many clusters should be calculated. The programm will calculate the best k molecules to be measured for a retention time prediction. It uses a combination of Ridge Regression and k-means to determine the best representatives of your dataset. Representatives as well as their corresponding clusters can be downloaded afterwards as an excel file. This step should be used once you have a predictive model ond/or data set and want to adjust it for a new chromatography column with different gradient/temperature etc.</p>"
+                "<p>Here you can choose how many clusters should be calculated. The programm will calculate the best k molecules to be measured for a retention time prediction. It uses a combination of Ridge Regression and PAM (k-medoids) clustering to determine the best representatives of your dataset. Representatives as well as their corresponding clusters can be downloaded afterwards as an excel file. This step should be used once you have a predictive model and/or data set and want to adjust it for a new chromatography column with different gradient/temperature etc.</p>"
             )
         ),
         bslib::input_task_button(

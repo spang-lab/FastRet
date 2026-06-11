@@ -57,4 +57,26 @@ test_that("predict.frm imputes CDs if they are NA", {
     # Check Results
     expect_equal(round(yhat, 2), c(4.31, 4.54))
     expect_equal(round(yhat_no_imputing, 2), c(NaN, 4.54))
+
+    # Now test imputation for adjusted predictions.
+    #
+    # Adjustment dataframes never remove NAs or NZV-predictors during training.
+    # Therefore the predict function assumes them to be present during
+    # prediction as well. To mimic this behavior, store an apprpriately
+    # preprocessed dataframe in frm$adj$df.
+    frm$adj$model <- frm$model # Reuse same model, which depends on Kier3
+    frm$adj$df <- preprocess_data(
+        frm$df, degree_polynomial = 1, interaction_terms = FALSE, verbose = 0,
+        nw = 1, rm_near_zero_var = FALSE, rm_na = FALSE, add_cds = TRUE,
+        rm_ucs = TRUE, rt_terms = 1
+    )
+
+    # Without imputation, NA in adjustment predictors yields NA predictions.
+    yhat_no_impute <- predict.frm(frm, new_data, adjust = TRUE, impute = FALSE, clip = FALSE, verbose = 0)
+    expect_true(anyNA(yhat_no_impute))
+
+    # With imputation, predictions must be finite.
+    yhat <- predict.frm(frm, new_data, adjust = TRUE, impute = TRUE, clip = FALSE, verbose = 0)
+    expect_false(anyNA(yhat))
+    expect_true(all(is.finite(yhat)))
 })
