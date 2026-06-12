@@ -7,6 +7,7 @@
 ^(?i)\.vscode$
 ^(?i)app\.r$
 ^(?i)check/$
+^(?i)claude\.md$
 ^(?i)codecov\.yml$
 ^(?i)cran-comments\.md$
 ^(?i)cran-submission$
