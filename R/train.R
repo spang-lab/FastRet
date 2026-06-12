@@ -149,18 +149,6 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
             seed = seed, do_cv = FALSE
         )
 
-        m <- models[[1]]
-        toscutil::stub(
-            predict.frm,
-            object = models[[1]],
-            df = test_dfs[[1]],
-            adjust = NULL,
-            verbose = 0,
-            clip = TRUE,
-            impute = TRUE,
-            ... = list()
-        )
-
         preds_per_fold <- mapply(predict.frm, models, test_dfs, SIMPLIFY = FALSE)
 
 

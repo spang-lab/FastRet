@@ -1,4 +1,21 @@
 
+# FastRet 1.3.7 <!-- Commit Date: 2026-06-12 -->
+
+Bugfix:
+
+1. Removed a leftover `toscutil::stub()` development call from the cross-validation
+   path of `train_frm()`. The call had no effect on results (it only assigned
+   `predict.frm` argument defaults into a function environment that was never read
+   again), but it made `toscutil` — a `Suggests` package — a hard runtime dependency.
+   As a result, model training failed with "there is no package called 'toscutil'"
+   whenever `Suggests` packages were not installed (e.g. a plain CRAN install).
+
+Dependencies:
+
+1. Now requires `future (>= 1.40.0)`. `start_gui()` uses
+   `with(future::plan(...), local = TRUE)`, which relies on the
+   `with.FutureStrategyList` method introduced in future 1.40.0.
+
 # FastRet 1.3.6 <!-- Commit Date: 2026-06-11 -->
 
 Documentation:
@@ -232,7 +249,7 @@ Internal Improvements:
 4. Replaced `fit_glmnet()`, `fit_lasso()` and `fit_ridge()` with a single
    function `fit_glmnet()`, that takes the method ("lasso" or "ridge") as
    parameter. Instead of a dataframe `df` that has to contain only predictors
-   plus the RT column (as reponse), the function now takes a matrix of
+   plus the RT column (as response), the function now takes a matrix of
    predictors `X` and a vector of responses `y`. This makes the function more
    flexible and easier to test.
 5. Replaced `fit_gbtree_grid()` with a much simpler function
@@ -419,7 +436,7 @@ Completely refactored source code, e.g.:
 # FastRet 0.99.7 <!-- Commit Date: 2023-11-30 -->
 
 - Fixed R CMD check findings
-- Fixed Github Actions
+- Fixed GitHub Actions
 - Fixed Dockerfile
 
 # FastRet 0.99.6 <!-- Commit Date: 2023-11-30 -->
@@ -429,7 +446,7 @@ Completely refactored source code, e.g.:
 
 # FastRet 0.99.4 <!-- Commit Date: 2023-11-29 -->
 
-- Improved Github Actions and Formatting of source code
+- Improved GitHub Actions and Formatting of source code
 
 # FastRet 0.99.3 <!-- Commit Date: 2023-11-29 -->
 
