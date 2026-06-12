@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,14 @@
       <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.7" id="fastret-137-">FastRet 1.3.7 <!-- Commit Date: 2026-06-12 -->
+<a class="anchor" aria-label="anchor" href="#fastret-137-"></a></h2>
+<p>Bugfix:</p>
+<ol style="list-style-type: decimal"><li>Removed a leftover <code><a href="https://toscm.github.io/toscutil/reference/stub.html" class="external-link">toscutil::stub()</a></code> development call from the cross-validation path of <code><a href="../reference/train_frm.html">train_frm()</a></code>. The call had no effect on results (it only assigned <code>predict.frm</code> argument defaults into a function environment that was never read again), but it made <code>toscutil</code> — a <code>Suggests</code> package — a hard runtime dependency. As a result, model training failed with “there is no package called ‘toscutil’” whenever <code>Suggests</code> packages were not installed (e.g. a plain CRAN install).</li>
+</ol><p>Dependencies:</p>
+<ol style="list-style-type: decimal"><li>Now requires <code>future (&gt;= 1.40.0)</code>. <code><a href="../reference/start_gui.html">start_gui()</a></code> uses <code>with(future::plan(...), local = TRUE)</code>, which relies on the <code>with.FutureStrategyList</code> method introduced in future 1.40.0.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.6" id="fastret-136-">FastRet 1.3.6 <!-- Commit Date: 2026-06-11 -->
 <a class="anchor" aria-label="anchor" href="#fastret-136-"></a></h2>
@@ -196,7 +204,7 @@
 <li><code>nearZeroVar()</code></li>
 </ul></li>
 <li>Extract mapping and merging part of <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code> into a private function <code>merge_dfs()</code>.</li>
-<li>Replaced <code>fit_glmnet()</code>, <code>fit_lasso()</code> and <code>fit_ridge()</code> with a single function <code>fit_glmnet()</code>, that takes the method (“lasso” or “ridge”) as parameter. Instead of a dataframe <code>df</code> that has to contain only predictors plus the RT column (as reponse), the function now takes a matrix of predictors <code>X</code> and a vector of responses <code>y</code>. This makes the function more flexible and easier to test.</li>
+<li>Replaced <code>fit_glmnet()</code>, <code>fit_lasso()</code> and <code>fit_ridge()</code> with a single function <code>fit_glmnet()</code>, that takes the method (“lasso” or “ridge”) as parameter. Instead of a dataframe <code>df</code> that has to contain only predictors plus the RT column (as response), the function now takes a matrix of predictors <code>X</code> and a vector of responses <code>y</code>. This makes the function more flexible and easier to test.</li>
 <li>Replaced <code>fit_gbtree_grid()</code> with a much simpler function <code>find_params_best()</code>. Instead of allowing the specification of every grid parameter, the new function instead accepts a keyword <code>searchspace</code> for specifying predefined grids to choose from.</li>
 <li>Improved <code>fit_gbtree</code> by exposing lots of hardcoded internal xgboost parameters as function parameters with sensible defaults. In particular, the user can now set <code>xpar</code> to “default”, “rpopt” or a predefined grid-size to train the model with different hyperparameter settings. Furthermore, the function is now written in a way that works with both, version 1.7.9.1 and the new 3.1.2.1 version published on 2025/12/03 (yes, version 2.x was skipped completely).</li>
 <li>Added helper function <code>get_param_grid()</code> for returning predefined hyperparameter grids for xgboost model training based on keywords like “tiny”, “small” or “large”.</li>
@@ -340,7 +348,7 @@
 <h2 class="pkg-version" data-toc-text="0.99.7" id="fastret-0997-">FastRet 0.99.7 <!-- Commit Date: 2023-11-30 -->
 <a class="anchor" aria-label="anchor" href="#fastret-0997-"></a></h2>
 <ul><li>Fixed R CMD check findings</li>
-<li>Fixed Github Actions</li>
+<li>Fixed GitHub Actions</li>
 <li>Fixed Dockerfile</li>
 </ul></div>
     <div class="section level2">
@@ -352,7 +360,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.99.4" id="fastret-0994-">FastRet 0.99.4 <!-- Commit Date: 2023-11-29 -->
 <a class="anchor" aria-label="anchor" href="#fastret-0994-"></a></h2>
-<ul><li>Improved Github Actions and Formatting of source code</li>
+<ul><li>Improved GitHub Actions and Formatting of source code</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.99.3" id="fastret-0993-">FastRet 0.99.3 <!-- Commit Date: 2023-11-29 -->

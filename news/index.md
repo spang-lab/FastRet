@@ -1,5 +1,27 @@
 # Changelog
 
+## FastRet 1.3.7
+
+Bugfix:
+
+1.  Removed a leftover
+    [`toscutil::stub()`](https://toscm.github.io/toscutil/reference/stub.html)
+    development call from the cross-validation path of
+    [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md).
+    The call had no effect on results (it only assigned `predict.frm`
+    argument defaults into a function environment that was never read
+    again), but it made `toscutil` — a `Suggests` package — a hard
+    runtime dependency. As a result, model training failed with “there
+    is no package called ‘toscutil’” whenever `Suggests` packages were
+    not installed (e.g. a plain CRAN install).
+
+Dependencies:
+
+1.  Now requires `future (>= 1.40.0)`.
+    [`start_gui()`](https://spang-lab.github.io/FastRet/reference/start_gui.md)
+    uses `with(future::plan(...), local = TRUE)`, which relies on the
+    `with.FutureStrategyList` method introduced in future 1.40.0.
+
 ## FastRet 1.3.6
 
 Documentation:
@@ -275,7 +297,7 @@ Internal Improvements:
 4.  Replaced `fit_glmnet()`, `fit_lasso()` and `fit_ridge()` with a
     single function `fit_glmnet()`, that takes the method (“lasso” or
     “ridge”) as parameter. Instead of a dataframe `df` that has to
-    contain only predictors plus the RT column (as reponse), the
+    contain only predictors plus the RT column (as response), the
     function now takes a matrix of predictors `X` and a vector of
     responses `y`. This makes the function more flexible and easier to
     test.
@@ -486,7 +508,7 @@ Completely refactored source code, e.g.:
 ## FastRet 0.99.7
 
 - Fixed R CMD check findings
-- Fixed Github Actions
+- Fixed GitHub Actions
 - Fixed Dockerfile
 
 ## FastRet 0.99.6
@@ -496,7 +518,7 @@ Completely refactored source code, e.g.:
 
 ## FastRet 0.99.4
 
-- Improved Github Actions and Formatting of source code
+- Improved GitHub Actions and Formatting of source code
 
 ## FastRet 0.99.3
 

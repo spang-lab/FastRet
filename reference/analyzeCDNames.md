@@ -36,6 +36,6 @@ function is used to generate the CDNames object.
 
 ``` r
 X <- analyzeCDNames(df = head(RP, 2), descriptors = CDNames[1:2])
-#> 2026-06-11 20:22:13.44 Descriptor 1/2
-#> 2026-06-11 20:22:14.44 Descriptor 2/2
+#> 2026-06-12 07:32:48.08 Descriptor 1/2
+#> 2026-06-12 07:32:48.50 Descriptor 2/2
 ```
