@@ -21,6 +21,14 @@
 #' @param keepdf
 #' If TRUE, `cbind(df, CDs)` is returned. Else `CDs`.
 #'
+#' @param cache
+#' If TRUE (default), descriptors are cached on disk (an SQLite database under
+#' [tools::R_user_dir]`("FastRet", "cache")`): already-known descriptors are read
+#' from the cache and newly computed ones are written back, so repeated calls on
+#' the same molecules are fast and the cache is shared across processes. If
+#' FALSE, the cache is bypassed entirely and every descriptor is (re)computed via
+#' rCDK -- useful for benchmarking the uncached runtime.
+#'
 #' @return
 #' A dataframe with all input columns (if `keepdf` is TRUE) and chemical
 #' descriptors as remaining columns.
@@ -31,7 +39,8 @@
 getCDs <- function(df,
                    verbose = 1,
                    nw = 1,
-                   keepdf = TRUE) {
+                   keepdf = TRUE,
+                   cache = TRUE) {
 
     logf <- if (verbose >= 1) catf else null
 
@@ -49,36 +58,42 @@ getCDs <- function(df,
         df <- df[, !colnames(df) %in% CDFeatures, drop = FALSE]
     }
 
-    # Load CDs for known SMILES from cache
-    cachedCDs <- getOption("FastRet.cachedCDs")
-    if (is.null(cachedCDs) || nrow(cachedCDs) < N_SMI_CACHED) {
-        cachedCDs <- readRDS(pkg_file("cachedata/CDs.rds"))
-        options(FastRet.cachedCDs = cachedCDs)
-    }
+    uniq <- unique(df$SMILES)
 
-    # Compute CDs for new SMILES
-    smi <- unique(df$SMILES[df$SMILES %notin% rownames(cachedCDs)])
-    if (length(smi) > 0) {
-        logf("Computing CDs for %d new SMILES using rCDK", length(smi))
-        if (nw > 1) {
-            chunkids <- cut(seq_along(smi), nw, labels = FALSE)
-            DF <- split(data.frame(SMILES = smi), chunkids)
-            CDS <- parLapply2(nw, DF, getCDs, verbose = 0, nw = 1, keepdf = FALSE)
-            newCDs <- as.data.frame(data.table::rbindlist(CDS, use.names = TRUE))
-            rownames(newCDs) <- smi
-        } else {
-            objs <- withr::with_options(list(warn = 2), rcdk::parse.smiles(smi))
-            lapply(objs, rcdk::convert.implicit.to.explicit) # Add H atoms
-            lapply(objs, rcdk::generate.2d.coordinates) # Gen 2D coords
-            newCDs <- suppressWarnings(rcdk::eval.desc(objs, CDNames, verbose = FALSE))
+    if (nw > 1) {
+        # Parallel path: the parent does no database I/O. It only ensures the
+        # cache file exists (so workers never race to create it), splits the
+        # SMILES across workers and lets each worker open, use and close its own
+        # connection on its chunk (via the nw == 1 branch below).
+        if (isTRUE(cache)) init_cache()
+        nchunks <- min(nw, length(uniq))
+        chunkids <- cut(seq_along(uniq), nchunks, labels = FALSE)
+        DF <- split(data.frame(SMILES = uniq), chunkids)
+        CDS <- parLapply2(nw, DF, getCDs, verbose = 0, nw = 1, keepdf = FALSE, cache = cache)
+        allcds <- as.data.frame(data.table::rbindlist(CDS, use.names = TRUE))
+        rownames(allcds) <- uniq
+    } else {
+        # Single-worker path: read what is cached, compute the rest, write it
+        # back. This call owns its connection for its whole lifetime.
+        have <- NULL
+        con <- NULL
+        if (isTRUE(cache)) {
+            con <- cache_connect()
+            on.exit(DBI::dbDisconnect(con), add = TRUE)
+            have <- read_cached_cds(con, uniq)
         }
-        # Update cache
-        cachedCDs <- rbind(cachedCDs, newCDs) # Add new CDs to already existing ones
-        options(FastRet.cachedCDs = cachedCDs) # Update cached CDs
+        todo <- setdiff(uniq, have$smiles)
+        if (length(todo) > 0) logf("Computing CDs for %d new SMILES using rCDK", length(todo))
+        newCDs <- compute_cds(todo)
+        if (isTRUE(cache) && length(todo) > 0) {
+            write_cached_cds(con, data.frame(smiles = rownames(newCDs), newCDs,
+                                             check.names = FALSE, row.names = NULL))
+        }
+        allcds <- assemble_cds(uniq, have, newCDs)
     }
 
-    # Assemble final dataframe
-    cds <- cachedCDs[df$SMILES, ]
+    # Assemble final dataframe (rows in the order of the input df)
+    cds <- allcds[df$SMILES, CDFeatures, drop = FALSE]
     retdf <- if (keepdf) cbind(df, cds) else cds
     b <- Sys.time()
     secs <- as.numeric(difftime(b, a, units = "secs"))
@@ -87,20 +102,126 @@ getCDs <- function(df,
     invisible(retdf)
 }
 
+# On-disk descriptor cache (SQLite) #####
+
+# Directory holding the writable per-user descriptor cache. An explicit override
+# (option, then environment variable) wins -- used by the test suite and the
+# benchmark harness. Under `R CMD check` we fall back to a session temp dir so
+# checks never touch the user's real cache; otherwise the CRAN-sanctioned
+# per-user cache directory is used.
+cache_dir <- function() {
+    d <- getOption("FastRet.cache_dir", "")
+    if (!nzchar(d)) d <- Sys.getenv("FASTRET_CACHE_DIR", "")
+    if (!nzchar(d)) {
+        d <- if (nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))) {
+            file.path(tempdir(), "FastRet")
+        } else {
+            tools::R_user_dir("FastRet", "cache")
+        }
+    }
+    d
+}
+
+# Path of the writable SQLite cache (a per-user copy of the shipped database).
+cache_path <- function() file.path(cache_dir(), "CDs.sqlite")
+
+# Ensure the writable cache exists: create the cache directory, copy the shipped
+# CDs.sqlite into it once and switch it to WAL mode so multiple processes can
+# read and write concurrently. Idempotent and cheap. Call it in the main process
+# before spawning workers (or at GUI startup) so workers never race to create the
+# file.
+init_cache <- function() {
+    path <- cache_path()
+    if (!file.exists(path)) {
+        dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+        shipped <- pkg_file("cachedata/CDs.sqlite", mustWork = TRUE)
+        tmp <- paste0(path, ".tmp-", Sys.getpid())
+        file.copy(shipped, tmp, overwrite = TRUE)
+        if (file.exists(path)) unlink(tmp) else file.rename(tmp, path)
+        con <- DBI::dbConnect(RSQLite::SQLite(), path)
+        on.exit(DBI::dbDisconnect(con), add = TRUE)
+        DBI::dbExecute(con, "PRAGMA journal_mode=WAL;")
+    }
+    invisible(path)
+}
+
+# Open a fresh connection to the (initialised) cache. The CALLER must close it
+# via DBI::dbDisconnect().
+cache_connect <- function() {
+    init_cache()
+    con <- DBI::dbConnect(RSQLite::SQLite(), cache_path())
+    DBI::dbExecute(con, "PRAGMA busy_timeout=10000;")
+    con
+}
+
+# Read cached descriptors for `smiles`. Returns a data.frame with a `smiles`
+# column plus the CDFeatures columns, containing only the SMILES found in the
+# cache. Uses a per-connection temporary table so it scales to any number of
+# query SMILES and tolerates duplicates.
+read_cached_cds <- function(con, smiles) {
+    DBI::dbWriteTable(con, "qry_smiles", data.frame(smiles = unique(smiles)),
+                      temporary = TRUE, overwrite = TRUE)
+    on.exit(try(DBI::dbRemoveTable(con, "qry_smiles"), silent = TRUE), add = TRUE)
+    DBI::dbGetQuery(con, "SELECT cds.* FROM cds JOIN qry_smiles USING (smiles)")
+}
+
+# Insert newly computed descriptors. `df` has a `smiles` column plus the
+# CDFeatures columns. INSERT OR IGNORE keeps existing rows, so concurrent workers
+# computing the same SMILES cannot conflict.
+write_cached_cds <- function(con, df) {
+    df <- df[, c("smiles", CDFeatures), drop = FALSE]
+    DBI::dbWriteTable(con, "new_cds", df, temporary = TRUE, overwrite = TRUE)
+    on.exit(try(DBI::dbRemoveTable(con, "new_cds"), silent = TRUE), add = TRUE)
+    DBI::dbExecute(con, "INSERT OR IGNORE INTO cds SELECT * FROM new_cds")
+}
+
+# Compute chemical descriptors for `smiles` via rCDK. Returns a data.frame with
+# rownames = smiles and exactly the CDFeatures columns (any missing filled NA).
+compute_cds <- function(smiles) {
+    if (length(smiles) == 0) {
+        return(as.data.frame(matrix(numeric(0), nrow = 0, ncol = length(CDFeatures),
+                                    dimnames = list(NULL, CDFeatures))))
+    }
+    objs <- withr::with_options(list(warn = -1), rcdk::parse.smiles(smiles))
+    lapply(objs, rcdk::convert.implicit.to.explicit) # Add H atoms
+    lapply(objs, rcdk::generate.2d.coordinates) # Gen 2D coords
+    cds <- suppressWarnings(rcdk::eval.desc(objs, CDNames, verbose = FALSE))
+    miss <- setdiff(CDFeatures, colnames(cds))
+    for (m in miss) cds[[m]] <- NA_real_
+    cds[, CDFeatures, drop = FALSE]
+}
+
+# Combine cached rows (`have`) and freshly computed rows (`newCDs`) into one
+# data.frame keyed by SMILES (rownames), in the order of `uniq`.
+assemble_cds <- function(uniq, have, newCDs) {
+    out <- matrix(NA_real_, nrow = length(uniq), ncol = length(CDFeatures),
+                  dimnames = list(uniq, CDFeatures))
+    if (!is.null(have) && nrow(have) > 0) {
+        out[have$smiles, ] <- as.matrix(have[, CDFeatures, drop = FALSE])
+    }
+    if (nrow(newCDs) > 0) {
+        out[rownames(newCDs), ] <- as.matrix(newCDs[, CDFeatures, drop = FALSE])
+    }
+    as.data.frame(out)
+}
+
 # Constants #####
 
 #' @noRd
-#' @title Make cachedata/CDs.rds
+#' @title Make cachedata/CDs.sqlite
 #' @description
-#' The FastRet package comes with a set of pre-calculated chemical descriptors
-#' for metabolites stored in cachedata/CDS.rds, allowing all examples, tests
-#' etc. to run much faster. This function creates cachedata/CDs.rds.
+#' The FastRet package ships a set of pre-calculated chemical descriptors for
+#' metabolites in `cachedata/CDs.sqlite`, allowing all examples, tests etc. to
+#' run much faster. This function (re)creates that shipped database from the
+#' bundled datasets.
 #' @details
-#' Since this function is used to create the cachedata/CDs.rds file, that is
-#' shipped with the package, it MUST be called during package development, i.e.
-#' after cloning the package sources and invoking [devtools::load_all()]. It
-#' makes no sense to call if after installation and loading of the package via
-#' [library()].
+#' Since this function writes the `cachedata/CDs.sqlite` file that is shipped
+#' with the package, it MUST be called during package development, i.e. after
+#' cloning the package sources and invoking [devtools::load_all()]. It makes no
+#' sense to call it after installation and loading of the package via
+#' [library()]. The shipped database is created in the default (rollback-journal)
+#' mode so it is a single self-contained file; WAL mode is enabled only on the
+#' writable per-user copy at runtime (see [init_cache()]).
 updateCachedCDs <- function() {
     cols <- c("NAME", "SMILES", "RT")
     hilic <- read_retip_hilic_data()[, cols]
@@ -109,21 +230,19 @@ updateCachedCDs <- function() {
     df <- rbind(hilic, meas8, RPold)
     smiles <- unique(df$SMILES)
     canonicals <- unique(as_canonical(smiles))
-    combined <- unique(c(smiles, canonicals)) # 2578 unique strings
-    nUnique <- length(combined)
-    if (nUnique != N_SMI_CACHED) {
-        message("-----------------------------------------------")
-        message("IMPORTANT: N_SMI_CACHED has changed!")
-        message("Please define N_SMI_CACHED <- ", nUnique, " in getcds.R")
-        message("-----------------------------------------------")
-    }
-    CDs <- getCDs(combined, verbose = 1, nw = 8, keepdf = FALSE)
-    cachedata_path <- pkg_file("cachedata")
-    rdspath <- file.path(cachedata_path, "CDs.rds")
-    saveRDS(CDs, rdspath)
+    combined <- unique(c(smiles, canonicals)) # ~2578 unique strings
+    CDs <- compute_cds(combined) # rownames = combined, cols = CDFeatures
+    sqlite <- file.path(pkg_file("cachedata"), "CDs.sqlite")
+    if (file.exists(sqlite)) unlink(sqlite)
+    con <- DBI::dbConnect(RSQLite::SQLite(), sqlite)
+    on.exit(DBI::dbDisconnect(con), add = TRUE)
+    coldef <- paste(sprintf('"%s" REAL', CDFeatures), collapse = ", ")
+    DBI::dbExecute(con, sprintf("CREATE TABLE cds (smiles TEXT PRIMARY KEY, %s);", coldef))
+    out <- data.frame(smiles = rownames(CDs), CDs, check.names = FALSE, row.names = NULL)
+    DBI::dbWriteTable(con, "cds", out[, c("smiles", CDFeatures)], append = TRUE)
+    DBI::dbExecute(con, "PRAGMA wal_checkpoint(TRUNCATE);")
+    invisible(sqlite)
 }
-
-N_SMI_CACHED <- 2578
 
 #' @export
 #' @keywords internal

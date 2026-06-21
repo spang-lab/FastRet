@@ -55,6 +55,9 @@
 #' @param do_cv
 #' A logical value indicating whether to perform cross-validation. If FALSE,
 #' the `cv` element in the returned object will be NULL.
+#' @param cache
+#' Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
+#' recompute every descriptor (FALSE). Passed to [getCDs()].
 #'
 #' @return
 #' A 'FastRet Model', i.e., an object of class `frm`. Components are:
@@ -82,7 +85,7 @@
 train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
                       degree_polynomial = 1, interaction_terms = FALSE,
                       rm_near_zero_var = TRUE, rm_na = TRUE, rm_ns = FALSE,
-                      seed = NULL, do_cv = TRUE) {
+                      seed = NULL, do_cv = TRUE, cache = TRUE) {
 
     # Check arguments
     stopifnot(
@@ -113,12 +116,12 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     dgp <- degree_polynomial
     iat <- interaction_terms
     rm_nzv <- rm_near_zero_var
-    df <- preprocess_data(df, 1, FALSE, verbose, nw, FALSE, FALSE)
+    df <- preprocess_data(df, 1, FALSE, verbose, nw, FALSE, FALSE, cache = cache)
     # Only add CDs, but don't do any transformations yet, as this is part of
     # model training
 
     logf("Training a FastRet model with %s base", method)
-    dfp <- preprocess_data(df, dgp, iat, verbose, nw, rm_nzv, rm_na)
+    dfp <- preprocess_data(df, dgp, iat, verbose, nw, rm_nzv, rm_na, cache = cache)
     meta <- which(colnames(dfp) %in% c("NAME", "SMILES", "RT", "INCHIKEY"))
     M <- dfp[, meta]
     X <- as.matrix(dfp[, -meta])
@@ -209,6 +212,9 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
 #' NULL, matching is done via `c("SMILES", "INCHIKEY")` if INCHIKEYs are
 #' available, else via `c("SMILES", "NAME")`. See 'Details' for more information
 #' on the matching procedure.
+#' @param cache
+#' Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
+#' recompute every descriptor (FALSE). Passed to [getCDs()].
 #'
 #' @details
 #' Matching is done via `c("SMILES", "INCHIKEY")` if both datasets have non-missing
@@ -296,7 +302,8 @@ adjust_frm <- function(frm,
                        adj_type = "lm",
                        add_cds = NULL,
                        match_rts = TRUE,
-                       match_keys = NULL) {
+                       match_keys = NULL,
+                       cache = TRUE) {
 
     # Stubs for interactive Development
     if (FALSE) {
@@ -349,13 +356,13 @@ adjust_frm <- function(frm,
     df <- preprocess_data(
         df, degree_polynomial = 1, interaction_terms = FALSE, verbose = verbose,
         nw = 1, rm_near_zero_var = FALSE, rm_na = FALSE, add_cds = add_cds,
-        rm_ucs = TRUE, rt_terms = predictors
+        rm_ucs = TRUE, rt_terms = predictors, cache = cache
     )
     frm$adj <- named(model = NULL, df = df, cv = NULL, args = args)
 
     # Train adjustment model
     logf("Training adjustment model with %s base", adj_type)
-    dfp <- preprocess_data(df, 1, FALSE, verbose, 1, TRUE, TRUE, FALSE, FALSE)
+    dfp <- preprocess_data(df, 1, FALSE, verbose, 1, TRUE, TRUE, FALSE, FALSE, cache = cache)
     meta <- match(c("NAME", "SMILES", "INCHIKEY", "RT_ADJ"), colnames(df))
     meta <- meta[!is.na(meta)]
     M <- dfp[, meta]
@@ -471,6 +478,8 @@ print.frm <- function(x, ...) {
 #' @param verbose A logical value indicating whether to print progress messages.
 #' @param clip Clip predictions to be within RT range of training data?
 #' @param impute Impute missing predictor values using column means of training data?
+#' @param cache Cache chemical descriptors on disk (TRUE, default) or bypass the
+#' cache and recompute every descriptor (FALSE). Passed to [getCDs()].
 #' @param ... Not used. Required to match the generic signature of `predict()`.
 #'
 #' @return
@@ -488,6 +497,7 @@ predict.frm <- function(object = train_frm(),
                         verbose = 0,
                         clip = TRUE,
                         impute = TRUE,
+                        cache = TRUE,
                         ...) {
 
     # Load required packages
@@ -512,7 +522,7 @@ predict.frm <- function(object = train_frm(),
         logf("Predictors not found in newdata. Trying to calculate them from the provided SMILES.")
         df <- preprocess_data(
             df, dgp, iat, verbose, 1, rm_nzv, rm_na, add_cds,
-            rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES")
+            rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES"), cache = cache
         )
 
     }
@@ -532,7 +542,7 @@ predict.frm <- function(object = train_frm(),
             train_df <- preprocess_data(
                 train_df, dgp, iat, verbose,
                 nw = 1, rm_near_zero_var = FALSE, rm_na = FALSE, add_cds = TRUE,
-                rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES")
+                rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES"), cache = cache
             )
         }
         df <- impute_missing_predictors(df, pds, train_df, logf)
@@ -557,7 +567,7 @@ predict.frm <- function(object = train_frm(),
             adj_df <- preprocess_data(
                 data = adj_df, verbose = verbose, rm_near_zero_var = FALSE,
                 rm_na = FALSE, add_cds = add_cds, rm_ucs = FALSE,
-                rt_terms = adj_rtts
+                rt_terms = adj_rtts, cache = cache
             )
         }
         adj_df <- adj_df[, adj_pds, drop = FALSE]

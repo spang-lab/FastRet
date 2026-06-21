@@ -16,7 +16,8 @@ train_frm(
   rm_na = TRUE,
   rm_ns = FALSE,
   seed = NULL,
-  do_cv = TRUE
+  do_cv = TRUE,
+  cache = TRUE
 )
 }
 \arguments{
@@ -54,6 +55,9 @@ reproducible results.}
 
 \item{do_cv}{A logical value indicating whether to perform cross-validation. If FALSE,
 the \code{cv} element in the returned object will be NULL.}
+
+\item{cache}{Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
+recompute every descriptor (FALSE). Passed to \code{\link[=getCDs]{getCDs()}}.}
 }
 \value{
 A 'FastRet Model', i.e., an object of class \code{frm}. Components are:

@@ -11,6 +11,7 @@
   verbose = 0,
   clip = TRUE,
   impute = TRUE,
+  cache = TRUE,
   ...
 )
 }
@@ -29,6 +30,9 @@ ignored. If NULL, \code{object$model} will be used, if available.}
 \item{clip}{Clip predictions to be within RT range of training data?}
 
 \item{impute}{Impute missing predictor values using column means of training data?}
+
+\item{cache}{Cache chemical descriptors on disk (TRUE, default) or bypass the
+cache and recompute every descriptor (FALSE). Passed to \code{\link[=getCDs]{getCDs()}}.}
 
 \item{...}{Not used. Required to match the generic signature of \code{predict()}.}
 }

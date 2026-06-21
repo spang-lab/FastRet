@@ -1,6 +1,6 @@
 Package: FastRet
 Title: Retention Time Prediction in Liquid Chromatography
-Version: 1.3.7
+Version: 1.4.0
 Authors@R: c(
     person(given = "Tobias", family = "Schmidt", role = c("aut", "cre", "cph"), email = "tobias.schmidt331@gmail.com", comment = c(ORCID = "0000-0001-9681-9253")),
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cph"), email = "christian-amesoeder@web.de", comment = c(ORCID = "0000-0002-1668-8351")),
@@ -23,12 +23,13 @@ BugReports: https://github.com/spang-lab/FastRet/issues
 biocViews: Retention, Time, Chromotography, LC-MS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.3
 Depends: R (>= 4.1.0)
 Imports:
     bslib,
     cluster,
     data.table,
+    DBI,
     DT,
     future (>= 1.40.0),
     ggplot2,
@@ -38,6 +39,7 @@ Imports:
     promises,
     rcdk,
     rlang,
+    RSQLite,
     shiny (>= 1.8.1),
     shinyhelper,
     shinyjs,
@@ -46,6 +48,7 @@ Imports:
 Suggests:
     callr,
     caret,
+    chromote,
     cli,
     devtools,
     knitr,
@@ -56,6 +59,7 @@ Suggests:
     pkgload,
     rmarkdown,
     servr,
+    shinytest2,
     tibble,
     testthat (>= 3.0.0),
     toscutil,
@@ -71,4 +75,3 @@ Config/testthat/start-first:
     train_frm-lasso,
     train_frm-gbtree,
     fit_gbtree
-

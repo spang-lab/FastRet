@@ -15,7 +15,8 @@ preprocess_data(
   add_cds = TRUE,
   rm_ucs = TRUE,
   rt_terms = 1,
-  mandatory = c("NAME", "RT", "SMILES")
+  mandatory = c("NAME", "RT", "SMILES"),
+  cache = TRUE
 )
 }
 \arguments{
@@ -55,6 +56,9 @@ so they must use valid formula syntax (e.g. "I(RT^2)" rather than "RT^2").}
 
 \item{mandatory}{Character vector of mandatory columns that must be present in \code{data}. If any
 of these columns are missing, an error is raised.}
+
+\item{cache}{Passed to \code{\link[=getCDs]{getCDs()}}: cache chemical descriptors on disk (TRUE, default) or
+bypass the cache and recompute every descriptor (FALSE).}
 }
 \value{
 A dataframe with the preprocessed data.
