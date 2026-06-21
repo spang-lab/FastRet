@@ -56,6 +56,10 @@ ui_tab_train <- function() {
         value = "Train new Model",
         shiny::sidebarLayout(
             shiny::sidebarPanel(
+                ui_sidebar_heading("Train new Model", paste(
+                    "<h2>Train new Model</h2>",
+                    "<p>Build a retention-time model from your own measurements: the names, SMILES and retention times of compounds measured on your chromatography column. The trained model predicts retention times for new molecules, and can later be adjusted to other columns.</p>"
+                )),
                 ui_data_upload("ubTrainXlsx", "toTrainXlsxError"),
                 ui_train_controls()
             ),
@@ -72,6 +76,10 @@ ui_tab_select <- function() {
         value = "Selective Measuring",
         shiny::sidebarLayout(
             shiny::sidebarPanel(
+                ui_sidebar_heading("Selective Measuring", paste(
+                    "<h2>Selective Measuring</h2>",
+                    "<p>Pick the most informative compounds to measure on a new column. FastRet returns the most representative molecules of your dataset using ridge regression and k-medoids clustering, so you can adjust a model to the new column with as little lab work as possible.</p>"
+                )),
                 ui_data_upload("ubSmXlsx", "toSmXlsxError"),
                 ui_sm_controls()
             ),
@@ -88,6 +96,10 @@ ui_tab_adjust <- function() {
         value = "Adjust existing Model",
         shiny::sidebarLayout(
             shiny::sidebarPanel(
+                ui_sidebar_heading("Adjust existing Model", paste(
+                    "<h2>Adjust existing Model</h2>",
+                    "<p>Adapt an existing model to a changed setup, such as a different temperature, pH or column age. Upload the model together with a few compounds re-measured on the new column, and FastRet fits a small correction on top of the model.</p>"
+                )),
                 ui_model_upload("ubAdjFRM", "toAdjFRMError"),
                 ui_adjust_controls()
             ),
@@ -104,6 +116,10 @@ ui_tab_predict <- function() {
         value = "Predict Retention Times",
         shiny::sidebarLayout(
             shiny::sidebarPanel(
+                ui_sidebar_heading("Predict Retention Times", paste(
+                    "<h2>Predict Retention Times</h2>",
+                    "<p>Predict retention times for new molecules using a previously trained or adjusted model. Enter a single SMILES or upload many at once as an Excel file.</p>"
+                )),
                 ui_model_upload("ubPredFRM", "toPredFRMError"),
                 ui_predict_controls()
             ),
@@ -512,6 +528,15 @@ with_helptext <- function(..., content) {
         icon = "question-circle",
         colour = "#696969",
         type = "inline",
+        content = content
+    )
+}
+
+# Heading shown at the top of a tab's sidebar, with a help button next to it that
+# explains what the mode is for.
+ui_sidebar_heading <- function(title, content) {
+    with_helptext(
+        htmltools::h4(title, style = "display: inline-block; margin: 0 0.4em 0.6em 0;"),
         content = content
     )
 }

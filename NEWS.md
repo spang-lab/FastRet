@@ -66,6 +66,9 @@ GUI:
    prediction console output so it no longer implies that descriptors are
    recomputed when they are served from the cache.
 
+8. Each tab's sidebar now starts with a heading (the mode name) and a help button
+   that explains, in a few sentences, what the mode is for and when to use it.
+
 Testing:
 
 1. Added `shinytest2` end-to-end GUI tests (`tests/testthat/test-gui-e2e.R`)
