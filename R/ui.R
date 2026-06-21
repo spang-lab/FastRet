@@ -324,6 +324,34 @@ ui_sm_controls <- function() {
                 "<p>Here you can choose how many clusters should be calculated. The programm will calculate the best k molecules to be measured for a retention time prediction. It uses a combination of Ridge Regression and PAM (k-medoids) clustering to determine the best representatives of your dataset. Representatives as well as their corresponding clusters can be downloaded afterwards as an excel file. This step should be used once you have a predictive model and/or data set and want to adjust it for a new chromatography column with different gradient/temperature etc.</p>"
             )
         ),
+        with_helptext(
+            shiny::selectInput(
+                inputId = "siSmVariant",
+                label = "Variant",
+                choices = list(
+                    "RT weighted like top descriptor (recommended)" = "max_ridge_coef",
+                    "RT left unscaled" = "1",
+                    "Exclude RT" = "0",
+                    "RT only" = "inf"
+                ),
+                selected = "max_ridge_coef"
+            ),
+            content = paste(
+                "<h2>Variant</h2>",
+                "<p>Controls how strongly the retention time of the already measured compounds influences the selection. The recommended option weights it like the most important chemical descriptor. The remaining options let you exclude the retention time, leave it unscaled, or rely on it alone.</p>"
+            )
+        ),
+        with_helptext(
+            shiny::numericInput(
+                inputId = "niSmSeed",
+                label = "Seed",
+                value = 42
+            ),
+            content = paste(
+                "<h2>Seed</h2>",
+                "<p>Seed for the random number generator, so the same data and settings always select the same compounds. Change it only to check how sensitive the selection is to the seed.</p>"
+            )
+        ),
         bslib::input_task_button(
             id = "btnSM",
             label = "Calculate clusters and medoids",

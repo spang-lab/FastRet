@@ -57,6 +57,10 @@ GUI:
    console logs" checkboxes were removed), including a new console-log box for
    *Selective Measuring*.
 
+6. The *Selective Measuring* tab now exposes the selection variant (the `rt_coef`
+   weighting of retention time) and the random seed, so users can pick the
+   variant and reproduce a selection from the GUI.
+
 Testing:
 
 1. Added `shinytest2` end-to-end GUI tests (`tests/testthat/test-gui-e2e.R`)

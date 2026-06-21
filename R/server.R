@@ -176,6 +176,8 @@ init_action_button_handlers <- function(SE) {
         SE$ET$btnSM$invoke( # takes same argument as [selective_measuring()]
             SE$RV$smDf,
             k_cluster = SE$input$niK,
+            rt_coef = SE$input$siSmVariant,
+            seed = SE$input$niSmSeed,
             verbose = 1
         )
     }
