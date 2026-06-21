@@ -19,7 +19,8 @@ adjust_frm(
   adj_type = "lm",
   add_cds = NULL,
   match_rts = TRUE,
-  match_keys = NULL
+  match_keys = NULL,
+  cache = TRUE
 )
 ```
 
@@ -89,6 +90,12 @@ adjust_frm(
   `c("SMILES", "INCHIKEY")` if INCHIKEYs are available, else via
   `c("SMILES", "NAME")`. See 'Details' for more information on the
   matching procedure.
+
+- cache:
+
+  Cache chemical descriptors on disk (TRUE, default) or bypass the cache
+  and recompute every descriptor (FALSE). Passed to
+  [`getCDs()`](https://spang-lab.github.io/FastRet/reference/getCDs.md).
 
 ## Value
 
@@ -174,4 +181,5 @@ base-model training but not part of the adjustment set" instead of
 frm <- read_rp_lasso_model_rds()
 new_data <- read_rpadj_xlsx()
 frm_adj <- adjust_frm(frm, new_data, verbose = 0)
+frm_adj <- adjust_frm(frm, new_data, verbose = 0, adj_type = "lasso")
 ```

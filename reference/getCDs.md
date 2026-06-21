@@ -6,7 +6,7 @@ can appear multiple times in the list.
 ## Usage
 
 ``` r
-getCDs(df, verbose = 1, nw = 1, keepdf = TRUE)
+getCDs(df, verbose = 1, nw = 1, keepdf = TRUE, cache = TRUE)
 ```
 
 ## Arguments
@@ -27,6 +27,16 @@ getCDs(df, verbose = 1, nw = 1, keepdf = TRUE)
 
   If TRUE, `cbind(df, CDs)` is returned. Else `CDs`.
 
+- cache:
+
+  If TRUE (default), descriptors are cached on disk (an SQLite database
+  under tools::R_user_dir`("FastRet", "cache")`): already-known
+  descriptors are read from the cache and newly computed ones are
+  written back, so repeated calls on the same molecules are fast and the
+  cache is shared across processes. If FALSE, the cache is bypassed
+  entirely and every descriptor is (re)computed via rCDK – useful for
+  benchmarking the uncached runtime.
+
 ## Value
 
 A dataframe with all input columns (if `keepdf` is TRUE) and chemical
@@ -36,6 +46,6 @@ descriptors as remaining columns.
 
 ``` r
 cds <- getCDs(head(RP, 3), verbose = 1, nw = 1)
-#> 2026-06-12 07:42:29.78 Calculating chemical descriptors for 3 molecules
-#> 2026-06-12 07:42:29.78 Finished calculating chemical descriptors in 0.00s
+#> 2026-06-21 18:59:21.57 Obtaining chemical descriptors for 3 molecules
+#> 2026-06-21 18:59:21.59 Finished obtaining chemical descriptors in 0.02s
 ```

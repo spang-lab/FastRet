@@ -46,14 +46,17 @@ in your R console. This means that the GUI is now running and you can
 access it via the URL `http://localhost:8080` in your browser. If your
 terminal supports it, you can also just click on the displayed link.
 
-![start-page.png](https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/start-page.png)![mode-help.png](https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/mode-help.png)
+![Overview of the four FastRet GUI modes: Train, Select, Adjust and
+Predict](https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/gui-overview-2x2.png)
 
-By default, the GUI opens in Mode *Train new Model*. To apply or adjust
-pretrained models, select mode *Predict Retention Time* or *Adjust
-existing Model* instead. For more information about the individual modes
-and the various input fields, click on the little question mark symbols
-next to the different input fields or have a look at the documentation
-page for [GUI
+The GUI is organized into four modes, available as tabs in the
+navigation bar: *Train*, *Select*, *Adjust* and *Predict* (the tabs use
+short labels; hovering shows the full names *Train new Model*,
+*Selective Measuring*, *Adjust existing Model* and *Predict Retention
+Times*). By default, the GUI opens on the *Train* tab. For more
+information about the individual modes and the various input fields,
+click on the little question mark symbols next to the different input
+fields or have a look at the documentation page for [GUI
 Usage](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html).
 
 ## Documentation

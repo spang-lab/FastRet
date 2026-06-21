@@ -18,7 +18,8 @@ train_frm(
   rm_na = TRUE,
   rm_ns = FALSE,
   seed = NULL,
-  do_cv = TRUE
+  do_cv = TRUE,
+  cache = TRUE
 )
 ```
 
@@ -86,6 +87,12 @@ train_frm(
 
   A logical value indicating whether to perform cross-validation. If
   FALSE, the `cv` element in the returned object will be NULL.
+
+- cache:
+
+  Cache chemical descriptors on disk (TRUE, default) or bypass the cache
+  and recompute every descriptor (FALSE). Passed to
+  [`getCDs()`](https://spang-lab.github.io/FastRet/reference/getCDs.md).
 
 ## Value
 

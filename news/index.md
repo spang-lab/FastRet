@@ -1,5 +1,108 @@
 # Changelog
 
+## FastRet 1.4.0
+
+Chemical-descriptor cache:
+
+1.  The chemical-descriptor cache is now a pure on-disk SQLite database
+    (`CDs.sqlite`) instead of an in-memory R option backed by `CDs.rds`.
+    On first use the shipped database is copied into the per-user cache
+    directory (`tools::R_user_dir("FastRet", "cache")`) and all reads
+    and writes go there. Because the cache lives on disk, descriptors
+    computed in one process are immediately visible to every other
+    process and worker, so parallel training and the GUI’s background
+    workers now share a single cache. Concurrent access is made safe via
+    SQLite WAL mode and `INSERT OR IGNORE`.
+
+2.  [`getCDs()`](https://spang-lab.github.io/FastRet/reference/getCDs.md),
+    [`preprocess_data()`](https://spang-lab.github.io/FastRet/reference/preprocess_data.md),
+    [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md),
+    [`predict.frm()`](https://spang-lab.github.io/FastRet/reference/predict.frm.md)
+    and
+    [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md)
+    gained a `cache` argument. With `cache = TRUE` (default) descriptors
+    are read from and written to the on-disk cache; with `cache = FALSE`
+    the cache is bypassed and every descriptor is recomputed via rCDK
+    (useful for benchmarking the uncached runtime).
+
+3.  Removed the internal `FastRet.cachedCDs` option and the
+    `N_SMI_CACHED` constant. CDK / `rcdklibs` \>= 2.9 is required
+    (already enforced at GUI startup by `check_cdk_version()`), as it
+    provides all descriptors in `CDFeatures`.
+
+GUI:
+
+1.  Reworked the model-adjustment controls in the *Adjust* tab. The old
+    “Components of linear model” checkbox group (which let users toggle
+    the `RT`, `RT^2`, `RT^3`, `log(RT)`, `exp(RT)`, and `sqrt(RT)`
+    predictors of a linear adjustment model) has been replaced by an
+    “Adjustment method” radio button that lets users pick the model
+    family used for the correction: *Lasso* (recommended), *Linear
+    model*, or *XGBoost*. Lasso and XGBoost adjust using the base
+    retention time together with the molecular descriptors and can
+    therefore capture compound-specific shifts, whereas the linear model
+    fits a simple straight-line correction from the base retention time
+    only. The GUI now passes `adj_type` to
+    [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md)
+    accordingly; the deprecated RT-transformation predictors are no
+    longer exposed.
+
+2.  Promoted the four workflows to dedicated navbar tabs (*Train*,
+    *Select*, *Adjust*, *Predict*) instead of selecting them from a
+    single drop-down. Each tab shows a short label with the full mode
+    description on hover, and carries only its own controls and results.
+    The *Privacy Policy*, *Contact*, and *About* pages remain as
+    separate tabs.
+
+3.  Simplified the *Train* sidebar to the essentials: data upload,
+    method (XGBoost/Lasso), seed, and the console log. The “Show
+    advanced settings” toggle and the “Preprocessing Options” checkbox
+    group were removed – GUI training now always uses the package
+    defaults of
+    [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md).
+
+4.  GUI-trained models are now reproducible by default. The training
+    seed previously defaulted to the current system time and was never
+    actually passed to
+    [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md);
+    it now defaults to a fixed value (42) and is applied, so training
+    the same data twice yields identical models. The seed remains
+    user-editable.
+
+5.  The console log is now always visible in every mode (the per-mode
+    “Show console logs” checkboxes were removed), including a new
+    console-log box for *Selective Measuring*.
+
+6.  The *Selective Measuring* tab now exposes the selection variant
+    (named as in the paper: SMmax, SM1, SM0, SMinf, with an info button
+    explaining each) and the random seed, so users can pick the variant
+    and reproduce a selection from the GUI.
+
+7.  Reviewed the GUI help texts for clarity, tone and formatting, and
+    reworded the prediction console output so it no longer implies that
+    descriptors are recomputed when they are served from the cache.
+
+8.  Each tab’s sidebar now starts with a heading (the mode name) and a
+    help button that explains, in a few sentences, what the mode is for
+    and when to use it.
+
+Testing:
+
+1.  Added `shinytest2` end-to-end GUI tests
+    (`tests/testthat/test-gui-e2e.R`) that drive the real app via
+    headless Chrome and exercise every mode and model type (Train:
+    Lasso + XGBoost; Selective Measuring; Predict; Adjust: Lasso +
+    Linear model + XGBoost). They are skipped on CRAN and when
+    Chrome/Java are unavailable.
+
+Documentation:
+
+1.  Rewrote the *GUI Usage* vignette to match the new navbar-tab layout
+    and the simplified sidebars, with up-to-date field/button names and
+    a fresh screenshot of every mode (Train/Select/Adjust/Predict). The
+    screenshots are regenerated reproducibly via
+    `misc/scripts/make-gui-screenshots.R`.
+
 ## FastRet 1.3.7
 
 Bugfix:

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,27 @@
       <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.0" id="fastret-140-">FastRet 1.4.0 <!-- Commit Date: 2026-06-21 -->
+<a class="anchor" aria-label="anchor" href="#fastret-140-"></a></h2>
+<p>Chemical-descriptor cache:</p>
+<ol style="list-style-type: decimal"><li><p>The chemical-descriptor cache is now a pure on-disk SQLite database (<code>CDs.sqlite</code>) instead of an in-memory R option backed by <code>CDs.rds</code>. On first use the shipped database is copied into the per-user cache directory (<code>tools::R_user_dir("FastRet", "cache")</code>) and all reads and writes go there. Because the cache lives on disk, descriptors computed in one process are immediately visible to every other process and worker, so parallel training and the GUI’s background workers now share a single cache. Concurrent access is made safe via SQLite WAL mode and <code>INSERT OR IGNORE</code>.</p></li>
+<li><p><code><a href="../reference/getCDs.html">getCDs()</a></code>, <code><a href="../reference/preprocess_data.html">preprocess_data()</a></code>, <code><a href="../reference/train_frm.html">train_frm()</a></code>, <code><a href="../reference/predict.frm.html">predict.frm()</a></code> and <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code> gained a <code>cache</code> argument. With <code>cache = TRUE</code> (default) descriptors are read from and written to the on-disk cache; with <code>cache = FALSE</code> the cache is bypassed and every descriptor is recomputed via rCDK (useful for benchmarking the uncached runtime).</p></li>
+<li><p>Removed the internal <code>FastRet.cachedCDs</code> option and the <code>N_SMI_CACHED</code> constant. CDK / <code>rcdklibs</code> &gt;= 2.9 is required (already enforced at GUI startup by <code>check_cdk_version()</code>), as it provides all descriptors in <code>CDFeatures</code>.</p></li>
+</ol><p>GUI:</p>
+<ol style="list-style-type: decimal"><li><p>Reworked the model-adjustment controls in the <em>Adjust</em> tab. The old “Components of linear model” checkbox group (which let users toggle the <code>RT</code>, <code>RT^2</code>, <code>RT^3</code>, <code>log(RT)</code>, <code>exp(RT)</code>, and <code>sqrt(RT)</code> predictors of a linear adjustment model) has been replaced by an “Adjustment method” radio button that lets users pick the model family used for the correction: <em>Lasso</em> (recommended), <em>Linear model</em>, or <em>XGBoost</em>. Lasso and XGBoost adjust using the base retention time together with the molecular descriptors and can therefore capture compound-specific shifts, whereas the linear model fits a simple straight-line correction from the base retention time only. The GUI now passes <code>adj_type</code> to <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code> accordingly; the deprecated RT-transformation predictors are no longer exposed.</p></li>
+<li><p>Promoted the four workflows to dedicated navbar tabs (<em>Train</em>, <em>Select</em>, <em>Adjust</em>, <em>Predict</em>) instead of selecting them from a single drop-down. Each tab shows a short label with the full mode description on hover, and carries only its own controls and results. The <em>Privacy Policy</em>, <em>Contact</em>, and <em>About</em> pages remain as separate tabs.</p></li>
+<li><p>Simplified the <em>Train</em> sidebar to the essentials: data upload, method (XGBoost/Lasso), seed, and the console log. The “Show advanced settings” toggle and the “Preprocessing Options” checkbox group were removed – GUI training now always uses the package defaults of <code><a href="../reference/train_frm.html">train_frm()</a></code>.</p></li>
+<li><p>GUI-trained models are now reproducible by default. The training seed previously defaulted to the current system time and was never actually passed to <code><a href="../reference/train_frm.html">train_frm()</a></code>; it now defaults to a fixed value (42) and is applied, so training the same data twice yields identical models. The seed remains user-editable.</p></li>
+<li><p>The console log is now always visible in every mode (the per-mode “Show console logs” checkboxes were removed), including a new console-log box for <em>Selective Measuring</em>.</p></li>
+<li><p>The <em>Selective Measuring</em> tab now exposes the selection variant (named as in the paper: SMmax, SM1, SM0, SMinf, with an info button explaining each) and the random seed, so users can pick the variant and reproduce a selection from the GUI.</p></li>
+<li><p>Reviewed the GUI help texts for clarity, tone and formatting, and reworded the prediction console output so it no longer implies that descriptors are recomputed when they are served from the cache.</p></li>
+<li><p>Each tab’s sidebar now starts with a heading (the mode name) and a help button that explains, in a few sentences, what the mode is for and when to use it.</p></li>
+</ol><p>Testing:</p>
+<ol style="list-style-type: decimal"><li>Added <code>shinytest2</code> end-to-end GUI tests (<code>tests/testthat/test-gui-e2e.R</code>) that drive the real app via headless Chrome and exercise every mode and model type (Train: Lasso + XGBoost; Selective Measuring; Predict; Adjust: Lasso + Linear model + XGBoost). They are skipped on CRAN and when Chrome/Java are unavailable.</li>
+</ol><p>Documentation:</p>
+<ol style="list-style-type: decimal"><li>Rewrote the <em>GUI Usage</em> vignette to match the new navbar-tab layout and the simplified sidebars, with up-to-date field/button names and a fresh screenshot of every mode (Train/Select/Adjust/Predict). The screenshots are regenerated reproducibly via <code>misc/scripts/make-gui-screenshots.R</code>.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.7" id="fastret-137-">FastRet 1.3.7 <!-- Commit Date: 2026-06-12 -->
 <a class="anchor" aria-label="anchor" href="#fastret-137-"></a></h2>

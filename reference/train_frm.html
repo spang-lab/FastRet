@@ -9,7 +9,7 @@ the specified method."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,8 @@ the specified method.</p>
 <span>  rm_na <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  rm_ns <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  do_cv <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  do_cv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cache <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -128,6 +129,11 @@ reproducible results.</p></dd>
 <dt id="arg-do-cv">do_cv<a class="anchor" aria-label="anchor" href="#arg-do-cv"></a></dt>
 <dd><p>A logical value indicating whether to perform cross-validation. If FALSE,
 the <code>cv</code> element in the returned object will be NULL.</p></dd>
+
+
+<dt id="arg-cache">cache<a class="anchor" aria-label="anchor" href="#arg-cache"></a></dt>
+<dd><p>Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
+recompute every descriptor (FALSE). Passed to <code><a href="getCDs.html">getCDs()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

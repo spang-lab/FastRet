@@ -13,6 +13,7 @@ predict(
   verbose = 0,
   clip = TRUE,
   impute = TRUE,
+  cache = TRUE,
   ...
 )
 ```
@@ -48,6 +49,12 @@ predict(
 - impute:
 
   Impute missing predictor values using column means of training data?
+
+- cache:
+
+  Cache chemical descriptors on disk (TRUE, default) or bypass the cache
+  and recompute every descriptor (FALSE). Passed to
+  [`getCDs()`](https://spang-lab.github.io/FastRet/reference/getCDs.md).
 
 - ...:
 

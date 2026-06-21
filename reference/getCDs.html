@@ -9,7 +9,7 @@ appear multiple times in the list."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@ appear multiple times in the list.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getCDs</span><span class="op">(</span><span class="va">df</span>, verbose <span class="op">=</span> <span class="fl">1</span>, nw <span class="op">=</span> <span class="fl">1</span>, keepdf <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getCDs</span><span class="op">(</span><span class="va">df</span>, verbose <span class="op">=</span> <span class="fl">1</span>, nw <span class="op">=</span> <span class="fl">1</span>, keepdf <span class="op">=</span> <span class="cn">TRUE</span>, cache <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,6 +73,15 @@ appear multiple times in the list.</p>
 <dt id="arg-keepdf">keepdf<a class="anchor" aria-label="anchor" href="#arg-keepdf"></a></dt>
 <dd><p>If TRUE, <code>cbind(df, CDs)</code> is returned. Else <code>CDs</code>.</p></dd>
 
+
+<dt id="arg-cache">cache<a class="anchor" aria-label="anchor" href="#arg-cache"></a></dt>
+<dd><p>If TRUE (default), descriptors are cached on disk (an SQLite database under
+tools::R_user_dir<code>("FastRet", "cache")</code>): already-known descriptors are read
+from the cache and newly computed ones are written back, so repeated calls on
+the same molecules are fast and the cache is shared across processes. If
+FALSE, the cache is bypassed entirely and every descriptor is (re)computed via
+rCDK – useful for benchmarking the uncached runtime.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -83,8 +92,8 @@ descriptors as remaining columns.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">cds</span> <span class="op">&lt;-</span> <span class="fu">getCDs</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">RP</span>, <span class="fl">3</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="fl">1</span>, nw <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2026-06-12 07:42:29.78 Calculating chemical descriptors for 3 molecules</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2026-06-12 07:42:29.78 Finished calculating chemical descriptors in 0.00s</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2026-06-21 18:59:21.57 Obtaining chemical descriptors for 3 molecules</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2026-06-21 18:59:21.59 Finished obtaining chemical descriptors in 0.02s</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

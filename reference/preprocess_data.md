@@ -17,7 +17,8 @@ preprocess_data(
   add_cds = TRUE,
   rm_ucs = TRUE,
   rt_terms = 1,
-  mandatory = c("NAME", "RT", "SMILES")
+  mandatory = c("NAME", "RT", "SMILES"),
+  cache = TRUE
 )
 ```
 
@@ -86,6 +87,13 @@ preprocess_data(
 
   Character vector of mandatory columns that must be present in `data`.
   If any of these columns are missing, an error is raised.
+
+- cache:
+
+  Passed to
+  [`getCDs()`](https://spang-lab.github.io/FastRet/reference/getCDs.md):
+  cache chemical descriptors on disk (TRUE, default) or bypass the cache
+  and recompute every descriptor (FALSE).
 
 ## Value
 
