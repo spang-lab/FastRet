@@ -44,7 +44,7 @@ getCDs <- function(df,
 
     logf <- if (verbose >= 1) catf else null
 
-    logf("Calculating chemical descriptors for %d molecules", nrow(df))
+    logf("Obtaining chemical descriptors for %d molecules", nrow(df))
     a <- Sys.time()
     if (is.character(df)) df <- data.frame(SMILES = df)
 
@@ -97,7 +97,7 @@ getCDs <- function(df,
     retdf <- if (keepdf) cbind(df, cds) else cds
     b <- Sys.time()
     secs <- as.numeric(difftime(b, a, units = "secs"))
-    logf("Finished calculating chemical descriptors in %.2fs", secs)
+    logf("Finished obtaining chemical descriptors in %.2fs", secs)
 
     invisible(retdf)
 }

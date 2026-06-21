@@ -57,9 +57,14 @@ GUI:
    console logs" checkboxes were removed), including a new console-log box for
    *Selective Measuring*.
 
-6. The *Selective Measuring* tab now exposes the selection variant (the `rt_coef`
-   weighting of retention time) and the random seed, so users can pick the
-   variant and reproduce a selection from the GUI.
+6. The *Selective Measuring* tab now exposes the selection variant (named as in
+   the paper: SMmax, SM1, SM0, SMinf, with an info button explaining each) and
+   the random seed, so users can pick the variant and reproduce a selection from
+   the GUI.
+
+7. Reviewed the GUI help texts for clarity, tone and formatting, and reworded the
+   prediction console output so it no longer implies that descriptors are
+   recomputed when they are served from the cache.
 
 Testing:
 

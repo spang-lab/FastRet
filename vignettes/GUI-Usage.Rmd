@@ -120,9 +120,10 @@ possible. It uses Ridge Regression and PAM (k-medoids) clustering.
 
 1.  Upload an Excel file (columns `NAME`, `SMILES`, `RT`).
 2.  **k Cluster** --- how many molecules to select.
-3.  **Variant** --- how strongly the retention time guides the selection. The
-    default weights it like the most important descriptor; you can also exclude
-    it, leave it unscaled, or rely on it alone.
+3.  **Variant** --- how strongly the retention time guides the selection:
+    *SMmax* (default, weighted like the most important descriptor), *SM1*
+    (unscaled), *SM0* (excluded) or *SMinf* (retention time only). The info
+    button explains each.
 4.  **Seed** --- random seed. Keep the default (`42`) for a reproducible
     selection.
 5.  Click *Calculate clusters and medoids*.

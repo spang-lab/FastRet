@@ -206,14 +206,13 @@ ui_data_upload <- function(inputId, errorId) {
                 accept = ".xlsx"
             ),
             content = paste(
-                "<h2>Training data upload</h1>",
-                "<p>Here you can upload your own data as Excel file. In order for this to work your file must follow a strict format guideline. If any required columns are missing, the FastRet won&#39;t work correctly. FastRet will always load in the first worksheet of an Excel file. Therefore it is suggested that you reduce your file to one sheet beforehand to avoid any errors.</p>",
-                "<h3>Required columns</h2>",
-                "<p>The file must consist of the following columns (case sensitive):</p>",
+                "<h2>Training data upload</h2>",
+                "<p>Upload your own measurements as an Excel file. FastRet reads the first worksheet, so please keep your data on a single sheet.</p>",
+                "<h3>Required columns (case sensitive)</h3>",
                 "<ul>",
-                "<li>RT: Retention time of your molecules. Can be any numeric input, minutes or seconds. Remember what you put in when you analyze the predictions, since those will be on the same scale as your input data.</li>",
-                "<li>NAME: you can put in any characters you like. Preferably the names of your molecules.</li>",
-                "<li>SMILES: Isomeric or canonical SMILES. This information is used to calculate chemical descriptors with the chemistry development kit</li>",
+                "<li><code>RT</code>: retention time of each molecule, in any numeric unit (e.g. minutes or seconds). Predictions are reported on the same scale.</li>",
+                "<li><code>NAME</code>: a label for each molecule, for example its name.</li>",
+                "<li><code>SMILES</code>: isomeric or canonical SMILES, used to compute the chemical descriptors via the Chemistry Development Kit.</li>",
                 "</ul>"
             )
         ),
@@ -231,17 +230,12 @@ ui_model_upload <- function(inputId, errorId) {
             ),
             content = paste(
                 sep = "\n",
-                "<h2>Model upload</h1>",
-                "<p>",
-                "Here you need to upload a prediction model generated with this program in the <em>Train new Model</em> mode.",
-                "This Model can also be read in and used from within R by calling",
-                "<pre style='white-space: pre-wrap;'>",
-                "model <- readRDS('path/to/model.rds')",
-                "coef(model$model)  # show model coeffcients (LASSO only)",
-                "model$df      # show the predictor set",
-                "</pre>",
-                "For further details see the FastRet online documentation.",
-                "</p>"
+                "<h2>Model upload</h2>",
+                "<p>Upload a prediction model that you trained in the <em>Train new Model</em> mode. You can also load and inspect it in R:</p>",
+                "<pre><code>model <- readRDS(\"path/to/model.rds\")",
+                "coef(model$model)  # model coefficients (Lasso only)",
+                "model$df           # the predictor set</code></pre>",
+                "<p>See the FastRet online documentation for details.</p>"
             )
         ),
         shiny::div(shiny::textOutput(errorId), style = "color: red;")
@@ -258,22 +252,18 @@ ui_train_controls <- function() {
                 selected = 2
             ),
             content = paste(
-                "<h2>Method Selection</h1>",
-                "<p>Here you can choose by which method the regression model should be trained on. You can choose between Lasso or XGBoost. </p>",
-                "<h3>Lasso</h2>",
-                "<p>Lasso (Least absolut shrinkage and selection operator) is based on the Least Minimum Square approach with the extension of a L1 penalty norm. This leads to a selection of variables as well as a generalization of the trained model.<br>Lasso was implemented with the R-package glmnet [2].</p>",
-                "<h3>XGBoost</h2>",
-                "<p>XGBoost is a more soffisticated Machine Learning method based on Boosted Regression Trees (BRT) [3]. The main difference to random forest is, that trees are not trained independant from each other but each tree is built with a loss function based on its predecessor. It was implemented with the R-package XGBoost [4].</p>",
-                "<h3>References</h2>",
+                "<h2>Method selection</h2>",
+                "<p>Choose how the regression model is trained: Lasso or XGBoost.</p>",
+                "<h3>Lasso</h3>",
+                "<p>Lasso (least absolute shrinkage and selection operator) extends least-squares regression with an L1 penalty. This selects a subset of predictors and helps the model generalise. Implemented with the R package <code>glmnet</code> [2].</p>",
+                "<h3>XGBoost</h3>",
+                "<p>XGBoost is a boosted-regression-tree method [3]. Unlike a random forest, each tree is fitted on the residuals of its predecessors. Implemented with the R package <code>xgboost</code> [4].</p>",
+                "<h3>References</h3>",
                 "<p>",
-                "[1] Santosa, Fadil; Symes, William W. (1986). &quot;Linear inversion of band-limited reflection seismograms&quot;. <em>SIAM Journal on Scientific and Statistical Computing</em>. SIAM. <strong>7</strong> (4): 1307<e2><80><93>1330",
-                "[2] Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010).",
-                "Regularization Paths for Generalized Linear Models via",
-                "Coordinate Descent. Journal of Statistical Software, 33(1),",
-                "1-22.",
-                "[3] Jerome H. Friedman. &quot;Greedy function approximation: A gradient boosting machine..&quot; Ann. Statist. 29 (5) 1189 - 1232, October 2001",
-                "[4] Tianqi Chen et. Al, (2021). xgboost: Extreme Gradient Boosting. R package",
-                "version 1.4.1.1.",
+                "[1] Santosa F, Symes WW (1986). Linear inversion of band-limited reflection seismograms. <em>SIAM Journal on Scientific and Statistical Computing</em>, 7(4), 1307-1330.<br>",
+                "[2] Friedman J, Hastie T, Tibshirani R (2010). Regularization paths for generalized linear models via coordinate descent. <em>Journal of Statistical Software</em>, 33(1), 1-22.<br>",
+                "[3] Friedman JH (2001). Greedy function approximation: a gradient boosting machine. <em>Annals of Statistics</em>, 29(5), 1189-1232.<br>",
+                "[4] Chen T, et al. (2021). xgboost: Extreme Gradient Boosting. R package version 1.4.1.1.",
                 "</p>"
             )
         ),
@@ -320,8 +310,8 @@ ui_sm_controls <- function() {
                 value = 25
             ),
             content = paste(
-                "<h2>Cluster Calculation</h1>",
-                "<p>Here you can choose how many clusters should be calculated. The programm will calculate the best k molecules to be measured for a retention time prediction. It uses a combination of Ridge Regression and PAM (k-medoids) clustering to determine the best representatives of your dataset. Representatives as well as their corresponding clusters can be downloaded afterwards as an excel file. This step should be used once you have a predictive model and/or data set and want to adjust it for a new chromatography column with different gradient/temperature etc.</p>"
+                "<h2>Number of compounds (k)</h2>",
+                "<p>How many compounds to select. FastRet combines ridge regression with PAM (k-medoids) clustering and returns the <code>k</code> most representative molecules of your dataset. Measure these on the new column and use them to adjust your model. You can download the representatives and their clusters as an Excel file.</p>"
             )
         ),
         with_helptext(
@@ -329,16 +319,22 @@ ui_sm_controls <- function() {
                 inputId = "siSmVariant",
                 label = "Variant",
                 choices = list(
-                    "RT weighted like top descriptor (recommended)" = "max_ridge_coef",
-                    "RT left unscaled" = "1",
-                    "Exclude RT" = "0",
-                    "RT only" = "inf"
+                    "SMmax (recommended)" = "max_ridge_coef",
+                    "SM1" = "1",
+                    "SM0" = "0",
+                    "SMinf" = "inf"
                 ),
                 selected = "max_ridge_coef"
             ),
             content = paste(
-                "<h2>Variant</h2>",
-                "<p>Controls how strongly the retention time of the already measured compounds influences the selection. The recommended option weights it like the most important chemical descriptor. The remaining options let you exclude the retention time, leave it unscaled, or rely on it alone.</p>"
+                "<h2>Selective measuring variant</h2>",
+                "<p>Controls how strongly the retention time (RT) of the already measured compounds guides the selection. The variants differ only in how RT is scaled before clustering:</p>",
+                "<ul>",
+                "<li><b>SMmax</b> (recommended): RT is scaled by the largest ridge-regression coefficient, so it carries about the same weight as the most important chemical descriptor.</li>",
+                "<li><b>SM1</b>: RT is used as is (standardized, no extra scaling).</li>",
+                "<li><b>SM0</b>: RT is excluded; clustering uses the chemical descriptors only.</li>",
+                "<li><b>SMinf</b>: chemical descriptors are ignored; clustering uses RT alone.</li>",
+                "</ul>"
             )
         ),
         with_helptext(
@@ -378,8 +374,8 @@ ui_predict_controls <- function() {
                 value = ""
             ),
             content = paste(
-                "<h2 id='single-prediction'>Single Prediction</h1>",
-                "<p>Here you can input a single SMILES string to predict the retention time of a molecule. The SMILES string has to be in the same format as the SMILES strings in the training data set. The prediction will be done with the model you uploaded.</p>"
+                "<h2 id='single-prediction'>Single prediction</h2>",
+                "<p>Enter one SMILES string to predict its retention time with the uploaded model. Please use the same SMILES format as in the training data.</p>"
             )
         ),
         shiny::div(shiny::textOutput("toPredSmilesError"), style = "color: red;"),
@@ -390,8 +386,8 @@ ui_predict_controls <- function() {
                 accept = ".xlsx"
             ),
             content = paste(
-                "<h2 id='prediction-data-upload'>Prediction Data Upload</h1>",
-                "<p>This file input has to be an excel file with columns NAME and SMILES</p>"
+                "<h2 id='prediction-data-upload'>Prediction data upload</h2>",
+                "<p>Upload an Excel file with the columns <code>NAME</code> and <code>SMILES</code> to predict many molecules at once.</p>"
             )
         ),
         shiny::div(shiny::textOutput("toPredXlsxError"), style = "color: red;"),
@@ -417,12 +413,12 @@ ui_adjust_controls <- function() {
         with_helptext(
             shiny::fileInput(
                 inputId = "ubAdjXlsx",
-                label = "Data for prediction adustment as xlsx file",
+                label = "Data for prediction adjustment as xlsx file",
                 accept = ".xlsx"
             ),
             content = paste(
                 "<h2>Adjustment data</h2>",
-                "<p>This file input has to be an excel file with columns RT, NAME and SMILES</p>"
+                "<p>Upload an Excel file with the columns <code>RT</code>, <code>NAME</code> and <code>SMILES</code> for the compounds re-measured on the new column.</p>"
             )
         ),
         shiny::div(shiny::textOutput("toAdjXlsxError"), style = "color: red;"),

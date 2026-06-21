@@ -519,7 +519,7 @@ predict.frm <- function(object = train_frm(),
         stop(errmsg)
     }
     if (!all(pds %in% colnames(df))) {
-        logf("Predictors not found in newdata. Trying to calculate them from the provided SMILES.")
+        logf("Obtaining the required chemical descriptors from the provided SMILES.")
         df <- preprocess_data(
             df, dgp, iat, verbose, 1, rm_nzv, rm_na, add_cds,
             rm_ucs = TRUE, rt_terms = 1, mandatory = c("NAME", "SMILES"), cache = cache
