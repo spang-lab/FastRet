@@ -49,6 +49,9 @@ start_gui <- function(port = 8080,
     # Use [start_gui_in_devmode()] for development
     catf("Checking CDK version")
     check_cdk_version()
+    catf("Initializing chemical-descriptor cache")
+    init_cache() # copy shipped cache into the user dir up front so the workers
+    # spawned below never race to create it and the first user action is fast
     with(future::plan("multisession", workers = nw), local = TRUE)
     catf("Starting FastRet GUI")
     app <- fastret_app(port, host, reload, nsw)

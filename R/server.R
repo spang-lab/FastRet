@@ -150,16 +150,17 @@ init_action_button_handlers <- function(SE) {
     catf("Start: init_action_button_handlers")
     SE$ABH <- list()
     SE$ABH$btnTrain <- function(SE) {
-        if (is.null(SE$RV$inpDf)) stop("Please upload a excel sheet with the required data first")
+        if (is.null(SE$RV$trainDf)) stop("Please upload a excel sheet with the required data first")
         SE$ET$btnTrain$invoke( # takes same argument as [train_frm()]
-            df = SE$RV$inpDf,
+            df = SE$RV$trainDf,
             method = c("lasso", "gbtree")[as.numeric(SE$input$rbMethod)],
             verbose = 1,
-            nw = SE$nsw
+            nw = SE$nsw,
+            seed = SE$input$seed
         )
     }
     SE$ABH$btnPred <- function(SE) {
-        frm <- SE$RV$inpFRM
+        frm <- SE$RV$predFRM
         df <- SE$R$predDfCombined() # data.frame(NAME, SMILES)
         if (is.null(frm) || is.null(frm$model)) stop("Please upload a valid model first")
         if (is.null(df) || nrow(df) == 0) stop("Please enter a valid SMILES string first or upload a list of SMILES as xlsx")
@@ -171,20 +172,23 @@ init_action_button_handlers <- function(SE) {
         )
     }
     SE$ABH$btnSM <- function(SE) {
-        if (is.null(SE$RV$inpDf)) stop("Please upload a excel sheet with the required data first")
+        if (is.null(SE$RV$smDf)) stop("Please upload a excel sheet with the required data first")
         SE$ET$btnSM$invoke( # takes same argument as [selective_measuring()]
-            SE$RV$inpDf,
+            SE$RV$smDf,
             k_cluster = SE$input$niK,
+            rt_coef = SE$input$siSmVariant,
+            seed = SE$input$niSmSeed,
             verbose = 1
         )
     }
     SE$ABH$btnAdj <- function(SE) {
-        if (!inherits(SE$RV$inpFRM, "frm")) stop("Please upload a valid, pretrained model first")
+        if (!inherits(SE$RV$adjFRM, "frm")) stop("Please upload a valid, pretrained model first")
         if (is.null(SE$RV$adjDf)) stop("Please upload valid data for prediction adjustment first")
         SE$ET$btnAdj$invoke( # takes same argument as [adjust_frm()]
-            frm = SE$RV$inpFRM,
+            frm = SE$RV$adjFRM,
             new_data = SE$RV$adjDf,
-            predictors = as.numeric(SE$input$ciPredictors)
+            adj_type = SE$input$rbAdjMethod,
+            predictors = 1 # base RT only; RT transformations are deprecated
         )
     }
     # catf("Exit: init_action_button_handlers")
@@ -282,38 +286,13 @@ init_download_handlers <- function(SE) {
 init_upload_handlers <- function(SE) {
     catf("Start: init_upload_handlers")
     SE$ULH <- list()
-    SE$ULH$ubInpFRM <- function(SE) {
-        tryCatch({
-            rds <- SE$input$ubInpFRM$datapath
-            catf("Reading and validating %s", rds)
-            ubInpFRM <- readRDS(rds)
-            ubInpFRM <- validate_inputmodel(ubInpFRM)
-            catf("Validation successful. Updating: SE$RV$inpFRM and SE$output$toInpFRMError.")
-            SE$RV$inpFRM <- ubInpFRM
-            SE$output$toInpFRMError <- shiny::renderText("")
-        },
-        error = function(e) {
-            catf("Validation failed. Updating: SE$output$toInpFRMError and SE$RV$inpFRM.")
-            SE$RV$inpFRM <- NULL
-            SE$output$toInpFRMError <- shiny::renderText(paste("Error:", e$message))
-        })
-    }
-    SE$ULH$ubInpXlsx <- function(SE) {
-        tryCatch({
-            xlsx <- SE$input$ubInpXlsx$datapath
-            catf("Reading and validating %s", xlsx)
-            inpDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
-            inpDf <- validate_inputdata(inpDf, min_cds = 0, stop_on_unknown = FALSE)
-            catf("Validation successful. Updating: SE$RV$inpDf and SE$output$toInpXlsxError.")
-            SE$RV$inpDf <- inpDf
-            SE$output$toInpXlsxError <- shiny::renderText("")
-        },
-        error = function(e) {
-            catf("Validation failed. Updating: SE$output$toInpXlsxError and SE$RV$inpDf.")
-            SE$RV$inpDf <- NULL
-            SE$output$toInpXlsxError <- shiny::renderText(paste("Error:", e$message))
-        })
-    }
+    # The data-upload (Train + Select) and model-upload (Predict + Adjust)
+    # widgets exist once per tab with unique ids, so they get one handler each,
+    # built from the shared factories below.
+    SE$ULH$ubTrainXlsx <- make_xlsx_upload_handler("ubTrainXlsx", "trainDf", "toTrainXlsxError")
+    SE$ULH$ubSmXlsx    <- make_xlsx_upload_handler("ubSmXlsx", "smDf", "toSmXlsxError")
+    SE$ULH$ubPredFRM   <- make_model_upload_handler("ubPredFRM", "predFRM", "toPredFRMError")
+    SE$ULH$ubAdjFRM    <- make_model_upload_handler("ubAdjFRM", "adjFRM", "toAdjFRMError")
     SE$ULH$ubPredXlsx <- function(SE) {
         tryCatch({
             xlsx <- SE$input$ubPredXlsx$datapath
@@ -697,6 +676,49 @@ withLineEnd <- function(x) {
 }
 
 # Helpers (Private) #####
+
+# Build an upload handler that reads + validates an xlsx of training/SM data and
+# stores the result in `SE$RV[[rvName]]` (or NULL on error), reporting errors via
+# the `errorId` text output.
+make_xlsx_upload_handler <- function(inputId, rvName, errorId) {
+    function(SE) {
+        tryCatch({
+            xlsx <- SE$input[[inputId]]$datapath
+            catf("Reading and validating %s", xlsx)
+            df <- openxlsx::read.xlsx(xlsx, sheet = 1)
+            df <- validate_inputdata(df, min_cds = 0, stop_on_unknown = FALSE)
+            catf("Validation successful. Updating: SE$RV$%s and SE$output$%s.", rvName, errorId)
+            SE$RV[[rvName]] <- df
+            SE$output[[errorId]] <- shiny::renderText("")
+        },
+        error = function(e) {
+            catf("Validation failed. Updating: SE$output$%s and SE$RV$%s.", errorId, rvName)
+            SE$RV[[rvName]] <- NULL
+            SE$output[[errorId]] <- shiny::renderText(paste("Error:", e$message))
+        })
+    }
+}
+
+# Build an upload handler that reads + validates a pretrained frm (.rds) and
+# stores it in `SE$RV[[rvName]]` (or NULL on error).
+make_model_upload_handler <- function(inputId, rvName, errorId) {
+    function(SE) {
+        tryCatch({
+            rds <- SE$input[[inputId]]$datapath
+            catf("Reading and validating %s", rds)
+            model <- readRDS(rds)
+            model <- validate_inputmodel(model)
+            catf("Validation successful. Updating: SE$RV$%s and SE$output$%s.", rvName, errorId)
+            SE$RV[[rvName]] <- model
+            SE$output[[errorId]] <- shiny::renderText("")
+        },
+        error = function(e) {
+            catf("Validation failed. Updating: SE$output$%s and SE$RV$%s.", errorId, rvName)
+            SE$RV[[rvName]] <- NULL
+            SE$output[[errorId]] <- shiny::renderText(paste("Error:", e$message))
+        })
+    }
+}
 
 withShowError <- function(expr, error = NULL) {
     tryCatch(

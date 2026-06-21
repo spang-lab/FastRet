@@ -4,7 +4,7 @@
 \alias{getCDs}
 \title{Get Chemical Descriptors for a list of molecules}
 \usage{
-getCDs(df, verbose = 1, nw = 1, keepdf = TRUE)
+getCDs(df, verbose = 1, nw = 1, keepdf = TRUE, cache = TRUE)
 }
 \arguments{
 \item{df}{dataframe with two mandatory columns: "NAME" and "SMILES"}
@@ -14,6 +14,13 @@ getCDs(df, verbose = 1, nw = 1, keepdf = TRUE)
 \item{nw}{number of workers for parallel processing}
 
 \item{keepdf}{If TRUE, \code{cbind(df, CDs)} is returned. Else \code{CDs}.}
+
+\item{cache}{If TRUE (default), descriptors are cached on disk (an SQLite database under
+\link[tools:userdir]{tools::R_user_dir}\verb{("FastRet", "cache")}): already-known descriptors are read
+from the cache and newly computed ones are written back, so repeated calls on
+the same molecules are fast and the cache is shared across processes. If
+FALSE, the cache is bypassed entirely and every descriptor is (re)computed via
+rCDK -- useful for benchmarking the uncached runtime.}
 }
 \value{
 A dataframe with all input columns (if \code{keepdf} is TRUE) and chemical

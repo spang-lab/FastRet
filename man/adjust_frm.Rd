@@ -15,7 +15,8 @@ adjust_frm(
   adj_type = "lm",
   add_cds = NULL,
   match_rts = TRUE,
-  match_keys = NULL
+  match_keys = NULL,
+  cache = TRUE
 )
 }
 \arguments{
@@ -58,6 +59,9 @@ TRUE. Can be any combination of "INCHIKEY", "SMILES" and "NAME". If left at
 NULL, matching is done via \code{c("SMILES", "INCHIKEY")} if INCHIKEYs are
 available, else via \code{c("SMILES", "NAME")}. See 'Details' for more information
 on the matching procedure.}
+
+\item{cache}{Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
+recompute every descriptor (FALSE). Passed to \code{\link[=getCDs]{getCDs()}}.}
 }
 \value{
 An object of class \code{frm}, as returned by \code{\link[=train_frm]{train_frm()}}, but with an
@@ -134,6 +138,6 @@ predicting RTs for completely new molecules".
 frm <- read_rp_lasso_model_rds()
 new_data <- read_rpadj_xlsx()
 frm_adj <- adjust_frm(frm, new_data, verbose = 0)
-
+frm_adj <- adjust_frm(frm, new_data, verbose = 0, adj_type = "lasso")
 }
 \keyword{public}

@@ -1,41 +1,52 @@
 library(testthat)
 
-test_that("getCDs works correctly", {
+# Count rows in the on-disk descriptor cache.
+cache_rowcount <- function() {
+    con <- cache_connect()
+    on.exit(DBI::dbDisconnect(con), add = TRUE)
+    DBI::dbGetQuery(con, "SELECT COUNT(*) AS n FROM cds")$n
+}
 
-    # Helpers
-    measure <- function(expr) { system.time(expr)[[3]] }
+test_that("getCDs returns correct descriptors and caches new ones on disk", {
 
-    # Clear cached CDs
-    options(FastRet.cachedCDs = NULL)
-    expect_true(is.null(nrow(getOption("FastRet.cachedCDs"))))
-
-    # Simple test case with known molecules from package data
+    # Known molecules from the shipped cache return correct descriptors.
     X <- RP[1:5, ]
-    rt1 <- measure(Y1 <- getCDs(X, verbose = 0))
+    Y1 <- getCDs(X, verbose = 0)
     nc <- ncol(Y1)
     expect_true(all.equal(Y1[, 1:3], X))
     expect_true(all(colnames(Y1)[4:nc] %in% CDFeatures))
-    expect_equal(Y1$Fsp3, c(0.75, 1/3, 0.00, 0.50, 0.50))
-    expect_equal(nrow(getOption("FastRet.cachedCDs")), N_SMI_CACHED)
+    expect_equal(Y1$Fsp3, c(0.75, 1 / 3, 0.00, 0.50, 0.50))
 
-    # Test with unknown SMILES (not in package data)
+    n0 <- cache_rowcount()
+
+    # Unknown SMILES (not in the shipped cache) are computed and written back.
     smi <- c("CCC", "CCCC", "CCCCC", "CCC")
     df <- data.frame(NAME = paste0("test", 1:4), SMILES = smi, RT = 1:4)
-    rt2 <- measure(Y2 <- getCDs(df, verbose = 0))
+    Y2 <- getCDs(df, verbose = 0)
     expect_equal(nrow(Y2), 4)
-    expect_equal(Y2$SMILES, Y2$SMILES)
     expect_equal(ncol(Y2), ncol(df) + length(CDFeatures))
-    expect_equal(nrow(getOption("FastRet.cachedCDs")), N_SMI_CACHED + 3) # 3 new molecules added
+    expect_true(all(CDFeatures %in% colnames(Y2)))
+    expect_equal(cache_rowcount(), n0 + 3) # 3 distinct new molecules added
 
-    # Test with multiple workers
-    options(FastRet.cachedCDs = getOption("FastRet.cachedCDs")[1:N_SMI_CACHED, ]) # reset cache to original
-    rt3 <- measure(Y3 <- getCDs(df, verbose = 0, nw = 2))
+    # A second call returns the same result and writes nothing new.
+    Y2b <- getCDs(df, verbose = 0)
+    expect_equal(Y2b, Y2)
+    expect_equal(cache_rowcount(), n0 + 3)
+
+    # Parallel computation yields identical results.
+    Y3 <- getCDs(df, verbose = 0, nw = 2)
     expect_equal(Y3, Y2)
+})
 
-    if (FALSE) {
-        # Disable runtime tests for now, as they are flaky on CI systems
-        expect_true(rt1 < 0.050, info = sprintf("runtime: %.3f secs", rt1))
-        expect_true(rt2 > rt1)
-        expect_true(rt3 > rt2) # should take more time due to parallel overhead
-    }
+test_that("getCDs(cache = FALSE) bypasses the cache", {
+
+    n0 <- cache_rowcount()
+
+    # A fresh, never-seen molecule computed with cache = FALSE must not be stored.
+    df <- data.frame(NAME = "iso", SMILES = "CC(C)CC(C)C", RT = 1)
+    Y <- getCDs(df, verbose = 0, cache = FALSE)
+    expect_equal(nrow(Y), 1)
+    expect_equal(ncol(Y), ncol(df) + length(CDFeatures))
+    expect_true(all(CDFeatures %in% colnames(Y)))
+    expect_equal(cache_rowcount(), n0) # nothing written to the cache
 })

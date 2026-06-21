@@ -37,6 +37,9 @@
 #' @param mandatory
 #' Character vector of mandatory columns that must be present in `data`. If any
 #' of these columns are missing, an error is raised.
+#' @param cache
+#' Passed to [getCDs()]: cache chemical descriptors on disk (TRUE, default) or
+#' bypass the cache and recompute every descriptor (FALSE).
 #'
 #' @details
 #' If `add_cds = TRUE`, chemical descriptors are added using [getCDs()]. If
@@ -61,7 +64,8 @@ preprocess_data <- function(data,
                             add_cds = TRUE,
                             rm_ucs = TRUE,
                             rt_terms = 1,
-                            mandatory = c("NAME", "RT", "SMILES")
+                            mandatory = c("NAME", "RT", "SMILES"),
+                            cache = TRUE
                             ) {
 
     if (FALSE) stub(preprocess_data, data=head(RP, 3), rt_terms=c(1:2,6))
@@ -105,7 +109,7 @@ preprocess_data <- function(data,
     # Add chemical descriptors if requested
     if (add_cds) {
         logf("Obtaining chemical descriptors using %d workers", nw)
-        df <- getCDs(data, verbose, nw)
+        df <- getCDs(data, verbose, nw, cache = cache)
     } else {
         df <- data
     }

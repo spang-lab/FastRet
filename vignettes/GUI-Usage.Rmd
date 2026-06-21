@@ -11,56 +11,43 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-This tutorial will show how you can start the FastRet GUI and explain the
-features it provides.
+This tutorial shows how to start the FastRet GUI and use its four modes.
 
 # Starting the GUI
 
-To start the GUI, [install the package](#installation) and then run the
-following command in an interactive R terminal:
+Install the package and run this in an interactive R session:
 
 ```{r gui, eval = FALSE}
 FastRet::start_gui()
 ```
 
-After running the above code, you should see an output like
+The console prints:
 
 ```
 Listening on http://localhost:8080
 ```
 
-in your R console. This means that the GUI is now running and you can access it
-via the URL <http://localhost:8080> in your browser. If your terminal supports
-it, you can also click on the displayed link.
+Open <http://localhost:8080> in your browser to use the GUI.
 
-<a href="GUI-Usage/start-page.png">
-<img src="GUI-Usage/start-page.png" alt="FastRet GUI start page showing the default 'Train new Model' mode with file upload options and training controls" width="45%"/>
+The GUI has four modes, shown as tabs at the top: **Train**, **Select**,
+**Adjust** and **Predict**. Hover over a tab to see its full name. Click the
+question-mark icon next to any input for a short help text.
+
+<a href="GUI-Usage/gui-overview-2x2.png">
+<img src="GUI-Usage/gui-overview-2x2.png" alt="Overview of the four FastRet GUI modes: Train, Select, Adjust and Predict" width="100%"/>
 </a>
-<a href="GUI-Usage/mode-help.png">
-<img src="GUI-Usage/mode-help.png" alt="FastRet GUI help tooltips displayed when hovering over question mark symbols next to input fields" width="45%"/>
-</a>
 
-By default, the GUI opens in mode *Train new Model*. To apply or adjust
-pretrained models, select mode *Predict Retention Times* or *Adjust existing
-Model* instead. For more information about the individual modes and the various
-input fields, click on the little question mark symbols next to the different
-input fields or read the following sections.
-
-If `start_gui()` stops with an error about the CDK version (FastRet requires CDK
-2.9 or greater, which in turn requires a working Java installation), see the
+If `start_gui()` reports a CDK version error, FastRet needs CDK 2.9 or newer and
+a working Java installation. See the
 [Installation](https://spang-lab.github.io/FastRet/articles/Installation.html)
 article for how to set up Java and `rcdk`.
 
 # Train new Model
 
-In mode *Train new Model* you can upload excel files containing the names,
-SMILES and retention times of metabolites measured on your specific
-chromatography column and use this data to train a predictive model. FastRet
-includes an example Excel file  with retention times for 442 metabolites
-measured on a reverse phase liquid chromatography column at a temperature of 35
-degree celsius and a flowrate of 0.3ml/min. To print the file path of this excel
-file and a preview of its contents, enter the following lines an interactive R
-session:
+Use the **Train** tab to build a model from your own measurements: an Excel file
+with the names, SMILES and retention times of metabolites measured on your
+column. FastRet ships an example file with 442 metabolites measured on a
+reverse-phase column (35 °C, 0.3 ml/min). To see its path and contents:
 
 ```{r example-file, eval = TRUE}
 path <- system.file("extdata", "RP.xlsx", package = "FastRet")
@@ -69,80 +56,82 @@ df <- openxlsx::read.xlsx(path, 1)
 head(df)
 ```
 
-To start model training, upload your Excel file and click the *Train Model*
-button. Training the model might take some time, depending on the size of the
-training set. When you click on `Show console logs` you can see the progress of
-the training process. Upon completion, performance measures and a table of
-training dataset is shown. For further details about the training process and
-the performance measures, see section
+Set the controls, then click **Train Model**:
+
+1.  **Data as xlsx file** --- your Excel file (columns `RT`, `NAME`, `SMILES`).
+2.  **Method** --- *XGBoost (recommended)* or *Lasso*.
+3.  **Seed** --- random seed. Keep the default (`42`) for reproducible results.
+
+The **Console Log** shows progress. When training finishes, the main panel shows
+the cross-validation and training plots and a table of predictions. For the
+details, see
 [Model-Training](https://spang-lab.github.io/FastRet/articles/Package-Internals.html#model-training)
-of article
-[Package-Internals](https://spang-lab.github.io/FastRet/articles/Package-Internals.html).
+in the
+[Package-Internals](https://spang-lab.github.io/FastRet/articles/Package-Internals.html)
+article.
 
-<a href="GUI-Usage/model-training.png"><img src="GUI-Usage/model-training.png" alt="FastRet GUI model training interface showing training progress and console output" width="45%" /></a>
-<a href="GUI-Usage/model-performance.png"><img src="GUI-Usage/model-performance.png" alt="FastRet GUI model performance results displaying validation metrics and performance plots" width="45%" /></a>
+<a href="GUI-Usage/train.png"><img src="GUI-Usage/train.png" alt="FastRet GUI Train tab showing the upload, method, seed and console controls next to the cross-validation performance plot and results table" width="100%" /></a>
 
-To use the trained model to predict retention times for new molecules, you have to:
-
-1. Save the model by clicking the *Save Model* button
-2. Switch to model *[Predict Retention Times](#predict-retention-times)*
-3. Upload the model again while in mode *Predict Retention Times*
-4. Enter the SMILES of the molecules you want to predict retention times for
-5. Press *Predict Retention Times*
-
-A more detailed guide on using the FastRet GUI for prediction is given in the
-next section [Predict Retention Times](#predict-retention-times).
+Two buttons then appear: **Save Model** (an `.rds` file) and **Save Predictor
+Set** (the training data with descriptors). To predict with your model, save it,
+switch to the **Predict** tab, upload it there, enter your SMILES and click
+*Predict* (see [Predict Retention Times](#predict-retention-times)).
 
 # Predict Retention Times
 
-In this mode, previously saved models can be used to make predictions for new
-data. To do so
+Use a saved model to predict retention times for new molecules:
 
-1.  Click the *Browse* button from section *Upload a pretrained Model* and
-    select the model you saved in the previous step
-2.  Either enter the SMILES of your molecule of interest in the *Input SMILES*
-    text field or
-3.  Click the *Browse* button from section *Upload SMILES as xlsx* and select an
-    Excel file containing columns NAME and SMILES
-4.  Click button *Predict* at the bottom of the side bar
+1.  Upload the model under *Upload a pretrained Model*.
+2.  Enter a SMILES in *Input SMILES*, or upload an Excel file (columns `NAME`,
+    `SMILES`) under *Upload SMILES as xlsx*.
+3.  Click *Predict*.
 
-![Screenshot of FastRet GUI in 'Predict Retention Times' mode showing model upload and SMILES input options](Old-Intro/04.png){width=45%}
+The predictions appear as a table in the main panel. Click *Save predictions* to
+download them as an Excel file.
 
+<a href="GUI-Usage/predict.png"><img src="GUI-Usage/predict.png" alt="FastRet GUI Predict tab showing model upload, SMILES input and the table of predicted retention times" width="100%" /></a>
 
 # Adjusting existing model
 
-If you have measured some metabolites on your new experiment setup that were
-also measured on the original setup, you can use this method to adjust your
-model for your new column. To do so, switch to mode *Adjust existing Model* and
-upload the model you want to adjust. Then upload an Excel file containing the
-retention times of the metabolites measured on your new column. The Excel file
-should contain columns NAME, SMILES and RT. After clicking the *Adjust Model*
-button, the model will be adjusted and you can use it to predict retention times
-for new molecules measured on your new column.
+If you re-measured some metabolites on a new column that were also measured on
+the original one, use the **Adjust** tab to adapt an existing model to the new
+column:
 
-![Screenshot of FastRet GUI in 'Adjust existing Model' mode showing model adjustment interface with file upload options](Old-Intro/05.png){width=45%}
+1.  Upload the model under *Upload a pretrained Model*.
+2.  Upload the re-measured metabolites (columns `RT`, `NAME`, `SMILES`) under
+    *Data for prediction adjustment as xlsx file*.
+3.  Choose the **Adjustment method**: *Lasso (recommended)*, *Linear model* or
+    *XGBoost*. Lasso and XGBoost use the base retention time and the molecular
+    descriptors, so they can capture compound-specific shifts; the linear model
+    fits a straight-line correction from the base retention time alone.
+4.  Click *Adjust Model*.
+
+The main panel shows the performance of the adjusted model. Click *Save adjusted
+model* to download it. Use it like any other model on the **Predict** tab.
+
+<a href="GUI-Usage/adjust.png"><img src="GUI-Usage/adjust.png" alt="FastRet GUI Adjust tab showing model and data upload, the adjustment-method selector and the cross-validation and adjusted-model performance plots" width="100%" /></a>
 
 # Selective Measuring
 
-This mode calculates, for a given data set, the best `k` molecules to be measured
-on a new experiment setup. It combines Ridge Regression with PAM (Partitioning
-Around Medoids, also known as k-medoids) clustering to determine the most
-representative molecules of your dataset. These representatives, together with
-their corresponding clusters, can then be downloaded as an Excel file.
+Adjusting a model to a new column needs a few metabolites measured on that
+column. The **Select** tab picks the `k` most representative molecules to
+measure, so you cover the diversity of your dataset with as little lab work as
+possible. It uses Ridge Regression and PAM (k-medoids) clustering.
 
-Use this mode when you already have a predictive model and/or data set and want
-to adapt it to a new column with different chromatographic properties (gradient,
-temperature, etc.): measuring only the selected representatives on the new column
-keeps the experimental effort low while still capturing the diversity of your
-dataset, so the resulting measurements can be used to [adjust your
-model](#adjusting-existing-model).
+1.  Upload an Excel file (columns `NAME`, `SMILES`, `RT`).
+2.  **k Cluster** --- how many molecules to select.
+3.  **Variant** --- how strongly the retention time guides the selection:
+    *SMmax* (default, weighted like the most important descriptor), *SM1*
+    (unscaled), *SM0* (excluded) or *SMinf* (retention time only). The info
+    button explains each.
+4.  **Seed** --- random seed. Keep the default (`42`) for a reproducible
+    selection.
+5.  Click *Calculate clusters and medoids*.
+6.  Click *Download clustering as xlsx* to save the selected molecules and their
+    clusters.
 
-To use this mode:
+The main panel lists the selected molecules and the full clustering. Measure the
+selected molecules on the new column, then use them to
+[adjust your model](#adjusting-existing-model).
 
-1.  Upload an Excel file containing columns NAME, SMILES and RT via the *Browse*
-    button
-2.  Set the number of molecules to select in the *k Cluster* field
-3.  Click the *Calculate clusters and medoids* button
-4.  Click *Download clustering as xlsx* to save the selected representatives and
-    their clusters
-
+<a href="GUI-Usage/select.png"><img src="GUI-Usage/select.png" alt="FastRet GUI Select tab showing the k Cluster, variant and seed inputs next to the table of selected molecules and the full clustering" width="100%" /></a>
