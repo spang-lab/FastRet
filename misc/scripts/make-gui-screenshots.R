@@ -10,8 +10,7 @@
 #
 # Requirements: shinytest2 + chromote + a Chrome/Chromium binary + Java (rcdk).
 #
-# Output: <pkg>/vignettes/GUI-Usage/{train,select,adjust,predict}.png plus a
-# 2x2 overview montage gui-overview-2x2.png.
+# Output: <pkg>/vignettes/GUI-Usage/{train,select,adjust,predict}.png
 
 suppressMessages({
     devtools::load_all(quiet = TRUE)
@@ -79,16 +78,3 @@ app$set_inputs(rbAdjMethod = "lasso")
 app$click("btnAdj")
 app$wait_for_value(output = "poAdjPerf", timeout = TASK_TIMEOUT)
 shot("adjust")
-
-# 2x2 overview montage (train | select / adjust | predict)
-files <- file.path(outdir, paste0(c("train", "select", "adjust", "predict"), ".png"))
-H <- max(vapply(files, function(f) image_info(image_read(f))$height, integer(1)))
-pad <- lapply(files, function(f) {
-    image_extent(image_read(f), geometry = sprintf("%dx%d", WIDTH, H),
-                 color = "white", gravity = "north")
-})
-row1 <- image_append(c(pad[[1]], pad[[2]]))
-row2 <- image_append(c(pad[[3]], pad[[4]]))
-grid <- image_border(image_append(c(row1, row2), stack = TRUE), "white", "6x6")
-image_write(grid, file.path(outdir, "gui-overview-2x2.png"))
-message("wrote ", file.path(outdir, "gui-overview-2x2.png"))
