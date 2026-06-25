@@ -21,9 +21,6 @@ The GUI has four modes, shown as tabs at the top: **Train**, **Select**,
 **Adjust** and **Predict**. Hover over a tab to see its full name. Click
 the question-mark icon next to any input for a short help text.
 
-[![Overview of the four FastRet GUI modes: Train, Select, Adjust and
-Predict](GUI-Usage/gui-overview-2x2.png)](https://spang-lab.github.io/FastRet/articles/GUI-Usage/gui-overview-2x2.png)
-
 If
 [`start_gui()`](https://spang-lab.github.io/FastRet/reference/start_gui.md)
 reports a CDK version error, FastRet needs CDK 2.9 or newer and a

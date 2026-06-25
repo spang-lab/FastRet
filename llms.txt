@@ -46,8 +46,8 @@ in your R console. This means that the GUI is now running and you can
 access it via the URL `http://localhost:8080` in your browser. If your
 terminal supports it, you can also just click on the displayed link.
 
-![Overview of the four FastRet GUI modes: Train, Select, Adjust and
-Predict](https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/gui-overview-2x2.png)
+![The FastRet GUI, showing the Train
+tab](https://raw.githubusercontent.com/spang-lab/FastRet/main/vignettes/GUI-Usage/train.png)
 
 The GUI is organized into four modes, available as tabs in the
 navigation bar: *Train*, *Select*, *Adjust* and *Predict* (the tabs use
