@@ -297,7 +297,7 @@ init_upload_handlers <- function(SE) {
         tryCatch({
             xlsx <- SE$input$ubPredXlsx$datapath
             catf("Reading and validating %s", xlsx)
-            pred_df <- openxlsx::read.xlsx(xlsx, sheet = 1)
+            pred_df <- read_input_xlsx(xlsx, require = c("NAME", "SMILES"))
             pred_df <- validate_inputdata(pred_df, require = c("NAME", "SMILES"), min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$predDf and SE$output$toPredXlsxError.")
             SE$RV$predDf <- pred_df
@@ -313,7 +313,7 @@ init_upload_handlers <- function(SE) {
         tryCatch({
             xlsx <- SE$input$ubAdjXlsx$datapath
             catf("Reading and validating %s", xlsx)
-            adjDf <- openxlsx::read.xlsx(xlsx, sheet = 1)
+            adjDf <- read_input_xlsx(xlsx, require = c("RT", "SMILES", "NAME"))
             adjDf <- validate_inputdata(adjDf, min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$adjDf and SE$output$toAdjXlsxError.")
             SE$RV$adjDf <- adjDf
@@ -685,7 +685,7 @@ make_xlsx_upload_handler <- function(inputId, rvName, errorId) {
         tryCatch({
             xlsx <- SE$input[[inputId]]$datapath
             catf("Reading and validating %s", xlsx)
-            df <- openxlsx::read.xlsx(xlsx, sheet = 1)
+            df <- read_input_xlsx(xlsx, require = c("RT", "SMILES", "NAME"))
             df <- validate_inputdata(df, min_cds = 0, stop_on_unknown = FALSE)
             catf("Validation successful. Updating: SE$RV$%s and SE$output$%s.", rvName, errorId)
             SE$RV[[rvName]] <- df
@@ -907,6 +907,36 @@ renderTbl <- function(expr,
         scrollX = scrollX
     )
     DT::renderDT(expr = expr, rownames = rownames, options = opts)
+}
+
+# Read an uploaded xlsx workbook robustly. Searches every worksheet for the
+# first one that contains all `require`d columns (so the relevant data may live
+# on any sheet, not just the first) and drops every column FastRet does not
+# understand (so arbitrary annotation columns in the user's file are ignored
+# instead of being carried into - and potentially breaking - model training).
+# Errors with an informative message if no worksheet provides the required
+# columns.
+read_input_xlsx <- function(path, require = c("RT", "SMILES", "NAME")) {
+    sheets <- openxlsx::getSheetNames(path)
+    if (length(sheets) == 0) stop("The uploaded file contains no worksheets.")
+    for (s in sheets) {
+        df <- tryCatch(openxlsx::read.xlsx(path, sheet = s), error = function(e) NULL)
+        if (is.data.frame(df) && nrow(df) > 0 && all(require %in% colnames(df))) {
+            return(drop_unsupported_columns(df))
+        }
+    }
+    stop(sprintf(
+        "No worksheet with the required columns (%s) found. Searched %d worksheet(s): %s.",
+        paste(require, collapse = ", "), length(sheets), paste(sheets, collapse = ", ")
+    ))
+}
+
+# Keep only the columns FastRet understands (mandatory metadata, optional
+# metadata and chemical descriptors), discarding any extra columns present in a
+# user-uploaded workbook.
+drop_unsupported_columns <- function(df) {
+    supported <- c("NAME", "RT", "SMILES", "INCHIKEY", "RT_ADJ", CDFeatures)
+    df[, colnames(df) %in% supported, drop = FALSE]
 }
 
 validate_inputdata <- function(df,

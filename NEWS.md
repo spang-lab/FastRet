@@ -1,4 +1,22 @@
 
+# FastRet 1.4.1 <!-- Commit Date: 2026-06-26 -->
+
+GUI upload fixes:
+
+1. Large uploads are now accepted. Shiny's default request-size limit of 5 MB
+   rejected normal inputs such as an 8 MB adjusted model. The GUI now raises the
+   limit to 500 MB, so any model or data file a user is likely to upload is
+   accepted (`shiny.maxRequestSize`, set in `fastret_app()`).
+
+2. Excel uploads are read robustly. Instead of always reading the first
+   worksheet, FastRet now searches every worksheet for the first one that
+   contains the required columns (`RT`/`SMILES`/`NAME` for training, selective
+   measuring and adjustment; `NAME`/`SMILES` for prediction) and silently drops
+   any extra columns. Previously, uploading a workbook with additional columns
+   besides the required ones - or with the data on a sheet other than the first -
+   could cause model training to stall. New internal helpers `read_input_xlsx()`
+   and `drop_unsupported_columns()` implement this and are covered by tests.
+
 # FastRet 1.4.0 <!-- Commit Date: 2026-06-21 -->
 
 Chemical-descriptor cache:

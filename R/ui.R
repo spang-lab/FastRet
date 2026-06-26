@@ -223,7 +223,7 @@ ui_data_upload <- function(inputId, errorId) {
             ),
             content = paste(
                 "<h2>Training data upload</h2>",
-                "<p>Upload your own measurements as an Excel file. FastRet reads the first worksheet, so please keep your data on a single sheet.</p>",
+                "<p>Upload your own measurements as an Excel file. FastRet searches every worksheet for the first one that contains the required columns, and any extra columns are ignored.</p>",
                 "<h3>Required columns (case sensitive)</h3>",
                 "<ul>",
                 "<li><code>RT</code>: retention time of each molecule, in any numeric unit (e.g. minutes or seconds). Predictions are reported on the same scale.</li>",

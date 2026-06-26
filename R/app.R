@@ -88,6 +88,11 @@ fastret_app <- function(port = 8080,
                         host = "0.0.0.0",
                         reload = FALSE,
                         nsw = 1) {
+    # Allow large uploads. Shiny's default request-size cap is only 5 MB, which
+    # rejects perfectly normal inputs such as an 8 MB adjusted model. Raise the
+    # limit to 500 MB (unless a larger one is already configured) so any model
+    # or data file a user is likely to upload is accepted.
+    options(shiny.maxRequestSize = max(getOption("shiny.maxRequestSize", 0), 500 * 1024^2))
     shiny::shinyApp(
         ui = function(req) fastret_ui(req),
         server = function(input, output, session) fastret_server(input, output, session, nsw),
