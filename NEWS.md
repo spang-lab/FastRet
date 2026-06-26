@@ -1,4 +1,11 @@
 
+# FastRet 1.4.2
+
+1. `train_frm()` gains a `tune_grid` argument: supplying a `data.frame` of
+   xgboost hyperparameters runs a cross-validated grid search over those rows for
+   `gbtree`/BRT models (instead of the fixed default parameters), making FastRet's
+   existing grid-search machinery user-accessible. `NULL` (default) is unchanged.
+
 # FastRet 1.4.1 <!-- Commit Date: 2026-06-26 -->
 
 GUI upload fixes:

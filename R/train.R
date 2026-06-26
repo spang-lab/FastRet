@@ -58,6 +58,14 @@
 #' @param cache
 #' Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
 #' recompute every descriptor (FALSE). Passed to [getCDs()].
+#' @param tune_grid
+#' Optional `data.frame` of xgboost hyperparameters (one combination per row,
+#' e.g. columns `max_depth`, `eta`, `gamma`, `colsample_bytree`, `subsample`,
+#' `min_child_weight`). When supplied for a `gbtree`/BRT model, the fixed default
+#' parameters are replaced by a cross-validated grid search over these rows (via
+#' [find_params_best()]); the number of boosting rounds is still chosen by early
+#' stopping. Ignored (with a warning) for non-BRT methods. `NULL` (default) keeps
+#' the fast stock parameters.
 #'
 #' @return
 #' A 'FastRet Model', i.e., an object of class `frm`. Components are:
@@ -85,7 +93,7 @@
 train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
                       degree_polynomial = 1, interaction_terms = FALSE,
                       rm_near_zero_var = TRUE, rm_na = TRUE, rm_ns = FALSE,
-                      seed = NULL, do_cv = TRUE, cache = TRUE) {
+                      seed = NULL, do_cv = TRUE, cache = TRUE, tune_grid = NULL) {
 
     # Check arguments
     stopifnot(
@@ -100,13 +108,18 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
         is.logical(rm_na),
         is.logical(rm_ns),
         is.null(seed) || (is.numeric(seed) && length(seed) == 1),
-        is.logical(do_cv)
+        is.logical(do_cv),
+        is.null(tune_grid) || is.data.frame(tune_grid)
     )
 
     # Init variables
     method <- normalize_train_method(method)
     if (is.numeric(seed)) set.seed(seed)
     if (method == "gbtree") method <- "gbtreeDefault"
+    if (!is.null(tune_grid) && !method %in% c("gbtreeDefault", "gbtreeRP")) {
+        warning("'tune_grid' is only used for gbtree (BRT) models; ignoring it.")
+        tune_grid <- NULL
+    }
     args <- named(
         method, verbose, nfolds, nw, degree_polynomial,
         interaction_terms, rm_near_zero_var,
@@ -127,7 +140,10 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
     X <- as.matrix(dfp[, -meta])
     y <- M$RT
     model <- if (method %in% c("gbtreeDefault", "gbtreeRP")) {
-        xgpar <- if (method == "gbtreeDefault") "default" else "rpopt"
+        # tune_grid (a data.frame of xgboost parameters) overrides the default /
+        # RP-optimised fixed parameters with a cross-validated grid search.
+        xgpar <- if (!is.null(tune_grid)) tune_grid
+                 else if (method == "gbtreeDefault") "default" else "rpopt"
         fit_gbtree(X, y, xgpar, seed, verbose, nw, nfolds, 2000, 1)
     } else {
         fit_glmnet(X, y, method, seed)
@@ -1005,12 +1021,16 @@ fit_glmnet <- function(X, y = NULL, method = "lasso", seed = NULL) {
 fit_gbtree <- function(X, y, xgpar = "rpopt", seed = NULL, verbose = 1,
                        nw = 1, nfolds = 10, nrounds = 2000, nthread = 1) {
     if (is.numeric(seed)) set.seed(seed)
-    params <- switch(
-        xgpar,
+    # `xgpar` selects the xgboost parameters: "default" (stock), "rpopt" (the
+    # RP-optimised fixed set), a grid-size keyword ("tiny"/"small"/"large"), or a
+    # data.frame giving a custom parameter grid -- the latter two trigger a
+    # cross-validated grid search via find_params_best().
+    params <- if (is.data.frame(xgpar) ||
+                  (is.character(xgpar) && !xgpar %in% c("default", "rpopt"))) {
+        as.list(find_params_best(X, y, xgpar, nfolds, nw, nthread, nrounds, verbose, seed)$best_params)
+    } else switch(xgpar,
         "default" = list(),
-        "rpopt" = list(eta = 0.05, max_depth = 4, min_child_weight = 4, subsample = 0.5),
-        find_params_best(X, y, xgpar, nfolds, nw, nthread, nrounds, verbose, seed)$best_params
-    )
+        "rpopt" = list(eta = 0.05, max_depth = 4, min_child_weight = 4, subsample = 0.5))
     params$nthread <- nthread
     params$objective <- "reg:squarederror"
     Xmat <- as.matrix(X)
@@ -1175,6 +1195,11 @@ plot_params_perf <- function(x = fit_gbtree(),
 #' @param size Size of the param grid. Either "tiny", "small" or "large".
 #' @return A dataframe with a unique combination of parameters per row.
 get_param_grid <- function(size = "large", nthread = NULL) {
+    # A data.frame is taken as an explicit, user-supplied parameter grid.
+    if (is.data.frame(size)) {
+        if (!is.null(nthread)) size$nthread <- nthread
+        return(size)
+    }
     space <- if (size == "large") list(
         max_depth = 1:6, # max depth of a tree
         eta = c(0.01, 0.02, 0.05, 0.10, 0.20, 0.30, 0.40), # learning rate

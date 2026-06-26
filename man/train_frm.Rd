@@ -17,7 +17,8 @@ train_frm(
   rm_ns = FALSE,
   seed = NULL,
   do_cv = TRUE,
-  cache = TRUE
+  cache = TRUE,
+  tune_grid = NULL
 )
 }
 \arguments{
@@ -58,6 +59,14 @@ the \code{cv} element in the returned object will be NULL.}
 
 \item{cache}{Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
 recompute every descriptor (FALSE). Passed to \code{\link[=getCDs]{getCDs()}}.}
+
+\item{tune_grid}{Optional \code{data.frame} of xgboost hyperparameters (one combination per row,
+e.g. columns \code{max_depth}, \code{eta}, \code{gamma}, \code{colsample_bytree}, \code{subsample},
+\code{min_child_weight}). When supplied for a \code{gbtree}/BRT model, the fixed default
+parameters are replaced by a cross-validated grid search over these rows (via
+\code{\link[=find_params_best]{find_params_best()}}); the number of boosting rounds is still chosen by early
+stopping. Ignored (with a warning) for non-BRT methods. \code{NULL} (default) keeps
+the fast stock parameters.}
 }
 \value{
 A 'FastRet Model', i.e., an object of class \code{frm}. Components are:
