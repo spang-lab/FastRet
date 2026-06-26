@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,13 @@
       <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.1" id="fastret-141-">FastRet 1.4.1 <!-- Commit Date: 2026-06-26 -->
+<a class="anchor" aria-label="anchor" href="#fastret-141-"></a></h2>
+<p>GUI upload fixes:</p>
+<ol style="list-style-type: decimal"><li><p>Large uploads are now accepted. Shiny’s default request-size limit of 5 MB rejected normal inputs such as an 8 MB adjusted model. The GUI now raises the limit to 500 MB, so any model or data file a user is likely to upload is accepted (<code>shiny.maxRequestSize</code>, set in <code><a href="../reference/fastret_app.html">fastret_app()</a></code>).</p></li>
+<li><p>Excel uploads are read robustly. Instead of always reading the first worksheet, FastRet now searches every worksheet for the first one that contains the required columns (<code>RT</code>/<code>SMILES</code>/<code>NAME</code> for training, selective measuring and adjustment; <code>NAME</code>/<code>SMILES</code> for prediction) and silently drops any extra columns. Previously, uploading a workbook with additional columns besides the required ones - or with the data on a sheet other than the first - could cause model training to stall. New internal helpers <code>read_input_xlsx()</code> and <code>drop_unsupported_columns()</code> implement this and are covered by tests.</p></li>
+</ol></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.0" id="fastret-140-">FastRet 1.4.0 <!-- Commit Date: 2026-06-21 -->
 <a class="anchor" aria-label="anchor" href="#fastret-140-"></a></h2>
