@@ -21,7 +21,7 @@ benchmark_runtime <- function(seed = 1, cache = TRUE, do_cv = TRUE) {
     for (i in seq_len(n)) {
         G[i, "rt"] <- measure_runtime(G$method[i], G$do_cv[i], G$seed[i])
         rttot <- as.numeric(Sys.time() - a, units = "mins")
-        logf("%d/%d: rt=%.3f secs (total=%.1f mins)", i, n, G$rt[i], rttot)
+        catf("%d/%d: rt=%.3f secs (total=%.1f mins)", i, n, G$rt[i], rttot)
     }
     G
 
@@ -37,7 +37,7 @@ benchmark_runtime <- function(seed = 1, cache = TRUE, do_cv = TRUE) {
 measure_runtime <- function(method, do_cv, seed) {
     nw <- if (do_cv) 5 else 1
     runtime <- system.time(
-        train_frm(RP, method, verbose=0, seed=seed, do_cv=do_cv, nw=5)
+        train_frm(FastRet::RP, method, verbose=0, seed=seed, do_cv=do_cv, nw=5)
     )
     runtime[["elapsed"]]
 }

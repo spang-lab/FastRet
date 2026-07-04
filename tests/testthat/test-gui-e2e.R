@@ -30,6 +30,33 @@ make_subset_xlsx <- function(n = 20, require = c("RT", "NAME", "SMILES")) {
 model_rds <- system.file("extdata", "RP_lasso_model.rds", package = "FastRet")
 adj_xlsx  <- system.file("extdata", "RP_adj.xlsx", package = "FastRet")
 
+# These tests own the headless browser, so they are responsible for cleaning up
+# everything it leaves behind. `app$stop()` only closes the Shiny session/tab;
+# the Chrome process is spawned and reused by chromote's shared default object
+# and lives on until explicitly closed. While it runs it holds scoped temp dirs
+# named `com.google.Chrome.*` in the system temp directory -- which is exactly
+# what R CMD check reports as "detritus in the temp directory". So, after the
+# app has stopped, close the browser process and delete any such leftovers.
+# Restricting the glob to the `com.google.Chrome.` prefix leaves every other
+# temp file untouched. Wrapped defensively: a no-op if no browser was started.
+clean_browser_detritus <- function() {
+    browser_up <- tryCatch(
+        isTRUE(chromote::has_default_chromote_object()),
+        error = function(e) FALSE
+    )
+    if (browser_up) try(chromote::default_chromote_object()$close(), silent = TRUE)
+    dirs <- unique(c(tempdir(), dirname(tempdir()), Sys.getenv("TMPDIR")))
+    dirs <- dirs[nzchar(dirs) & dir.exists(dirs)]
+    detritus <- list.files(
+        dirs, pattern = "^com\\.google\\.Chrome\\.",
+        full.names = TRUE, all.files = TRUE
+    )
+    unlink(detritus, recursive = TRUE, force = TRUE)
+}
+# Registered before the app is created so that -- deferrals running last-in
+# first-out -- this runs *after* `app$stop()` below.
+withr::defer(clean_browser_detritus())
+
 # A single app instance is reused across the modes to avoid paying the
 # Chrome-startup cost four times.
 app <- shinytest2::AppDriver$new(
