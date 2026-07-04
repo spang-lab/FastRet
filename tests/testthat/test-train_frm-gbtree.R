@@ -5,6 +5,15 @@ test_that("train_frm works if `method == \"GBTree\"`", {
     model2 <- train_frm(df=RP[1:20, ], method="gbtree", nfolds=2, nw=2, verbose=0, seed=42)
     expect_equal(names(model1), c("model", "df", "cv", "seed", "version", "args"))
     model2$args$nw <- 1 # Set to same value as in model1 before comparison
+    # The per-fold CV sub-models are trained in the main process when nw = 1 but
+    # in parallel workers when nw = 2. Under pkgload::load_all() those workers
+    # load the *installed* FastRet, so they stamp the installed package version
+    # into $version instead of the checked-out one, and the comparison would fail
+    # on that field alone (it matches under R CMD check, which installs the
+    # package first). Normalise this environment-dependent field, as we do for nw.
+    for (f in names(model2$cv$models)) {
+        model2$cv$models[[f]]$version <- model1$cv$models[[f]]$version
+    }
     expect_true(all.equal(model1, model2)) # (1)
     # (1) we can't use expect_equal because the xgboost objects contain pointers
     # to the underlying C structs which causes expect_equal to fail
