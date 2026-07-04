@@ -1,4 +1,19 @@
 
+# FastRet 1.4.3
+
+Bug fixes (GUI):
+
+1. Training from an uploaded workbook that contained an `INCHIKEY` column
+   crashed the whole GUI session (the UI greyed out and had to be restarted).
+   `train_frm()` keeps `INCHIKEY` in `frm$df` as metadata, but the *Train* tab's
+   result handler excluded only `NAME`/`RT`/`SMILES` before calling
+   `round(cds, 2)`, so the character `INCHIKEY` column made `round()` error. As
+   this ran inside a reactive status observer without a `tryCatch`, the error
+   tore down the session. The handler now excludes `INCHIKEY` too, and the
+   extended-task status observers are wrapped so any future handler error shows a
+   notification instead of killing the session. (This was not fixed by the 1.4.1
+   robust-upload change, which deliberately *keeps* `INCHIKEY`.)
+
 # FastRet 1.4.2
 
 1. `train_frm()` gains a `tune_grid` argument: supplying a `data.frame` of

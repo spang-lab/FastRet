@@ -70,7 +70,13 @@ init_extended_task_handlers <- function(SE) {
         onSuccess = function(SE) {
             catf("Upating: SE$RV$trainedFRM, SE$RV$tblTrainResults")
             frm <- SE$ET$btnTrain$result()
-            cds <- frm$df[!colnames(frm$df) %in% c("NAME", "RT", "SMILES")]
+            # Exclude ALL metadata columns (not just NAME/RT/SMILES) before
+            # rounding: frm$df also retains the optional character column
+            # INCHIKEY, and round()ing a data.frame with a character column
+            # errors ("non-numeric-alike variable(s)"). Because this handler runs
+            # in a status observer without a tryCatch, such an error tears down
+            # the whole Shiny session (the GUI greys out and must be restarted).
+            cds <- frm$df[colnames(frm$df) %in% CDFeatures]
             cds <- round(cds, 2)
             RT <- round(frm$df$RT, 2)
             NAME <- frm$df$NAME
@@ -377,7 +383,9 @@ init_observers <- function(SE) {
             eventExpr = SE$ET[[x]]$status(),
             handlerExpr = {
                 catf("Start: SE$ETH$%s", x)
-                SE$ETH[[x]](SE)
+                # Guard the result handler: an uncaught error here (it runs in a
+                # reactive observer) would otherwise tear down the whole session.
+                withShowError(SE$ETH[[x]](SE))
                 catf("Exit: SE$ETH$%s", x)
             },
             ignoreInit = TRUE
