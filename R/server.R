@@ -157,9 +157,14 @@ init_action_button_handlers <- function(SE) {
     SE$ABH <- list()
     SE$ABH$btnTrain <- function(SE) {
         if (is.null(SE$RV$trainDf)) stop("Please upload a excel sheet with the required data first")
+        method <- c("lasso", "gbtree")[as.numeric(SE$input$rbMethod)]
+        # The "Tune hyperparameters" checkbox turns on a small grid search for
+        # XGBoost; it has no effect for Lasso (train_frm() ignores tune_grid there).
+        tune_grid <- if (isTRUE(SE$input$cbTuneGrid) && method == "gbtree") "small" else NULL
         SE$ET$btnTrain$invoke( # takes same argument as [train_frm()]
             df = SE$RV$trainDf,
-            method = c("lasso", "gbtree")[as.numeric(SE$input$rbMethod)],
+            method = method,
+            tune_grid = tune_grid,
             verbose = 1,
             nw = SE$nsw,
             seed = SE$input$seed

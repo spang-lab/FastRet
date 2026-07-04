@@ -58,14 +58,17 @@
 #' @param cache
 #' Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
 #' recompute every descriptor (FALSE). Passed to [getCDs()].
+#'
 #' @param tune_grid
-#' Optional `data.frame` of xgboost hyperparameters (one combination per row,
-#' e.g. columns `max_depth`, `eta`, `gamma`, `colsample_bytree`, `subsample`,
-#' `min_child_weight`). When supplied for a `gbtree`/BRT model, the fixed default
-#' parameters are replaced by a cross-validated grid search over these rows (via
-#' [find_params_best()]); the number of boosting rounds is still chosen by early
-#' stopping. Ignored (with a warning) for non-BRT methods. `NULL` (default) keeps
-#' the fast stock parameters.
+#' Optional hyperparameter grid for `gbtree`/BRT models. Either a `data.frame` of
+#' xgboost hyperparameters (one combination per row, e.g. columns `max_depth`,
+#' `eta`, `gamma`, `colsample_bytree`, `subsample`, `min_child_weight`) or one of
+#' the built-in grid-size keywords `"tiny"`, `"small"` or `"large"` (see
+#' `get_param_grid()`; `"small"` is a fast 8-combination Retip-style grid). When
+#' supplied, the fixed default parameters are replaced by a cross-validated grid
+#' search over the grid (via `find_params_best()`); the number of boosting rounds
+#' is still chosen by early stopping. Ignored (with a warning) for non-BRT
+#' methods. `NULL` (default) keeps the fast stock parameters.
 #'
 #' @return
 #' A 'FastRet Model', i.e., an object of class `frm`. Components are:
@@ -109,7 +112,8 @@ train_frm <- function(df, method = "lasso", verbose = 1, nfolds = 5, nw = 1,
         is.logical(rm_ns),
         is.null(seed) || (is.numeric(seed) && length(seed) == 1),
         is.logical(do_cv),
-        is.null(tune_grid) || is.data.frame(tune_grid)
+        is.null(tune_grid) || is.data.frame(tune_grid) ||
+            (is.character(tune_grid) && length(tune_grid) == 1)
     )
 
     # Init variables
@@ -1191,8 +1195,12 @@ plot_params_perf <- function(x = fit_gbtree(),
 #' @noRd
 #' @title Get parameter grid
 #' @description
-#' Get the parameter grid for [find_params_best()].
+#' Get the parameter grid for `find_params_best()`.
 #' @param size Size of the param grid. Either "tiny", "small" or "large".
+#'   "small" mirrors the conservative grid used by the Retip package's
+#'   `fit.xgboost()` (minus the number of boosting rounds, which FastRet chooses
+#'   by early stopping) -- 8 combinations that finish in a few seconds and, in the
+#'   JCIM benchmark, match Retip's own grid search.
 #' @return A dataframe with a unique combination of parameters per row.
 get_param_grid <- function(size = "large", nthread = NULL) {
     # A data.frame is taken as an explicit, user-supplied parameter grid.
@@ -1208,8 +1216,14 @@ get_param_grid <- function(size = "large", nthread = NULL) {
         subsample = (4:10) / 10, # subsample ratio of the training instance
         min_child_weight = 1:5 # minimum number of instances needed to be in each node
     ) else if (size == "small") list(
-        max_depth = 3:6,
-        eta = c(0.10, 0.20, 0.30, 0.40)
+        # Retip's xgboost grid (Retip::fit.xgboost) minus nrounds (early-stopped
+        # by FastRet): 4 x 2 = 8 combinations, a fast but effective search.
+        max_depth = c(2, 3, 4, 5),
+        eta = c(0.01, 0.02),
+        gamma = 1,
+        colsample_bytree = 0.5,
+        min_child_weight = 10,
+        subsample = 0.5
     ) else if (size == "tiny") list(
         eta = c(0.10, 0.20, 0.30, 0.40)
     ) else {
@@ -1221,7 +1235,7 @@ get_param_grid <- function(size = "large", nthread = NULL) {
 
 #' @noRd
 #' @description
-#' Calls [find_params_best()] multiple times with different numbers of workers
+#' Calls `find_params_best()` multiple times with different numbers of workers
 #' and threads to benchmark runtime of the grid search with respect to these two
 #' parameters.
 #' @examples
