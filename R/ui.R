@@ -284,6 +284,21 @@ ui_train_controls <- function() {
             )
         ),
         with_helptext(
+            shiny::checkboxInput(
+                inputId = "cbTuneGrid",
+                label = "Tune hyperparameters (grid search)",
+                value = FALSE
+            ),
+            content = paste(
+                "<h2>Hyperparameter tuning</h2>",
+                "<p>Applies only to XGBoost. When enabled, the model's",
+                "hyperparameters are chosen by a small cross-validated grid search",
+                "(8 combinations) instead of the fast default settings. This can",
+                "improve accuracy at the cost of a few extra seconds of training",
+                "time. Has no effect for Lasso.</p>"
+            )
+        ),
+        with_helptext(
             shiny::numericInput(
                 inputId = "seed",
                 label = "Seed",

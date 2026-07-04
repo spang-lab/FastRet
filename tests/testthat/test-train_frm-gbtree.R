@@ -30,3 +30,10 @@ test_that("train_frm grid-searches xgboost params when `tune_grid` is supplied",
     expect_warning(train_frm(RP[1:40, ], method = "lasso", tune_grid = grid,
                              do_cv = FALSE, verbose = 0, seed = 1))
 })
+
+test_that("train_frm accepts a grid-size keyword for tune_grid", {
+    m <- train_frm(RP[1:40, ], method = "brt", tune_grid = "small", nfolds = 3,
+                   do_cv = FALSE, verbose = 0, seed = 1)
+    expect_s3_class(m$model, "xgb.Booster")
+    expect_length(predict(m, RP[1:40, ]), 40)
+})

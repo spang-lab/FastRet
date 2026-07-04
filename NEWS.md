@@ -1,4 +1,24 @@
 
+# FastRet 1.4.4
+
+Hyperparameter tuning:
+
+1. `train_frm()`'s `tune_grid` argument now also accepts the grid-size keywords
+   `"tiny"`, `"small"` and `"large"` (in addition to an explicit `data.frame`),
+   e.g. `train_frm(method = "brt", tune_grid = "small")`.
+
+2. The built-in `"small"` grid was changed to a fast, effective 8-combination
+   Retip-style grid (`max_depth` 2-5, `eta` 0.01/0.02, with `gamma = 1`,
+   `colsample_bytree`/`subsample` 0.5, `min_child_weight` 10; the number of
+   boosting rounds is chosen by early stopping). In the FastRet paper's benchmark
+   this internal grid search matches the accuracy of Retip's own grid search.
+   (The predefined grids were not previously exposed, so this is not a breaking
+   change.)
+
+3. The GUI's *Train* tab gained a "Tune hyperparameters (grid search)" checkbox.
+   When enabled for XGBoost it runs the small grid search (a few extra seconds);
+   it has no effect for Lasso.
+
 # FastRet 1.4.3
 
 Bug fixes (GUI):
