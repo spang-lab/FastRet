@@ -85,3 +85,18 @@ test_that("fastret_app raises the Shiny upload size limit to >= 500 MB", {
         expect_gte(getOption("shiny.maxRequestSize"), 500 * 1024^2)
     })
 })
+
+test_that("drop_unsupported_columns records the dropped column names", {
+    df <- data.frame(NAME = "a", RT = 1, SMILES = "C", INCHIKEY = "X",
+                     Comment = "note", BatchID = 3, stringsAsFactors = FALSE)
+    out <- drop_unsupported_columns(df)
+    expect_setequal(colnames(out), c("NAME", "RT", "SMILES", "INCHIKEY"))
+    expect_setequal(attr(out, "dropped_columns"), c("Comment", "BatchID"))
+    # notify_dropped_columns() is a no-op (no error) outside a Shiny session and
+    # returns the dropped names invisibly.
+    expect_equal(notify_dropped_columns(out), c("Comment", "BatchID"))
+    # nothing dropped -> empty attribute, notify returns nothing
+    out2 <- drop_unsupported_columns(df[, c("NAME", "RT", "SMILES")])
+    expect_length(attr(out2, "dropped_columns"), 0)
+    expect_null(notify_dropped_columns(out2))
+})
