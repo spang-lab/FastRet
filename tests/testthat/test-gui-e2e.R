@@ -88,6 +88,20 @@ test_that("Train mode trains an XGBoost model end-to-end", {
     expect_false(is.null(val))
 })
 
+test_that("Train mode with 'Tune hyperparameters' (grid search) trains end-to-end", {
+    # Enabling the checkbox routes XGBoost training through the built-in grid
+    # search (train_frm(tune_grid = "small")); assert the full button-press path
+    # completes and populates the results table.
+    app$set_inputs(navbar = "Train new Model")
+    app$upload_file(ubTrainXlsx = make_subset_xlsx())
+    app$set_inputs(rbMethod = "2")     # 2 = XGBoost
+    app$set_inputs(cbTuneGrid = TRUE)  # enable hyperparameter tuning
+    app$click("btnTrain")
+    val <- app$wait_for_value(output = "tblTrainResults", timeout = TASK_TIMEOUT)
+    expect_false(is.null(val))
+    app$set_inputs(cbTuneGrid = FALSE) # reset for the reused app instance
+})
+
 test_that("Selective Measuring computes medoids end-to-end", {
     app$set_inputs(navbar = "Selective Measuring")
     app$upload_file(ubSmXlsx = make_subset_xlsx())
