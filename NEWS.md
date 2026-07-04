@@ -14,6 +14,12 @@ Bug fixes (GUI):
    notification instead of killing the session. (This was not fixed by the 1.4.1
    robust-upload change, which deliberately *keeps* `INCHIKEY`.)
 
+2. Dropped upload columns are no longer silent. When an uploaded workbook
+   contains columns FastRet does not use (anything other than
+   `NAME`/`RT`/`SMILES`/`INCHIKEY`/`RT_ADJ` and chemical descriptors), the GUI now
+   shows a notification naming the ignored columns, so it is clear they are not
+   carried into the results/download.
+
 # FastRet 1.4.2
 
 1. `train_frm()` gains a `tune_grid` argument: supplying a `data.frame` of
