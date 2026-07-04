@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,24 @@
       <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.4" id="fastret-144">FastRet 1.4.4<a class="anchor" aria-label="anchor" href="#fastret-144"></a></h2>
+<p>Hyperparameter tuning:</p>
+<ol style="list-style-type: decimal"><li><p><code><a href="../reference/train_frm.html">train_frm()</a></code>’s <code>tune_grid</code> argument now also accepts the grid-size keywords <code>"tiny"</code>, <code>"small"</code> and <code>"large"</code> (in addition to an explicit <code>data.frame</code>), e.g. <code>train_frm(method = "brt", tune_grid = "small")</code>.</p></li>
+<li><p>The built-in <code>"small"</code> grid was changed to a fast, effective 8-combination Retip-style grid (<code>max_depth</code> 2-5, <code>eta</code> 0.01/0.02, with <code>gamma = 1</code>, <code>colsample_bytree</code>/<code>subsample</code> 0.5, <code>min_child_weight</code> 10; the number of boosting rounds is chosen by early stopping). In the FastRet paper’s benchmark this internal grid search matches the accuracy of Retip’s own grid search. (The predefined grids were not previously exposed, so this is not a breaking change.)</p></li>
+<li><p>The GUI’s <em>Train</em> tab gained a “Tune hyperparameters (grid search)” checkbox. When enabled for XGBoost it runs the small grid search (a few extra seconds); it has no effect for Lasso.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.3" id="fastret-143">FastRet 1.4.3<a class="anchor" aria-label="anchor" href="#fastret-143"></a></h2>
+<p>Bug fixes (GUI):</p>
+<ol style="list-style-type: decimal"><li><p>Training from an uploaded workbook that contained an <code>INCHIKEY</code> column crashed the whole GUI session (the UI greyed out and had to be restarted). <code><a href="../reference/train_frm.html">train_frm()</a></code> keeps <code>INCHIKEY</code> in <code>frm$df</code> as metadata, but the <em>Train</em> tab’s result handler excluded only <code>NAME</code>/<code>RT</code>/<code>SMILES</code> before calling <code>round(cds, 2)</code>, so the character <code>INCHIKEY</code> column made <code><a href="https://rdrr.io/r/base/Round.html" class="external-link">round()</a></code> error. As this ran inside a reactive status observer without a <code>tryCatch</code>, the error tore down the session. The handler now excludes <code>INCHIKEY</code> too, and the extended-task status observers are wrapped so any future handler error shows a notification instead of killing the session. (This was not fixed by the 1.4.1 robust-upload change, which deliberately <em>keeps</em> <code>INCHIKEY</code>.)</p></li>
+<li><p>Dropped upload columns are no longer silent. When an uploaded workbook contains columns FastRet does not use (anything other than <code>NAME</code>/<code>RT</code>/<code>SMILES</code>/<code>INCHIKEY</code>/<code>RT_ADJ</code> and chemical descriptors), the GUI now shows a notification naming the ignored columns, so it is clear they are not carried into the results/download.</p></li>
+</ol></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.2" id="fastret-142">FastRet 1.4.2<a class="anchor" aria-label="anchor" href="#fastret-142"></a></h2>
+<ol style="list-style-type: decimal"><li>
+<code><a href="../reference/train_frm.html">train_frm()</a></code> gains a <code>tune_grid</code> argument: supplying a <code>data.frame</code> of xgboost hyperparameters runs a cross-validated grid search over those rows for <code>gbtree</code>/BRT models (instead of the fixed default parameters), making FastRet’s existing grid-search machinery user-accessible. <code>NULL</code> (default) is unchanged.</li>
+</ol></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.1" id="fastret-141-">FastRet 1.4.1 <!-- Commit Date: 2026-06-26 -->
 <a class="anchor" aria-label="anchor" href="#fastret-141-"></a></h2>

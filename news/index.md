@@ -1,5 +1,62 @@
 # Changelog
 
+## FastRet 1.4.4
+
+Hyperparameter tuning:
+
+1.  [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md)’s
+    `tune_grid` argument now also accepts the grid-size keywords
+    `"tiny"`, `"small"` and `"large"` (in addition to an explicit
+    `data.frame`),
+    e.g. `train_frm(method = "brt", tune_grid = "small")`.
+
+2.  The built-in `"small"` grid was changed to a fast, effective
+    8-combination Retip-style grid (`max_depth` 2-5, `eta` 0.01/0.02,
+    with `gamma = 1`, `colsample_bytree`/`subsample` 0.5,
+    `min_child_weight` 10; the number of boosting rounds is chosen by
+    early stopping). In the FastRet paper’s benchmark this internal grid
+    search matches the accuracy of Retip’s own grid search. (The
+    predefined grids were not previously exposed, so this is not a
+    breaking change.)
+
+3.  The GUI’s *Train* tab gained a “Tune hyperparameters (grid search)”
+    checkbox. When enabled for XGBoost it runs the small grid search (a
+    few extra seconds); it has no effect for Lasso.
+
+## FastRet 1.4.3
+
+Bug fixes (GUI):
+
+1.  Training from an uploaded workbook that contained an `INCHIKEY`
+    column crashed the whole GUI session (the UI greyed out and had to
+    be restarted).
+    [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md)
+    keeps `INCHIKEY` in `frm$df` as metadata, but the *Train* tab’s
+    result handler excluded only `NAME`/`RT`/`SMILES` before calling
+    `round(cds, 2)`, so the character `INCHIKEY` column made
+    [`round()`](https://rdrr.io/r/base/Round.html) error. As this ran
+    inside a reactive status observer without a `tryCatch`, the error
+    tore down the session. The handler now excludes `INCHIKEY` too, and
+    the extended-task status observers are wrapped so any future handler
+    error shows a notification instead of killing the session. (This was
+    not fixed by the 1.4.1 robust-upload change, which deliberately
+    *keeps* `INCHIKEY`.)
+
+2.  Dropped upload columns are no longer silent. When an uploaded
+    workbook contains columns FastRet does not use (anything other than
+    `NAME`/`RT`/`SMILES`/`INCHIKEY`/`RT_ADJ` and chemical descriptors),
+    the GUI now shows a notification naming the ignored columns, so it
+    is clear they are not carried into the results/download.
+
+## FastRet 1.4.2
+
+1.  [`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md)
+    gains a `tune_grid` argument: supplying a `data.frame` of xgboost
+    hyperparameters runs a cross-validated grid search over those rows
+    for `gbtree`/BRT models (instead of the fixed default parameters),
+    making FastRet’s existing grid-search machinery user-accessible.
+    `NULL` (default) is unchanged.
+
 ## FastRet 1.4.1
 
 GUI upload fixes:

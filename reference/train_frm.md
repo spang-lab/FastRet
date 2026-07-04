@@ -19,7 +19,8 @@ train_frm(
   rm_ns = FALSE,
   seed = NULL,
   do_cv = TRUE,
-  cache = TRUE
+  cache = TRUE,
+  tune_grid = NULL
 )
 ```
 
@@ -93,6 +94,19 @@ train_frm(
   Cache chemical descriptors on disk (TRUE, default) or bypass the cache
   and recompute every descriptor (FALSE). Passed to
   [`getCDs()`](https://spang-lab.github.io/FastRet/reference/getCDs.md).
+
+- tune_grid:
+
+  Optional hyperparameter grid for `gbtree`/BRT models. Either a
+  `data.frame` of xgboost hyperparameters (one combination per row, e.g.
+  columns `max_depth`, `eta`, `gamma`, `colsample_bytree`, `subsample`,
+  `min_child_weight`) or one of the built-in grid-size keywords
+  `"tiny"`, `"small"` or `"large"` (see `get_param_grid()`; `"small"` is
+  a fast 8-combination Retip-style grid). When supplied, the fixed
+  default parameters are replaced by a cross-validated grid search over
+  the grid (via `find_params_best()`); the number of boosting rounds is
+  still chosen by early stopping. Ignored (with a warning) for non-BRT
+  methods. `NULL` (default) keeps the fast stock parameters.
 
 ## Value
 

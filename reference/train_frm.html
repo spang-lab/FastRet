@@ -9,7 +9,7 @@ the specified method."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,8 @@ the specified method.</p>
 <span>  rm_ns <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  do_cv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  cache <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  cache <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  tune_grid <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -134,6 +135,18 @@ the <code>cv</code> element in the returned object will be NULL.</p></dd>
 <dt id="arg-cache">cache<a class="anchor" aria-label="anchor" href="#arg-cache"></a></dt>
 <dd><p>Cache chemical descriptors on disk (TRUE, default) or bypass the cache and
 recompute every descriptor (FALSE). Passed to <code><a href="getCDs.html">getCDs()</a></code>.</p></dd>
+
+
+<dt id="arg-tune-grid">tune_grid<a class="anchor" aria-label="anchor" href="#arg-tune-grid"></a></dt>
+<dd><p>Optional hyperparameter grid for <code>gbtree</code>/BRT models. Either a <code>data.frame</code> of
+xgboost hyperparameters (one combination per row, e.g. columns <code>max_depth</code>,
+<code>eta</code>, <code>gamma</code>, <code>colsample_bytree</code>, <code>subsample</code>, <code>min_child_weight</code>) or one of
+the built-in grid-size keywords <code>"tiny"</code>, <code>"small"</code> or <code>"large"</code> (see
+<code>get_param_grid()</code>; <code>"small"</code> is a fast 8-combination Retip-style grid). When
+supplied, the fixed default parameters are replaced by a cross-validated grid
+search over the grid (via <code>find_params_best()</code>); the number of boosting rounds
+is still chosen by early stopping. Ignored (with a warning) for non-BRT
+methods. <code>NULL</code> (default) keeps the fast stock parameters.</p></dd>
 
 </dl></div>
     <div class="section level2">
