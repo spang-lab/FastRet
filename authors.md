@@ -22,7 +22,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/spang-lab/FastRet/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/spang-lab/FastRet/blob/example-data/DESCRIPTION)
 
 Schmidt T, Amesoeder C, Schoen M, Fadil F, Dettmer K (2026). *FastRet:
 Retention Time Prediction in Liquid Chromatography*. R package version

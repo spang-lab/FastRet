@@ -46,6 +46,6 @@ descriptors as remaining columns.
 
 ``` r
 cds <- getCDs(head(RP, 3), verbose = 1, nw = 1)
-#> 2026-07-05 17:57:58.94 Obtaining chemical descriptors for 3 molecules
-#> 2026-07-05 17:57:58.96 Finished obtaining chemical descriptors in 0.02s
+#> 2026-07-05 18:22:42.87 Obtaining chemical descriptors for 3 molecules
+#> 2026-07-05 18:22:42.89 Finished obtaining chemical descriptors in 0.01s
 ```
