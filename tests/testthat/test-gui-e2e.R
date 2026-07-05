@@ -70,6 +70,28 @@ withr::defer(app$stop())
 # Generous timeout: XGBoost training + CV on the subset is the slowest path.
 TASK_TIMEOUT <- 180 * 1000
 
+test_that("a trained model is reusable in Predict without a re-upload", {
+    # The core of issue #01: after training, the model must be offered in the
+    # Predict tab's dropdown and usable directly -- no download/re-upload. This
+    # test runs first, while the Predict dropdown is still on "Upload new
+    # model...", so training auto-selects the freshly trained model there. We
+    # then predict WITHOUT uploading any .rds; a populated results table proves
+    # the in-session model was picked up.
+    app$set_inputs(navbar = "Train new Model")
+    app$upload_file(ubTrainXlsx = make_subset_xlsx())
+    app$set_inputs(rbMethod = "1") # 1 = Lasso (fast)
+    app$click("btnTrain")
+    app$wait_for_value(output = "tblTrainResults", timeout = TASK_TIMEOUT)
+
+    app$set_inputs(navbar = "Predict Retention Times")
+    app$wait_for_idle()
+    # No ubPredFRM upload here -- the model must come from the dropdown.
+    app$upload_file(ubPredXlsx = adj_xlsx) # prediction data (NAME + SMILES)
+    app$click("btnPred")
+    val <- app$wait_for_value(output = "tblPredResults", timeout = TASK_TIMEOUT)
+    expect_false(is.null(val))
+})
+
 test_that("Train mode trains a Lasso model end-to-end", {
     app$set_inputs(navbar = "Train new Model")
     app$upload_file(ubTrainXlsx = make_subset_xlsx())
@@ -113,6 +135,10 @@ test_that("Selective Measuring computes medoids end-to-end", {
 
 test_that("Predict mode predicts retention times end-to-end", {
     app$set_inputs(navbar = "Predict Retention Times")
+    # Earlier tests left a trained model selected in the dropdown; switch back to
+    # "Upload new model..." so the .rds upload widget is shown and the uploaded
+    # model becomes the selected one.
+    app$set_inputs(siPredModel = "__upload__")
     app$upload_file(ubPredFRM = model_rds)
     app$upload_file(ubPredXlsx = adj_xlsx) # has NAME + SMILES columns
     app$click("btnPred")
@@ -122,6 +148,7 @@ test_that("Predict mode predicts retention times end-to-end", {
 
 test_that("Adjust mode adjusts a model with every method end-to-end", {
     app$set_inputs(navbar = "Adjust existing Model")
+    app$set_inputs(siAdjModel = "__upload__")
     app$upload_file(ubAdjFRM = model_rds)
     app$upload_file(ubAdjXlsx = adj_xlsx)
     for (method in c("lasso", "lm", "gbtree")) {

@@ -1,4 +1,22 @@
 
+# FastRet 1.4.5
+
+Reuse uploaded/trained models across GUI tabs:
+
+1. The *Predict* and *Adjust* tabs now select the model from a dropdown instead
+   of only a file upload. The dropdown lists every model trained, adjusted or
+   uploaded during the current session, plus an "Upload new model…" entry that
+   reveals the familiar `.rds` file input. This means a model trained in the
+   *Train* tab (or produced by *Adjust*) can be used for prediction/adjustment
+   directly, without downloading it and uploading it again.
+
+2. A newly trained, adjusted or uploaded model is added to the dropdowns
+   automatically and auto-selected only where the user has not already chosen a
+   model, so an existing selection is never silently overridden. The model store
+   is per session and kept in memory only — it is cleared on page reload or when
+   the connection closes; nothing is persisted to disk or to the browser.
+
+
 # FastRet 1.4.4
 
 Hyperparameter tuning:

@@ -85,6 +85,11 @@ init_extended_task_handlers <- function(SE) {
             RT_PREDICTED_CV <- if (!is.null(frm$cv)) round(frm$cv$preds, 2) else rep(NA, nrow(frm$df))
             SE$RV$trainedFRM <- frm
             SE$RV$tblTrainResults <- cbind(RT, RT_PREDICTED, RT_PREDICTED_CV, NAME, SMILES, cds)
+            # Make the freshly trained model reusable in the Predict/Adjust tabs
+            # without a download/re-upload round trip: register it in the session
+            # model store and refresh their dropdowns (see refresh_model_selects).
+            key <- register_model(SE, frm, sprintf("Trained %s model (%s)", frm_model_kind(frm), now("%H:%M:%S")))
+            refresh_model_selects(SE, newkey = key, target = c("siPredModel", "siAdjModel"))
             catf("Showing buttons: dbSaveModel, dbSavePredictorSet")
             shinyjs::show("dbSaveModel")
             shinyjs::show("dbSavePredictorSet")
@@ -128,6 +133,11 @@ init_extended_task_handlers <- function(SE) {
     )
     SE$ETH$btnAdj <- extendedTaskHandler("btnAdj",
         onSuccess = function(SE) {
+            # Register the adjusted model so it can be selected in the Predict tab
+            # (its natural next step) without downloading and re-uploading it.
+            frm <- SE$ET$btnAdj$result()
+            key <- register_model(SE, frm, sprintf("Adjusted %s model (%s)", frm_model_kind(frm), now("%H:%M:%S")))
+            refresh_model_selects(SE, newkey = key, target = "siPredModel")
             shinyjs::show("dbSaveAdjModel")
         },
         onRunning = function(SE) {
@@ -171,9 +181,9 @@ init_action_button_handlers <- function(SE) {
         )
     }
     SE$ABH$btnPred <- function(SE) {
-        frm <- SE$RV$predFRM
+        frm <- get_selected_model(SE, "siPredModel")
         df <- SE$R$predDfCombined() # data.frame(NAME, SMILES)
-        if (is.null(frm) || is.null(frm$model)) stop("Please upload a valid model first")
+        if (is.null(frm) || is.null(frm$model)) stop("Please select or upload a valid model first")
         if (is.null(df) || nrow(df) == 0) stop("Please enter a valid SMILES string first or upload a list of SMILES as xlsx")
         SE$ET$btnPred$invoke( # takes same argument as [predict()]
             object = frm,
@@ -193,10 +203,11 @@ init_action_button_handlers <- function(SE) {
         )
     }
     SE$ABH$btnAdj <- function(SE) {
-        if (!inherits(SE$RV$adjFRM, "frm")) stop("Please upload a valid, pretrained model first")
+        frm <- get_selected_model(SE, "siAdjModel")
+        if (!inherits(frm, "frm")) stop("Please select or upload a valid, pretrained model first")
         if (is.null(SE$RV$adjDf)) stop("Please upload valid data for prediction adjustment first")
         SE$ET$btnAdj$invoke( # takes same argument as [adjust_frm()]
-            frm = SE$RV$adjFRM,
+            frm = frm,
             new_data = SE$RV$adjDf,
             adj_type = SE$input$rbAdjMethod,
             predictors = 1 # base RT only; RT transformations are deprecated
@@ -302,8 +313,8 @@ init_upload_handlers <- function(SE) {
     # built from the shared factories below.
     SE$ULH$ubTrainXlsx <- make_xlsx_upload_handler("ubTrainXlsx", "trainDf", "toTrainXlsxError")
     SE$ULH$ubSmXlsx    <- make_xlsx_upload_handler("ubSmXlsx", "smDf", "toSmXlsxError")
-    SE$ULH$ubPredFRM   <- make_model_upload_handler("ubPredFRM", "predFRM", "toPredFRMError")
-    SE$ULH$ubAdjFRM    <- make_model_upload_handler("ubAdjFRM", "adjFRM", "toAdjFRMError")
+    SE$ULH$ubPredFRM   <- make_model_upload_handler("ubPredFRM", "siPredModel", "toPredFRMError")
+    SE$ULH$ubAdjFRM    <- make_model_upload_handler("ubAdjFRM", "siAdjModel", "toAdjFRMError")
     SE$ULH$ubPredXlsx <- function(SE) {
         tryCatch({
             xlsx <- SE$input$ubPredXlsx$datapath
@@ -715,25 +726,90 @@ make_xlsx_upload_handler <- function(inputId, rvName, errorId) {
     }
 }
 
-# Build an upload handler that reads + validates a pretrained frm (.rds) and
-# stores it in `SE$RV[[rvName]]` (or NULL on error).
-make_model_upload_handler <- function(inputId, rvName, errorId) {
+# Build an upload handler that reads + validates a pretrained frm (.rds), adds it
+# to the session model store and selects it in the dropdown `selectId` (see
+# register_model / refresh_model_selects). On error the store is left untouched
+# and the message is shown via the `errorId` text output.
+make_model_upload_handler <- function(inputId, selectId, errorId) {
     function(SE) {
         tryCatch({
             rds <- SE$input[[inputId]]$datapath
+            fname <- SE$input[[inputId]]$name
             catf("Reading and validating %s", rds)
             model <- readRDS(rds)
             model <- validate_inputmodel(model)
-            catf("Validation successful. Updating: SE$RV$%s and SE$output$%s.", rvName, errorId)
-            SE$RV[[rvName]] <- model
+            label <- sprintf("Uploaded: %s", if (is.null(fname) || !nzchar(fname)) "model.rds" else fname)
+            key <- register_model(SE, model, label)
+            catf("Validation successful. Registered model %s and selecting it in %s.", key, selectId)
+            refresh_model_selects(SE, newkey = key, target = selectId)
             SE$output[[errorId]] <- shiny::renderText("")
         },
         error = function(e) {
-            catf("Validation failed. Updating: SE$output$%s and SE$RV$%s.", errorId, rvName)
-            SE$RV[[rvName]] <- NULL
+            catf("Validation failed. Updating: SE$output$%s.", errorId)
             SE$output[[errorId]] <- shiny::renderText(paste("Error:", e$message))
         })
     }
+}
+
+# Session model store #####
+#
+# Every model produced or loaded during a session (trained, adjusted or uploaded)
+# is kept in the per-session reactive list `SE$RV$models`, keyed by a stable id.
+# The Predict and Adjust tabs expose that list through a dropdown so a model can
+# be reused across tabs without a download/re-upload round trip. The store lives
+# only in server memory for the lifetime of the session; nothing is persisted to
+# disk or to the browser.
+
+# Sentinel value of the dropdown's "Upload new model..." entry. Must match the
+# literal used in ui_model_select_upload()'s conditionalPanel condition.
+MODEL_UPLOAD_CHOICE <- "__upload__"
+
+# Human-readable kind of a model's base learner, for dropdown labels.
+frm_model_kind <- function(frm) {
+    if (inherits(frm$model, "xgb.Booster")) "XGBoost" else "Lasso"
+}
+
+# Add `frm` to the session store under a fresh id and return that id. `label` is
+# what the dropdowns display for it.
+register_model <- function(SE, frm, label) {
+    SE$RV$modelSeq <- (SE$RV$modelSeq %||% 0L) + 1L
+    key <- sprintf("m%d", SE$RV$modelSeq)
+    models <- SE$RV$models %||% list()
+    models[[key]] <- list(label = label, frm = frm)
+    SE$RV$models <- models
+    key
+}
+
+# Build the named choices vector for the model dropdowns: the "Upload new
+# model..." sentinel first, then one entry per stored model (newest last).
+model_select_choices <- function(SE) {
+    models <- SE$RV$models %||% list()
+    labels <- vapply(models, `[[`, character(1), "label")
+    c(stats::setNames(MODEL_UPLOAD_CHOICE, "Upload new model\u2026"),
+      stats::setNames(names(models), labels))
+}
+
+# Refresh the choices of every model dropdown from the current store. When a new
+# model was just added (`newkey`), auto-select it in the `target` dropdown(s) but
+# only where the user has not already picked a model (i.e. the dropdown still
+# sits on the upload sentinel) - so a deliberate selection is never overridden.
+refresh_model_selects <- function(SE, newkey = NULL, target = NULL) {
+    choices <- model_select_choices(SE)
+    for (id in c("siPredModel", "siAdjModel")) {
+        cur <- SE$input[[id]]
+        auto <- !is.null(newkey) && id %in% target && (is.null(cur) || identical(cur, MODEL_UPLOAD_CHOICE))
+        selected <- if (auto) newkey else cur
+        shiny::updateSelectInput(SE$session, id, choices = choices, selected = selected)
+    }
+}
+
+# Resolve the model currently selected in dropdown `selectId` to its frm, or NULL
+# if the upload sentinel is selected / the id is unknown.
+get_selected_model <- function(SE, selectId) {
+    key <- SE$input[[selectId]]
+    if (is.null(key) || identical(key, MODEL_UPLOAD_CHOICE)) return(NULL)
+    entry <- (SE$RV$models %||% list())[[key]]
+    if (is.null(entry)) NULL else entry$frm
 }
 
 withShowError <- function(expr, error = NULL) {

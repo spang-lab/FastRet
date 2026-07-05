@@ -100,7 +100,7 @@ ui_tab_adjust <- function() {
                     "<h2>Adjust existing Model</h2>",
                     "<p>Adapt an existing model to a changed setup, such as a different temperature, pH or column age. Upload the model together with a few compounds re-measured on the new column, and FastRet fits a small correction on top of the model.</p>"
                 )),
-                ui_model_upload("ubAdjFRM", "toAdjFRMError"),
+                ui_model_select_upload("siAdjModel", "ubAdjFRM", "toAdjFRMError"),
                 ui_adjust_controls()
             ),
             shiny::mainPanel(
@@ -120,7 +120,7 @@ ui_tab_predict <- function() {
                     "<h2>Predict Retention Times</h2>",
                     "<p>Predict retention times for new molecules using a previously trained or adjusted model. Enter a single SMILES or upload many at once as an Excel file.</p>"
                 )),
-                ui_model_upload("ubPredFRM", "toPredFRMError"),
+                ui_model_select_upload("siPredModel", "ubPredFRM", "toPredFRMError"),
                 ui_predict_controls()
             ),
             shiny::mainPanel(
@@ -233,6 +233,34 @@ ui_data_upload <- function(inputId, errorId) {
             )
         ),
         shiny::div(shiny::textOutput(errorId), style = "color: red;")
+    )
+}
+
+# Model input for the Predict and Adjust tabs: a dropdown listing every model
+# trained, adjusted or uploaded in the current session (so a model built in the
+# Train tab can be reused here without a download/re-upload round trip), plus the
+# special "Upload new model..." entry that reveals the .rds file input below. The
+# dropdown's choices are kept in sync server-side via refresh_model_selects();
+# MODEL_UPLOAD_CHOICE is the sentinel value of the upload entry (see server.R).
+ui_model_select_upload <- function(selectId, inputId, errorId) {
+    shiny::tagList(
+        with_helptext(
+            shiny::selectInput(
+                inputId = selectId,
+                label = "Model",
+                choices = stats::setNames(MODEL_UPLOAD_CHOICE, "Upload new model\u2026"),
+                selected = MODEL_UPLOAD_CHOICE
+            ),
+            content = paste(
+                "<h2>Model selection</h2>",
+                "<p>Choose the model to use. The list holds every model trained, adjusted or uploaded during the current session, so a model built in the <em>Train new Model</em> tab can be reused here directly &ndash; no need to download and upload it again. Pick <em>Upload new model&hellip;</em> to load a model from an <code>.rds</code> file.</p>",
+                "<p>The list is per session and lives only in memory: it is cleared when you reload the page or the connection closes.</p>"
+            )
+        ),
+        shiny::conditionalPanel(
+            condition = sprintf("input['%s'] == '%s'", selectId, MODEL_UPLOAD_CHOICE),
+            ui_model_upload(inputId, errorId)
+        )
     )
 }
 
