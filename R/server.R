@@ -195,11 +195,19 @@ init_action_button_handlers <- function(SE) {
     SE$ABH$btnAdj <- function(SE) {
         if (!inherits(SE$RV$adjFRM, "frm")) stop("Please upload a valid, pretrained model first")
         if (is.null(SE$RV$adjDf)) stop("Please upload valid data for prediction adjustment first")
+        match_keys <- switch(SE$input$siAdjMatchKeys,
+            "auto"       = NULL, # let adjust_frm() choose: INCHIKEY if available, else NAME+SMILES
+            "INCHIKEY"   = "INCHIKEY",
+            "NAME"       = "NAME",
+            "NAME+SMILES" = c("NAME", "SMILES"),
+            NULL
+        )
         SE$ET$btnAdj$invoke( # takes same argument as [adjust_frm()]
             frm = SE$RV$adjFRM,
             new_data = SE$RV$adjDf,
             adj_type = SE$input$rbAdjMethod,
-            predictors = 1 # base RT only; RT transformations are deprecated
+            predictors = 1, # base RT only; RT transformations are deprecated
+            match_keys = match_keys
         )
     }
     # catf("Exit: init_action_button_handlers")

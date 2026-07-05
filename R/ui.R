@@ -469,6 +469,30 @@ ui_adjust_controls <- function() {
                 "</ul>"
             )
         ),
+        with_helptext(
+            shiny::selectInput(
+                inputId = "siAdjMatchKeys",
+                label = "Compound matching",
+                choices = list(
+                    "Automatic (recommended)" = "auto",
+                    "InChIKey" = "INCHIKEY",
+                    "Name" = "NAME",
+                    "Name + SMILES" = "NAME+SMILES"
+                ),
+                selected = "auto"
+            ),
+            content = paste(
+                "<h2>Compound matching</h2>",
+                "<p>To learn the correction, FastRet pairs each re-measured compound in your upload with the same compound in the original training data. This setting controls which column(s) are used to decide that two rows describe the same compound:</p>",
+                "<ul>",
+                "<li><b>Automatic</b> (recommended) uses the <code>INCHIKEY</code> column when it is present and complete in both the uploaded data and the original model, otherwise it falls back to <code>NAME</code> + <code>SMILES</code>. This is the same matching used in the FastRet paper's adjustment benchmarks.</li>",
+                "<li><b>InChIKey</b> matches on the structure-invariant InChIKey only. This is the most robust option and is preferred whenever InChIKeys are available.</li>",
+                "<li><b>Name</b> matches on the compound name only. Use this when your data has no InChIKeys and the SMILES strings differ between datasets.</li>",
+                "<li><b>Name + SMILES</b> requires both the name and the exact SMILES string to agree. Use this to disambiguate duplicate names.</li>",
+                "</ul>",
+                "<p>Every re-measured compound must be found in the original training data; if a compound cannot be matched, adjustment stops with an error. If that happens, try a different matching column.</p>"
+            )
+        ),
         bslib::input_task_button(
             id = "btnAdj",
             label = "Adjust Model",
