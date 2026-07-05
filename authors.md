@@ -26,12 +26,12 @@ Source:
 
 Schmidt T, Amesoeder C, Schoen M, Fadil F, Dettmer K (2026). *FastRet:
 Retention Time Prediction in Liquid Chromatography*. R package version
-1.4.4, <https://github.com/spang-lab/FastRet/>.
+1.4.5, <https://github.com/spang-lab/FastRet/>.
 
     @Manual{,
       title = {FastRet: Retention Time Prediction in Liquid Chromatography},
       author = {Tobias Schmidt and Christian Amesoeder and Marian Schoen and Fadi Fadil and Katja Dettmer},
       year = {2026},
-      note = {R package version 1.4.4},
+      note = {R package version 1.4.5},
       url = {https://github.com/spang-lab/FastRet/},
     }

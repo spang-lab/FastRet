@@ -86,10 +86,12 @@ adjust_frm(
 
   Which columns to use for matching `new_data` to `frm$df` if
   `match_rts` is TRUE. Can be any combination of "INCHIKEY", "SMILES"
-  and "NAME". If left at NULL, matching is done via
-  `c("SMILES", "INCHIKEY")` if INCHIKEYs are available, else via
-  `c("SMILES", "NAME")`. See 'Details' for more information on the
-  matching procedure.
+  and "NAME". If left at NULL, matching is done via `"INCHIKEY"` alone
+  if complete INCHIKEYs are available in both `new_data` and `frm$df`,
+  else via `c("SMILES", "NAME")`. INCHIKEY is a structure-invariant
+  identifier, so it alone uniquely identifies a molecule; adding SMILES
+  (matched as an exact raw string) would only make the key more fragile.
+  See 'Details' for more information on the matching procedure.
 
 - cache:
 
@@ -136,7 +138,7 @@ Components of `adj` are:
 
 ## Details
 
-Matching is done via `c("SMILES", "INCHIKEY")` if both datasets have
+Matching is done via `"INCHIKEY"` alone if both datasets have
 non-missing INCHIKEYs for all rows; otherwise via `c("SMILES", "NAME")`.
 This can be overridden by supplying `match_keys`. If
 `match_rts = FALSE`, no matching is performed and retention times are

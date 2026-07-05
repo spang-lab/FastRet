@@ -1,5 +1,30 @@
 # Changelog
 
+## FastRet 1.4.5
+
+Model adjustment (compound matching):
+
+1.  The default compound matching used by
+    [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md)
+    now matches on `"INCHIKEY"` alone (when complete InChIKeys are
+    available in both `new_data` and `frm$df`), instead of the previous
+    `c("SMILES", "INCHIKEY")`. The InChIKey is a structure-invariant
+    identifier and alone uniquely identifies a molecule, whereas SMILES
+    is matched as an exact raw string and often differs in spelling
+    between datasets — so including it only made matching more fragile
+    without adding identifying power. This also aligns the package
+    default with the InChIKey-based matching used throughout the FastRet
+    paper’s adjustment benchmarks. When InChIKeys are unavailable the
+    fallback is unchanged (`c("SMILES", "NAME")`), and an explicit
+    `match_keys` argument still overrides the default.
+
+2.  The GUI’s *Adjust* tab gained a “Compound matching” dropdown that
+    exposes this choice: *Automatic* (recommended; InChIKey when
+    available, else Name+SMILES), *InChIKey*, *Name*, or *Name +
+    SMILES*. The selection is passed to
+    [`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md)
+    as `match_keys`.
+
 ## FastRet 1.4.4
 
 Hyperparameter tuning:

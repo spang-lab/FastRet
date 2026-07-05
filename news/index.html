@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,12 @@
       <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.5" id="fastret-145">FastRet 1.4.5<a class="anchor" aria-label="anchor" href="#fastret-145"></a></h2>
+<p>Model adjustment (compound matching):</p>
+<ol style="list-style-type: decimal"><li><p>The default compound matching used by <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code> now matches on <code>"INCHIKEY"</code> alone (when complete InChIKeys are available in both <code>new_data</code> and <code>frm$df</code>), instead of the previous <code>c("SMILES", "INCHIKEY")</code>. The InChIKey is a structure-invariant identifier and alone uniquely identifies a molecule, whereas SMILES is matched as an exact raw string and often differs in spelling between datasets — so including it only made matching more fragile without adding identifying power. This also aligns the package default with the InChIKey-based matching used throughout the FastRet paper’s adjustment benchmarks. When InChIKeys are unavailable the fallback is unchanged (<code>c("SMILES", "NAME")</code>), and an explicit <code>match_keys</code> argument still overrides the default.</p></li>
+<li><p>The GUI’s <em>Adjust</em> tab gained a “Compound matching” dropdown that exposes this choice: <em>Automatic</em> (recommended; InChIKey when available, else Name+SMILES), <em>InChIKey</em>, <em>Name</em>, or <em>Name + SMILES</em>. The selection is passed to <code><a href="../reference/adjust_frm.html">adjust_frm()</a></code> as <code>match_keys</code>.</p></li>
+</ol></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.4" id="fastret-144">FastRet 1.4.4<a class="anchor" aria-label="anchor" href="#fastret-144"></a></h2>
 <p>Hyperparameter tuning:</p>
