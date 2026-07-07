@@ -1,4 +1,12 @@
 
+# FastRet 1.5.1
+
+- The descriptor-cache builder (`updateCachedCDs()`) and the example-data
+  generator (`misc/scripts/make-example-data.R`) now download
+  `Measurements_v10P.xlsx` from the version-independent `example-data` release tag
+  instead of the `v1.3.0` package release, so all example/source artifacts live in
+  one place and the build no longer pins an old package-version tag.
+
 # FastRet 1.5.0
 
 Example datasets & models refresh (see `issues/open/03_Update_Datasets.md`):
