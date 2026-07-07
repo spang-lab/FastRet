@@ -11,11 +11,17 @@ test_that("getCDs returns correct descriptors and caches new ones on disk", {
 
     # Known molecules from the shipped cache return correct descriptors.
     X <- RP[1:5, ]
+    nmeta <- ncol(X) # metadata columns (RT, SMILES, NAME, INCHIKEY)
     Y1 <- getCDs(X, verbose = 0)
     nc <- ncol(Y1)
-    expect_true(all.equal(Y1[, 1:3], X))
-    expect_true(all(colnames(Y1)[4:nc] %in% CDFeatures))
-    expect_equal(Y1$Fsp3, c(0.75, 1 / 3, 0.00, 0.50, 0.50))
+    expect_equal(Y1[, seq_len(nmeta)], X)
+    expect_true(all(colnames(Y1)[(nmeta + 1):nc] %in% CDFeatures))
+    # The shipped-cache descriptors match a fresh rcdk computation for the same
+    # molecules (verifies cache integrity without hard-coding per-molecule values).
+    fresh <- compute_cds(X$SMILES)
+    expect_equal(unname(as.matrix(Y1[, CDFeatures])),
+                 unname(as.matrix(fresh[, CDFeatures])))
+    expect_true(all(Y1$Fsp3 >= 0 & Y1$Fsp3 <= 1)) # Fsp3 is a fraction
 
     n0 <- cache_rowcount()
 

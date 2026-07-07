@@ -229,7 +229,8 @@ ui_data_upload <- function(inputId, errorId) {
                 "<li><code>RT</code>: retention time of each molecule, in any numeric unit (e.g. minutes or seconds). Predictions are reported on the same scale.</li>",
                 "<li><code>NAME</code>: a label for each molecule, for example its name.</li>",
                 "<li><code>SMILES</code>: isomeric or canonical SMILES, used to compute the chemical descriptors via the Chemistry Development Kit.</li>",
-                "</ul>"
+                "</ul>",
+                "<p>No data of your own yet? <a href='https://github.com/spang-lab/FastRet/releases/download/example-data/RP.xlsx' target='_blank' rel='noopener'>Download an example file</a> (458 metabolites measured on a reverse-phase column) and upload it above.</p>"
             )
         ),
         shiny::div(shiny::textOutput(errorId), style = "color: red;")
@@ -251,6 +252,7 @@ ui_model_upload <- function(inputId, errorId) {
                 "<pre><code>model <- readRDS(\"path/to/model.rds\")",
                 "coef(model$model)  # model coefficients (Lasso only)",
                 "model$df           # the predictor set</code></pre>",
+                "<p>Don't have a model? <a href='https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds' target='_blank' rel='noopener'>Download an example model</a> (LASSO, trained on the example RP dataset).</p>",
                 "<p>See the FastRet online documentation for details.</p>"
             )
         ),
@@ -449,7 +451,8 @@ ui_adjust_controls <- function() {
             ),
             content = paste(
                 "<h2>Adjustment data</h2>",
-                "<p>Upload an Excel file with the columns <code>RT</code>, <code>NAME</code> and <code>SMILES</code> for the compounds re-measured on the new column.</p>"
+                "<p>Upload an Excel file with the columns <code>RT</code>, <code>NAME</code> and <code>SMILES</code> for the compounds re-measured on the new column.</p>",
+                "<p>Want to try it? <a href='https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx' target='_blank' rel='noopener'>Download an example file</a> (25 metabolites from the example RP dataset, re-measured under a steeper gradient).</p>"
             )
         ),
         shiny::div(shiny::textOutput("toAdjXlsxError"), style = "color: red;"),

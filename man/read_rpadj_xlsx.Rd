@@ -2,16 +2,18 @@
 % Please edit documentation in R/data.R
 \name{read_rpadj_xlsx}
 \alias{read_rpadj_xlsx}
-\title{Hypothetical retention times}
+\title{Retention times re-measured under a steeper gradient}
 \usage{
 read_rpadj_xlsx()
 }
 \value{
-A dataframe with 25 rows (metabolites) and 3 columns: RT, SMILES and NAME.
+A dataframe with 25 rows (metabolites) and 4 columns: RT, NAME, SMILES and
+INCHIKEY.
 }
 \description{
-Subset of the data from \code{\link[=read_rp_xlsx]{read_rp_xlsx()}} with some slight modifications to
-simulate changes in temperature and/or flowrate.
+25 metabolites from the \link{RP} dataset, re-measured on the same reverse-phase
+column under a \strong{steeper gradient} (real data, dataset \code{RP_Steep} in the
+FastRet paper). Used to demonstrate model adjustment via \code{\link[=adjust_frm]{adjust_frm()}}.
 }
 \examples{
 \donttest{
