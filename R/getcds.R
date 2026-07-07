@@ -235,7 +235,7 @@ assemble_cds <- function(uniq, have, newCDs) {
 updateCachedCDs <- function(nw = 1) {
     cols <- c("NAME", "SMILES", "RT")
     hilic <- read_retip_hilic_data()[, cols]
-    url <- "https://github.com/spang-lab/FastRet/releases/download/v1.3.0/Measurements_v10P.xlsx"
+    url <- "https://github.com/spang-lab/FastRet/releases/download/example-data/Measurements_v10P.xlsx"
     v10p_path <- tempfile("Measurements_v10P", fileext = ".xlsx")
     utils::download.file(url, v10p_path, mode = "wb")
     meas <- openxlsx::read.xlsx(v10p_path)[, cols] # all datasets, raw SMILES

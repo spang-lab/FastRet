@@ -19,7 +19,7 @@ devtools::load_all(".")
 # CDs.sqlite instead of a possibly stale per-user copy.
 options(FastRet.cache_dir = file.path(tempdir(), "FastRet-make-example-cache"))
 
-url <- "https://github.com/spang-lab/FastRet/releases/download/v1.3.0/Measurements_v10P.xlsx"
+url <- "https://github.com/spang-lab/FastRet/releases/download/example-data/Measurements_v10P.xlsx"
 v10p_path <- tempfile("Measurements_v10P", fileext = ".xlsx")
 download.file(url, v10p_path, mode = "wb")
 X <- openxlsx::read.xlsx(v10p_path, 1)
