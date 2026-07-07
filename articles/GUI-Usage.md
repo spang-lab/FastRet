@@ -32,9 +32,13 @@ article for how to set up Java and `rcdk`.
 
 Use the **Train** tab to build a model from your own measurements: an
 Excel file with the names, SMILES and retention times of metabolites
-measured on your column. FastRet ships an example file with 442
-metabolites measured on a reverse-phase column (35 °C, 0.3 ml/min). To
-see its path and contents:
+measured on your column. FastRet ships an example file with 458
+metabolites measured on a reverse-phase column (35 °C, 0.3 ml/min).
+**[Download
+RP.xlsx](https://github.com/spang-lab/FastRet/releases/download/example-data/RP.xlsx)**
+to upload it directly in the (web) GUI — no R installation required. If
+you have the package installed, the same file is available via
+[`system.file()`](https://rdrr.io/r/base/system.file.html):
 
 ``` r
 
@@ -43,20 +47,13 @@ cat(path, "\n", sep = "")
 #> /home/runner/work/_temp/Library/FastRet/extdata/RP.xlsx
 df <- openxlsx::read.xlsx(path, 1)
 head(df)
-#>     RT                                                    SMILES
-#> 1 3.34                                              CCC(C(=O)O)O
-#> 2 3.35                                     COC1=C(C=CC(=C1)CCN)O
-#> 3 2.11                                    C1=NC2=C(N1)C(=NC=N2)N
-#> 4 2.10          C1=NC2=C(C(=N1)N)N=CN2C3C(C(C(O3)COP(=O)(O)O)O)O
-#> 5 3.13             C1C2C(C(C(O2)N3C=NC4=C3N=CN=C4N)O)OP(=O)(O1)O
-#> 6 2.07 C1=NC2=C(C(=N1)N)N=CN2C3C(C(C(O3)COP(=O)(O)O)OP(=O)(O)O)O
-#>                                   NAME
-#> 1                2-HYDROXYBUTYRIC ACID
-#> 2                    3-METHOXYTYRAMINE
-#> 3                              ADENINE
-#> 4           ADENOSINE 5'-MONOPHOSPHATE
-#> 5 ADENOSINE 3',5'-CYCLIC MONOPHOSPHATE
-#> 6          ADENOSINE 3',5'-DIPHOSPHATE
+#>     RT               SMILES                    NAME                    INCHIKEY
+#> 1 0.90              C(CN)CN      1,3-DIAMINOPROPANE XFNJVJPLKCPIBV-UHFFFAOYSA-N
+#> 2 0.90     C(CCNCCCN)CNCCCN                SPERMINE PFNFFQXMRSDOHW-UHFFFAOYSA-N
+#> 3 0.91         C(CCNCCCN)CN              SPERMIDINE ATHGHQPFGPMSJY-UHFFFAOYSA-N
+#> 4 0.91          C(CN)CNCCCN BIS(3-AMINOPROPYL)AMINE OTBHHUPVCYLGQO-UHFFFAOYSA-N
+#> 5 0.93 CC(=O)NCCCNCCCCNCCCN       N1-ACETYLSPERMINE GUNURVWAJRRUAV-UHFFFAOYSA-N
+#> 6 0.98       C1=C(NC=N1)CCN               HISTAMINE NTYJJOPFIAHURM-UHFFFAOYSA-N
 ```
 
 Set the controls, then click **Train Model**:
@@ -87,7 +84,10 @@ Times](#predict-retention-times)).
 
 ## Predict Retention Times
 
-Use a saved model to predict retention times for new molecules:
+Use a saved model to predict retention times for new molecules. To try
+it without training first, download the example model
+**[RP_lasso_model.rds](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds)**
+(a LASSO model trained on the example `RP.xlsx`).
 
 1.  Upload the model under *Upload a pretrained Model*.
 2.  Enter a SMILES in *Input SMILES*, or upload an Excel file (columns
@@ -105,7 +105,10 @@ times](GUI-Usage/predict.png)](https://spang-lab.github.io/FastRet/articles/GUI-
 
 If you re-measured some metabolites on a new column that were also
 measured on the original one, use the **Adjust** tab to adapt an
-existing model to the new column:
+existing model to the new column. An example re-measurement file (25
+metabolites from `RP.xlsx` measured under a steeper gradient) is
+available as
+**[RP_adj.xlsx](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx)**.
 
 1.  Upload the model under *Upload a pretrained Model*.
 2.  Upload the re-measured metabolites (columns `RT`, `NAME`, `SMILES`)

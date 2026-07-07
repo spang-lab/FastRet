@@ -37,7 +37,7 @@ a message.
 
 ``` r
 catf("Hello, %s!", "world")
-#> 2026-07-05 18:22:42.03 Hello, world!
+#> 2026-07-07 20:26:29.42 Hello, world!
 catf("Goodbye", prefix = NULL, end = "!\n")
-#> 2026-07-05 18:22:42.03 Goodbye!
+#> 2026-07-07 20:26:29.42 Goodbye!
 ```

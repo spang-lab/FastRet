@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@
       <h1>Old Introduction</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/example-data/vignettes/Old-Intro.Rmd" class="external-link"><code>vignettes/Old-Intro.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/main/vignettes/Old-Intro.Rmd" class="external-link"><code>vignettes/Old-Intro.Rmd</code></a></small>
       <div class="d-none name"><code>Old-Intro.Rmd</code></div>
     </div>
 
@@ -87,20 +87,20 @@ three columns, RT, SMILES and NAME.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">RP</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">RP</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 442 × 3</span></span></span>
-<span><span class="co">#&gt;       RT SMILES                                                    NAME         </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>  3.34 CCC(C(=O)O)O                                              2-HYDROXYBUT…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>  3.35 COC1=C(C=CC(=C1)CCN)O                                     3-METHOXYTYR…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>  2.11 C1=NC2=C(N1)C(=NC=N2)N                                    ADENINE      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>  2.1  C1=NC2=C(C(=N1)N)N=CN2C3C(C(C(O3)COP(=O)(O)O)O)O          ADENOSINE 5'…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>  3.13 C1C2C(C(C(O2)N3C=NC4=C3N=CN=C4N)O)OP(=O)(O1)O             ADENOSINE 3'…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>  2.07 C1=NC2=C(C(=N1)N)N=CN2C3C(C(C(O3)COP(=O)(O)O)OP(=O)(O)O)O ADENOSINE 3'…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>  1.22 [O-]C(=O)C[C@H](O)C[N+](C)(C)C                            L-CARNITINE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>  1.25 C[N+](C)(CCOP([O-])(OCC(O)CO)=O)C                         SN-GLYCERO-3…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>  1.12 CN1C=C(N=C1)CC(C(=O)O)N                                   N(PAI)-METHY…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  1.21 C(CC(=O)O)CN                                              4-AMINOBUTAN…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 432 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 458 × 4</span></span></span>
+<span><span class="co">#&gt;       RT SMILES                  NAME                    INCHIKEY               </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>  0.9  C(CN)CN                 1,3-DIAMINOPROPANE      XFNJVJPLKCPIBV-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>  0.9  C(CCNCCCN)CNCCCN        SPERMINE                PFNFFQXMRSDOHW-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>  0.91 C(CCNCCCN)CN            SPERMIDINE              ATHGHQPFGPMSJY-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>  0.91 C(CN)CNCCCN             BIS(3-AMINOPROPYL)AMINE OTBHHUPVCYLGQO-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>  0.93 CC(=O)NCCCNCCCCNCCCN    N1-ACETYLSPERMINE       GUNURVWAJRRUAV-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>  0.98 C1=C(NC=N1)CCN          HISTAMINE               NTYJJOPFIAHURM-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>  0.98 C(CCN)CN                PUTRESCINE              KIDHWZJUCRJVML-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>  0.98 CN1C=NC=C1CCN           3-METHYLHISTAMINE       CPAGZVLINCPJEH-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>  0.98 C(CCN)CCN               CADAVERINE              VHRGRCVQAFMJIZ-UHFFFAO…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  0.98 C1=C(NC=N1)C[C@@H](CO)N L-HISTIDINOL            ZQISRDCJNBUVMM-YFKPBYR…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 448 more rows</span></span></span>
 <span><span class="fu">openxlsx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/openxlsx/man/write.xlsx.html" class="external-link">write.xlsx</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">RP</span><span class="op">)</span>, file<span class="op">=</span><span class="st">"~/RP_data.xlsx"</span>, rowNames<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Starting the interface is done with one line of code. From now on
 there is no need to use R anymore.</p>

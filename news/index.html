@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,9 +38,18 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/example-data/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/spang-lab/FastRet/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.0" id="fastret-150">FastRet 1.5.0<a class="anchor" aria-label="anchor" href="#fastret-150"></a></h2>
+<p>Example datasets &amp; models refresh (see <code>issues/open/03_Update_Datasets.md</code>):</p>
+<ol style="list-style-type: decimal"><li><p>The bundled <code>RP</code> dataset (and <code>inst/extdata/RP.xlsx</code>) was regenerated from the published <code>Measurements_v10P.xlsx</code> and now contains <strong>458</strong> metabolites (was 442), with an added <code>INCHIKEY</code> column.</p></li>
+<li><p><code>inst/extdata/RP_adj.xlsx</code> (returned by <code><a href="../reference/read_rpadj_xlsx.html">read_rpadj_xlsx()</a></code>) is now <strong>real</strong> data: 25 <code>RP</code> metabolites re-measured under a steeper gradient (dataset <code>RP_Steep</code> in the FastRet paper), replacing the previous synthetic file. It also gains an <code>INCHIKEY</code> column.</p></li>
+<li><p><code>inst/extdata/RP_lasso_model.rds</code> was retrained on the new 458-metabolite <code>RP</code>.</p></li>
+<li><p>The shipped chemical-descriptor cache (<code>inst/cachedata/CDs.sqlite</code>) was rebuilt from <code>Measurements_v10P.xlsx</code>; the outdated <code>inst/extdata/Measurements_v8.xlsx</code> is no longer shipped.</p></li>
+<li><p>Documentation and the Shiny GUI now offer direct download links to the example files (hosted as GitHub release assets), so web-app users can follow the tutorials without installing the package.</p></li>
+</ol></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.5" id="fastret-145">FastRet 1.4.5<a class="anchor" aria-label="anchor" href="#fastret-145"></a></h2>
 <p>Model adjustment (compound matching):</p>

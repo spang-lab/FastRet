@@ -18,7 +18,8 @@ Regensburg.
 
 ## Value
 
-A dataframe of 442 metabolites with columns `RT`, `SMILES` and `NAME`.
+A dataframe of 458 metabolites with columns `RT`, `SMILES`, `NAME` and
+`INCHIKEY`.
 
 ## See also
 

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@
       <h1>GUI Usage</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/example-data/vignettes/GUI-Usage.Rmd" class="external-link"><code>vignettes/GUI-Usage.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/main/vignettes/GUI-Usage.Rmd" class="external-link"><code>vignettes/GUI-Usage.Rmd</code></a></small>
       <div class="d-none name"><code>GUI-Usage.Rmd</code></div>
     </div>
 
@@ -97,28 +97,24 @@ article for how to set up Java and <code>rcdk</code>.</p>
 <p>Use the <strong>Train</strong> tab to build a model from your own
 measurements: an Excel file with the names, SMILES and retention times
 of metabolites measured on your column. FastRet ships an example file
-with 442 metabolites measured on a reverse-phase column (35 °C, 0.3
-ml/min). To see its path and contents:</p>
+with 458 metabolites measured on a reverse-phase column (35 °C, 0.3
+ml/min). <strong><a href="https://github.com/spang-lab/FastRet/releases/download/example-data/RP.xlsx" class="external-link">Download
+RP.xlsx</a></strong> to upload it directly in the (web) GUI — no R
+installation required. If you have the package installed, the same file
+is available via <code><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"RP.xlsx"</span>, package <span class="op">=</span> <span class="st">"FastRet"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">path</span>, <span class="st">"\n"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="co">#&gt; /home/runner/work/_temp/Library/FastRet/extdata/RP.xlsx</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">openxlsx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/openxlsx/man/read.xlsx.html" class="external-link">read.xlsx</a></span><span class="op">(</span><span class="va">path</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     RT                                                    SMILES</span></span>
-<span><span class="co">#&gt; 1 3.34                                              CCC(C(=O)O)O</span></span>
-<span><span class="co">#&gt; 2 3.35                                     COC1=C(C=CC(=C1)CCN)O</span></span>
-<span><span class="co">#&gt; 3 2.11                                    C1=NC2=C(N1)C(=NC=N2)N</span></span>
-<span><span class="co">#&gt; 4 2.10          C1=NC2=C(C(=N1)N)N=CN2C3C(C(C(O3)COP(=O)(O)O)O)O</span></span>
-<span><span class="co">#&gt; 5 3.13             C1C2C(C(C(O2)N3C=NC4=C3N=CN=C4N)O)OP(=O)(O1)O</span></span>
-<span><span class="co">#&gt; 6 2.07 C1=NC2=C(C(=N1)N)N=CN2C3C(C(C(O3)COP(=O)(O)O)OP(=O)(O)O)O</span></span>
-<span><span class="co">#&gt;                                   NAME</span></span>
-<span><span class="co">#&gt; 1                2-HYDROXYBUTYRIC ACID</span></span>
-<span><span class="co">#&gt; 2                    3-METHOXYTYRAMINE</span></span>
-<span><span class="co">#&gt; 3                              ADENINE</span></span>
-<span><span class="co">#&gt; 4           ADENOSINE 5'-MONOPHOSPHATE</span></span>
-<span><span class="co">#&gt; 5 ADENOSINE 3',5'-CYCLIC MONOPHOSPHATE</span></span>
-<span><span class="co">#&gt; 6          ADENOSINE 3',5'-DIPHOSPHATE</span></span></code></pre></div>
+<span><span class="co">#&gt;     RT               SMILES                    NAME                    INCHIKEY</span></span>
+<span><span class="co">#&gt; 1 0.90              C(CN)CN      1,3-DIAMINOPROPANE XFNJVJPLKCPIBV-UHFFFAOYSA-N</span></span>
+<span><span class="co">#&gt; 2 0.90     C(CCNCCCN)CNCCCN                SPERMINE PFNFFQXMRSDOHW-UHFFFAOYSA-N</span></span>
+<span><span class="co">#&gt; 3 0.91         C(CCNCCCN)CN              SPERMIDINE ATHGHQPFGPMSJY-UHFFFAOYSA-N</span></span>
+<span><span class="co">#&gt; 4 0.91          C(CN)CNCCCN BIS(3-AMINOPROPYL)AMINE OTBHHUPVCYLGQO-UHFFFAOYSA-N</span></span>
+<span><span class="co">#&gt; 5 0.93 CC(=O)NCCCNCCCCNCCCN       N1-ACETYLSPERMINE GUNURVWAJRRUAV-UHFFFAOYSA-N</span></span>
+<span><span class="co">#&gt; 6 0.98       C1=C(NC=N1)CCN               HISTAMINE NTYJJOPFIAHURM-UHFFFAOYSA-N</span></span></code></pre></div>
 <p>Set the controls, then click <strong>Train Model</strong>:</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -146,7 +142,9 @@ SMILES and click <em>Predict</em> (see <a href="#predict-retention-times">Predic
 <div class="section level2">
 <h2 id="predict-retention-times">Predict Retention Times<a class="anchor" aria-label="anchor" href="#predict-retention-times"></a>
 </h2>
-<p>Use a saved model to predict retention times for new molecules:</p>
+<p>Use a saved model to predict retention times for new molecules. To
+try it without training first, download the example model <strong><a href="https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds" class="external-link">RP_lasso_model.rds</a></strong>
+(a LASSO model trained on the example <code>RP.xlsx</code>).</p>
 <ol style="list-style-type: decimal">
 <li>Upload the model under <em>Upload a pretrained Model</em>.</li>
 <li>Enter a SMILES in <em>Input SMILES</em>, or upload an Excel file
@@ -163,7 +161,9 @@ predictions</em> to download them as an Excel file.</p>
 </h2>
 <p>If you re-measured some metabolites on a new column that were also
 measured on the original one, use the <strong>Adjust</strong> tab to
-adapt an existing model to the new column:</p>
+adapt an existing model to the new column. An example re-measurement
+file (25 metabolites from <code>RP.xlsx</code> measured under a steeper
+gradient) is available as <strong><a href="https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx" class="external-link">RP_adj.xlsx</a></strong>.</p>
 <ol style="list-style-type: decimal">
 <li>Upload the model under <em>Upload a pretrained Model</em>.</li>
 <li>Upload the re-measured metabolites (columns <code>RT</code>,

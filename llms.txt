@@ -153,7 +153,7 @@ Datasets used in FastRet’s examples and vignettes.
 - [`read_rp_xlsx()`](https://spang-lab.github.io/FastRet/reference/read_rp_xlsx.md)
   : Read retention times (RT) measured on a reverse phase (RP) column
 - [`read_rpadj_xlsx()`](https://spang-lab.github.io/FastRet/reference/read_rpadj_xlsx.md)
-  : Hypothetical retention times
+  : Retention times re-measured under a steeper gradient
 
 # Articles
 

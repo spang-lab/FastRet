@@ -5,7 +5,7 @@ with a temperature of 35\\^\circ\\C and a flowrate of 0.3ml/min. The
 same data is available as an xlsx file in the package. To read it into R
 use
 [`read_rp_xlsx()`](https://spang-lab.github.io/FastRet/reference/read_rp_xlsx.md).
-@format A dataframe of 442 metabolites with the following columns:
+@format A dataframe of 458 metabolites with the following columns:
 
 - RT:
 
@@ -19,6 +19,10 @@ use
 
   Name of the metabolite
 
+- INCHIKEY:
+
+  InChIKey of the metabolite
+
 ## Usage
 
 ``` r
@@ -27,7 +31,7 @@ RP
 
 ## Format
 
-An object of class `data.frame` with 442 rows and 3 columns.
+An object of class `data.frame` with 458 rows and 4 columns.
 
 ## Source
 

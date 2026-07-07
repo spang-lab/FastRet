@@ -1,9 +1,11 @@
-# Hypothetical retention times
+# Retention times re-measured under a steeper gradient
 
-Subset of the data from
-[`read_rp_xlsx()`](https://spang-lab.github.io/FastRet/reference/read_rp_xlsx.md)
-with some slight modifications to simulate changes in temperature and/or
-flowrate.
+25 metabolites from the
+[RP](https://spang-lab.github.io/FastRet/reference/RP.md) dataset,
+re-measured on the same reverse-phase column under a **steeper
+gradient** (real data, dataset `RP_Steep` in the FastRet paper). Used to
+demonstrate model adjustment via
+[`adjust_frm()`](https://spang-lab.github.io/FastRet/reference/adjust_frm.md).
 
 ## Usage
 
@@ -13,8 +15,8 @@ read_rpadj_xlsx()
 
 ## Value
 
-A dataframe with 25 rows (metabolites) and 3 columns: RT, SMILES and
-NAME.
+A dataframe with 25 rows (metabolites) and 4 columns: RT, NAME, SMILES
+and INCHIKEY.
 
 ## Examples
 

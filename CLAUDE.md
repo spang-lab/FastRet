@@ -93,6 +93,27 @@ the build. This package has **no Dockerfiles** — the deployment
 container lives in the workspace’s `docker-images/` repo (see
 [../CLAUDE.md](https://spang-lab.github.io/CLAUDE.md)).
 
+**GUI end-to-end tests** (`tests/testthat/test-gui-e2e.R`) drive the
+real Shiny app through a headless browser via `chromote` + `shinytest2`
+(both in `Suggests`). They **skip automatically** unless a
+Chrome/Chromium binary is found, so they don’t run on CRAN/CI. To run
+them locally with no root needed, install Chrome for Testing and point
+`chromote` at it:
+
+``` bash
+bash misc/scripts/install-chrome-for-testing.sh   # → ~/.local/share/chrome-for-testing
+export CHROMOTE_CHROME="$HOME/.local/share/chrome-for-testing/chrome-linux64/chrome"
+```
+
+``` r
+
+devtools::test(filter = "gui-e2e")   # also needs a JDK for rcdk
+```
+
+On Ubuntu 22.04 the required shared libs ship with the base system; if
+Chrome won’t start, the script prints the `apt-get` packages to install
+(needs root).
+
 **CI** (`.github/workflows/`): `R-CMD-check` (macOS/Windows/Ubuntu ×
 several R + xgboost versions), `test-coverage` (covr → codecov),
 `pkgdown` (→ GitHub Pages, on `main`), plus rhub and a version-increment
@@ -118,13 +139,18 @@ Package-Internals, Installation, Contributing).
 
 ## Data
 
-`data/RP.rda` (lazy-loaded RP dataset, ~442 metabolites) and
-`inst/extdata/` (RP.xlsx, RP_adj.xlsx, a pre-trained
-`RP_lasso_model.rds`, larger measurement workbooks).
-`inst/cachedata/CDs.rds` is a precomputed descriptor cache for ~1000
-SMILES, loaded into RAM on first `getCDs` call to avoid recomputation.
-HILIC data is pulled from the Retip package (CC BY 4.0) via
-`read_retip_hilic_data`.
+`data/RP.rda` (lazy-loaded RP dataset, 458 metabolites; cols
+`RT, SMILES, NAME, INCHIKEY`) and `inst/extdata/` (`RP.xlsx`,
+`RP_adj.xlsx` = 25 RP metabolites re-measured under a steeper gradient,
+a pre-trained `RP_lasso_model.rds`). These example artifacts are
+regenerated from the published `Measurements_v10P.xlsx` by
+`misc/scripts/make-example-data.R` and are also published as GitHub
+release assets (tag `example-data`) so the docs/GUI can link to them.
+`inst/cachedata/CDs.sqlite` is a precomputed descriptor cache (rebuilt
+from `Measurements_v10P.xlsx` + HILIC-Retip via `updateCachedCDs()`),
+copied to a writable per-user WAL copy at runtime to avoid
+recomputation. HILIC data is pulled from the Retip package (CC BY 4.0)
+via `read_retip_hilic_data`.
 
 ## Gotchas
 

@@ -1,5 +1,33 @@
 # Changelog
 
+## FastRet 1.5.0
+
+Example datasets & models refresh (see
+`issues/open/03_Update_Datasets.md`):
+
+1.  The bundled `RP` dataset (and `inst/extdata/RP.xlsx`) was
+    regenerated from the published `Measurements_v10P.xlsx` and now
+    contains **458** metabolites (was 442), with an added `INCHIKEY`
+    column.
+
+2.  `inst/extdata/RP_adj.xlsx` (returned by
+    [`read_rpadj_xlsx()`](https://spang-lab.github.io/FastRet/reference/read_rpadj_xlsx.md))
+    is now **real** data: 25 `RP` metabolites re-measured under a
+    steeper gradient (dataset `RP_Steep` in the FastRet paper),
+    replacing the previous synthetic file. It also gains an `INCHIKEY`
+    column.
+
+3.  `inst/extdata/RP_lasso_model.rds` was retrained on the new
+    458-metabolite `RP`.
+
+4.  The shipped chemical-descriptor cache (`inst/cachedata/CDs.sqlite`)
+    was rebuilt from `Measurements_v10P.xlsx`; the outdated
+    `inst/extdata/Measurements_v8.xlsx` is no longer shipped.
+
+5.  Documentation and the Shiny GUI now offer direct download links to
+    the example files (hosted as GitHub release assets), so web-app
+    users can follow the tutorials without installing the package.
+
 ## FastRet 1.4.5
 
 Model adjustment (compound matching):

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>FastRet — R package</h1>
-      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/example-data/CLAUDE.md" class="external-link"><code>CLAUDE.md</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/spang-lab/FastRet/blob/main/CLAUDE.md" class="external-link"><code>CLAUDE.md</code></a></small>
     </div>
 
 <div id="fastret--r-package" class="section level1">
@@ -111,6 +111,12 @@
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># R CMD check</span></span>
 <span><span class="fu">lintr</span><span class="fu">::</span><span class="fu"><a href="https://lintr.r-lib.org/reference/lint.html" class="external-link">lint_package</a></span><span class="op">(</span><span class="op">)</span>    <span class="co"># optional; .lintr is permissive (not enforced in CI)</span></span></code></pre></div>
 <p>Tests live in <code>tests/testthat/</code>. Some are named to run first (descriptor/cache warm-up, e.g. <code>getCDs</code>, <code>train_frm-*</code>). <code>misc/</code> holds dev helpers (<code>scripts/check-version.R</code> for the CI version check, <code>scripts/patch-shiny.R</code> for dev-mode GUI reload) and is excluded from the build. This package has <strong>no Dockerfiles</strong> — the deployment container lives in the workspace’s <code>docker-images/</code> repo (see <a href="../CLAUDE.html">../CLAUDE.md</a>).</p>
+<p><strong>GUI end-to-end tests</strong> (<code>tests/testthat/test-gui-e2e.R</code>) drive the real Shiny app through a headless browser via <code>chromote</code> + <code>shinytest2</code> (both in <code>Suggests</code>). They <strong>skip automatically</strong> unless a Chrome/Chromium binary is found, so they don’t run on CRAN/CI. To run them locally with no root needed, install Chrome for Testing and point <code>chromote</code> at it:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">bash</span> misc/scripts/install-chrome-for-testing.sh   <span class="co"># → ~/.local/share/chrome-for-testing</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="bu">export</span> <span class="va">CHROMOTE_CHROME</span><span class="op">=</span><span class="st">"</span><span class="va">$HOME</span><span class="st">/.local/share/chrome-for-testing/chrome-linux64/chrome"</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">test</a></span><span class="op">(</span>filter <span class="op">=</span> <span class="st">"gui-e2e"</span><span class="op">)</span>   <span class="co"># also needs a JDK for rcdk</span></span></code></pre></div>
+<p>On Ubuntu 22.04 the required shared libs ship with the base system; if Chrome won’t start, the script prints the <code>apt-get</code> packages to install (needs root).</p>
 <p><strong>CI</strong> (<code>.github/workflows/</code>): <code>R-CMD-check</code> (macOS/Windows/Ubuntu × several R + xgboost versions), <code>test-coverage</code> (covr → codecov), <code>pkgdown</code> (→ GitHub Pages, on <code>main</code>), plus rhub and a version-increment check. The pkgdown site builds from <code>vignettes/</code> (GUI-Usage, CLI-Usage, Package-Internals, Installation, Contributing).</p>
 </div>
 <div class="section level2">
@@ -127,7 +133,7 @@
 </ul></div>
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a></h2>
-<p><code>data/RP.rda</code> (lazy-loaded RP dataset, ~442 metabolites) and <code>inst/extdata/</code> (RP.xlsx, RP_adj.xlsx, a pre-trained <code>RP_lasso_model.rds</code>, larger measurement workbooks). <code>inst/cachedata/CDs.rds</code> is a precomputed descriptor cache for ~1000 SMILES, loaded into RAM on first <code>getCDs</code> call to avoid recomputation. HILIC data is pulled from the Retip package (CC BY 4.0) via <code>read_retip_hilic_data</code>.</p>
+<p><code>data/RP.rda</code> (lazy-loaded RP dataset, 458 metabolites; cols <code>RT, SMILES, NAME, INCHIKEY</code>) and <code>inst/extdata/</code> (<code>RP.xlsx</code>, <code>RP_adj.xlsx</code> = 25 RP metabolites re-measured under a steeper gradient, a pre-trained <code>RP_lasso_model.rds</code>). These example artifacts are regenerated from the published <code>Measurements_v10P.xlsx</code> by <code>misc/scripts/make-example-data.R</code> and are also published as GitHub release assets (tag <code>example-data</code>) so the docs/GUI can link to them. <code>inst/cachedata/CDs.sqlite</code> is a precomputed descriptor cache (rebuilt from <code>Measurements_v10P.xlsx</code> + HILIC-Retip via <code>updateCachedCDs()</code>), copied to a writable per-user WAL copy at runtime to avoid recomputation. HILIC data is pulled from the Retip package (CC BY 4.0) via <code>read_retip_hilic_data</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="gotchas">Gotchas<a class="anchor" aria-label="anchor" href="#gotchas"></a></h2>

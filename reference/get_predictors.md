@@ -69,7 +69,7 @@ get_predictors(frm)
 #> [106] "ATSp3"            "ATSp4"            "ATSp5"           
 #> [109] "ATSm1"            "ATSm2"            "ATSm3"           
 #> [112] "ATSm4"            "ATSm5"            "nAtom"           
-#> [115] "nAromBond"        "naAromAtom"       "apol"            
-#> [118] "ALogP"            "ALogp2"           "AMR"             
-#> [121] "nAcid"            "nA"               "nG"              
+#> [115] "apol"             "ALogP"            "ALogp2"          
+#> [118] "AMR"              "nAcid"            "nA"              
+#> [121] "nG"              
 ```
