@@ -42,8 +42,11 @@ article for how to set up Java and `rcdk`.
 
 Use the **Train** tab to build a model from your own measurements: an Excel file
 with the names, SMILES and retention times of metabolites measured on your
-column. FastRet ships an example file with 442 metabolites measured on a
-reverse-phase column (35 °C, 0.3 ml/min). To see its path and contents:
+column. FastRet ships an example file with 458 metabolites measured on a
+reverse-phase column (35 °C, 0.3 ml/min).
+**[Download RP.xlsx](https://github.com/spang-lab/FastRet/releases/download/example-data/RP.xlsx)**
+to upload it directly in the (web) GUI — no R installation required. If you have
+the package installed, the same file is available via `system.file()`:
 
 ```{r example-file, eval = TRUE}
 path <- system.file("extdata", "RP.xlsx", package = "FastRet")
@@ -75,7 +78,10 @@ switch to the **Predict** tab, upload it there, enter your SMILES and click
 
 # Predict Retention Times
 
-Use a saved model to predict retention times for new molecules:
+Use a saved model to predict retention times for new molecules. To try it without
+training first, download the example model
+**[RP_lasso_model.rds](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds)**
+(a LASSO model trained on the example `RP.xlsx`).
 
 1.  Upload the model under *Upload a pretrained Model*.
 2.  Enter a SMILES in *Input SMILES*, or upload an Excel file (columns `NAME`,
@@ -91,7 +97,9 @@ download them as an Excel file.
 
 If you re-measured some metabolites on a new column that were also measured on
 the original one, use the **Adjust** tab to adapt an existing model to the new
-column:
+column. An example re-measurement file (25 metabolites from `RP.xlsx` measured
+under a steeper gradient) is available as
+**[RP_adj.xlsx](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx)**.
 
 1.  Upload the model under *Upload a pretrained Model*.
 2.  Upload the re-measured metabolites (columns `RT`, `NAME`, `SMILES`) under

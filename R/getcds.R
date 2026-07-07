@@ -222,16 +222,36 @@ assemble_cds <- function(uniq, have, newCDs) {
 #' [library()]. The shipped database is created in the default (rollback-journal)
 #' mode so it is a single self-contained file; WAL mode is enabled only on the
 #' writable per-user copy at runtime (see [init_cache()]).
-updateCachedCDs <- function() {
+#'
+#' The source molecules are the HILIC-Retip dataset plus every measurement in the
+#' published `Measurements_v10P.xlsx` (all datasets: RP, RPB, RP_AXMM, HILIC, and
+#' the modified-condition/validation subsets). `Measurements_v10P.xlsx` is
+#' downloaded from the FastRet GitHub release rather than shipped in the package.
+#' Descriptors are cached for both the raw (publication) SMILES and their
+#' canonical forms, so runtime lookups keyed on either form resolve.
+#' @param nw Number of parallel workers used for descriptor computation (the slow
+#'   step). Defaults to 1 (serial). On a shared machine, keep this well below the
+#'   available core count.
+updateCachedCDs <- function(nw = 1) {
     cols <- c("NAME", "SMILES", "RT")
     hilic <- read_retip_hilic_data()[, cols]
-    meas8 <- openxlsx::read.xlsx(pkg_file("extdata/Measurements_v8.xlsx"))[, cols]
-    RPold <- openxlsx::read.xlsx(pkg_file("extdata/RP.xlsx"))[, cols]
-    df <- rbind(hilic, meas8, RPold)
+    url <- "https://github.com/spang-lab/FastRet/releases/download/v1.3.0/Measurements_v10P.xlsx"
+    v10p_path <- tempfile("Measurements_v10P", fileext = ".xlsx")
+    utils::download.file(url, v10p_path, mode = "wb")
+    meas <- openxlsx::read.xlsx(v10p_path)[, cols] # all datasets, raw SMILES
+    df <- rbind(hilic, meas)
     smiles <- unique(df$SMILES)
     canonicals <- unique(as_canonical(smiles))
-    combined <- unique(c(smiles, canonicals)) # ~2578 unique strings
-    CDs <- compute_cds(combined) # rownames = combined, cols = CDFeatures
+    combined <- unique(c(smiles, canonicals)) # ~2.6k unique strings
+    if (nw > 1) {
+        nchunks <- min(nw, length(combined))
+        chunks <- split(combined, cut(seq_along(combined), nchunks, labels = FALSE))
+        CDlist <- parLapply2(nw, chunks, compute_cds)
+        CDs <- as.data.frame(data.table::rbindlist(CDlist, use.names = TRUE))
+        rownames(CDs) <- unlist(chunks, use.names = FALSE)
+    } else {
+        CDs <- compute_cds(combined) # rownames = combined, cols = CDFeatures
+    }
     sqlite <- file.path(pkg_file("cachedata"), "CDs.sqlite")
     if (file.exists(sqlite)) unlink(sqlite)
     con <- DBI::dbConnect(RSQLite::SQLite(), sqlite)

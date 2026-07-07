@@ -11,7 +11,7 @@
 #' as a dataframe in the package; to access it directly, use [RP].
 #'
 #' @return
-#' A dataframe of 442 metabolites with columns `RT`, `SMILES` and `NAME`.
+#' A dataframe of 458 metabolites with columns `RT`, `SMILES`, `NAME` and `INCHIKEY`.
 #'
 #' @source
 #' Measured by the Institute of Functional Genomics at the University of
@@ -108,14 +108,16 @@ read_retip_hilic_data <- function(verbose = 1) {
 #' @export
 #' @keywords dataset
 #'
-#' @title Hypothetical retention times
+#' @title Retention times re-measured under a steeper gradient
 #'
 #' @description
-#' Subset of the data from [read_rp_xlsx()] with some slight modifications to
-#' simulate changes in temperature and/or flowrate.
+#' 25 metabolites from the [RP] dataset, re-measured on the same reverse-phase
+#' column under a **steeper gradient** (real data, dataset `RP_Steep` in the
+#' FastRet paper). Used to demonstrate model adjustment via [adjust_frm()].
 #'
 #' @return
-#' A dataframe with 25 rows (metabolites) and 3 columns: RT, SMILES and NAME.
+#' A dataframe with 25 rows (metabolites) and 4 columns: RT, NAME, SMILES and
+#' INCHIKEY.
 #'
 #' @examples \donttest{
 #' x <- read_rpadj_xlsx()
@@ -149,12 +151,13 @@ read_rp_lasso_model_rds <- function() {
 #' Retention time data from a reverse phase liquid chromatography measured with
 #' a temperature of 35\eqn{^\circ}C and a flowrate of 0.3ml/min. The same data
 #' is available as an xlsx file in the package. To read it into R use
-#' `read_rp_xlsx()`. @format A dataframe of 442 metabolites with the following
+#' `read_rp_xlsx()`. @format A dataframe of 458 metabolites with the following
 #' columns:
 #' \describe{
 #'   \item{RT}{Retention time}
 #'   \item{SMILES}{SMILES notation of the metabolite}
 #'   \item{NAME}{Name of the metabolite}
+#'   \item{INCHIKEY}{InChIKey of the metabolite}
 #' }
 #'
 #' @source
@@ -164,11 +167,6 @@ read_rp_lasso_model_rds <- function() {
 #' @seealso read_rp_xlsx
 "RP"
 
-# Private #####
-
-make_lazyload_objs <- function(HILIC, RP, RP_Mod, RP_Val) {
-    # Read in data from Excel files
-    RP <- read_rp_xlsx()
-    # Store objects in the data folder
-    usethis::use_data(RP, overwrite = TRUE)
-}
+# The shipped example datasets/models (RP.xlsx, RP.rda, RP_adj.xlsx,
+# RP_lasso_model.rds) are regenerated from the published Measurements_v10P.xlsx
+# by the development script misc/scripts/make-example-data.R.

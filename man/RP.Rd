@@ -5,7 +5,7 @@
 \alias{RP}
 \title{Retention Times (RT) measured on a Reverse Phase (RP) Column}
 \format{
-An object of class \code{data.frame} with 442 rows and 3 columns.
+An object of class \code{data.frame} with 458 rows and 4 columns.
 }
 \source{
 Measured by the Institute of Functional Genomics at the University of
@@ -18,12 +18,13 @@ RP
 Retention time data from a reverse phase liquid chromatography measured with
 a temperature of 35\eqn{^\circ}C and a flowrate of 0.3ml/min. The same data
 is available as an xlsx file in the package. To read it into R use
-\code{read_rp_xlsx()}. @format A dataframe of 442 metabolites with the following
+\code{read_rp_xlsx()}. @format A dataframe of 458 metabolites with the following
 columns:
 \describe{
 \item{RT}{Retention time}
 \item{SMILES}{SMILES notation of the metabolite}
 \item{NAME}{Name of the metabolite}
+\item{INCHIKEY}{InChIKey of the metabolite}
 }
 }
 \seealso{

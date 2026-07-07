@@ -11,7 +11,7 @@ Regensburg.
 read_rp_xlsx()
 }
 \value{
-A dataframe of 442 metabolites with columns \code{RT}, \code{SMILES} and \code{NAME}.
+A dataframe of 458 metabolites with columns \code{RT}, \code{SMILES}, \code{NAME} and \code{INCHIKEY}.
 }
 \description{
 Reads retention times from a reverse phase liquid chromatography experiment,
