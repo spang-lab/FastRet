@@ -25,8 +25,8 @@ directory.
 ``` r
 SE <- as.environment(list(session = list(token = "asdf")))
 init_log_dir(SE)
-#> 2026-07-07 20:26:30.87 Start: init_log_dir
-#> 2026-07-07 20:26:30.87 Logdir: /tmp/RtmpIHXz1t/FastRet/asdf
+#> 2026-07-07 20:40:49.68 Start: init_log_dir
+#> 2026-07-07 20:40:49.68 Logdir: /tmp/RtmpIQfa0j/FastRet/asdf
 dir.exists(SE$logdir)
 #> [1] TRUE
 ```

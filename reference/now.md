@@ -24,7 +24,7 @@ A string representing the current system time in the specified format.
 
 ``` r
 now()            # e.g. "2024-06-12 16:09:32.41"
-#> [1] "2026-07-07 20:26:31.00"
+#> [1] "2026-07-07 20:40:49.82"
 now("%H:%M:%S")  # e.g. "16:09:32"
-#> [1] "20:26:31"
+#> [1] "20:40:49"
 ```
