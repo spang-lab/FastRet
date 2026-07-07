@@ -73,6 +73,22 @@ version check, `scripts/patch-shiny.R` for dev-mode GUI reload) and is excluded 
 This package has **no Dockerfiles** — the deployment container lives in the workspace's
 `docker-images/` repo (see [../CLAUDE.md](../CLAUDE.md)).
 
+**GUI end-to-end tests** (`tests/testthat/test-gui-e2e.R`) drive the real Shiny app through a
+headless browser via `chromote` + `shinytest2` (both in `Suggests`). They **skip automatically**
+unless a Chrome/Chromium binary is found, so they don't run on CRAN/CI. To run them locally with
+no root needed, install Chrome for Testing and point `chromote` at it:
+
+```bash
+bash misc/scripts/install-chrome-for-testing.sh   # → ~/.local/share/chrome-for-testing
+export CHROMOTE_CHROME="$HOME/.local/share/chrome-for-testing/chrome-linux64/chrome"
+```
+```r
+devtools::test(filter = "gui-e2e")   # also needs a JDK for rcdk
+```
+
+On Ubuntu 22.04 the required shared libs ship with the base system; if Chrome won't start, the
+script prints the `apt-get` packages to install (needs root).
+
 **CI** (`.github/workflows/`): `R-CMD-check` (macOS/Windows/Ubuntu × several R + xgboost
 versions), `test-coverage` (covr → codecov), `pkgdown` (→ GitHub Pages, on `main`), plus
 rhub and a version-increment check. The pkgdown site builds from
