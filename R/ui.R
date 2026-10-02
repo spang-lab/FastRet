@@ -152,8 +152,8 @@ ui_privacy_policy <- function() {
                 "    <h3>Web Analytics / Other Tracking</h3>",
                 "    <div>There are no other tracking methods.</div>",
                 "    <h3>Privacy Contact</h3>",
-                "    <a href='http://www.uni-regensburg.de/universitaet/datenschutzbeauftragte/index.html'>",
-                "        Datenschutzbeauftrage der Universit&auml;t",
+                "    <a href='https://www.uni-regensburg.de/universitaet/organisation/beauftragte/datenschutzbeauftragte'>",
+                "        Datenschutzbeauftragte der Universit&auml;t",
                 "    </a>",
                 "</div>"
             )
