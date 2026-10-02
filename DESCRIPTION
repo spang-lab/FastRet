@@ -1,6 +1,6 @@
 Package: FastRet
 Title: Retention Time Prediction in Liquid Chromatography
-Version: 1.5.1
+Version: 1.5.2
 Authors@R: c(
     person(given = "Tobias", family = "Schmidt", role = c("aut", "cre", "cph"), email = "tobias.schmidt331@gmail.com", comment = c(ORCID = "0000-0001-9681-9253")),
     person(given = "Christian", family = "Amesoeder", role = c("aut", "cph"), email = "christian-amesoeder@web.de", comment = c(ORCID = "0000-0002-1668-8351")),
@@ -14,13 +14,14 @@ Description: A framework for predicting retention times in liquid
     chromatography columns, predict retention times using existing models,
     or adjust existing models to account for altered experimental
     conditions. The provided functionalities can be accessed either via
-    the R console or via a graphical user interface. Related work: Bonini
-    et al. (2020) <doi:10.1021/acs.analchem.9b05765>.
+    the R console or via a graphical user interface. For details see
+    Fadil et al. (2026) <doi:10.1021/acs.jcim.6c01344>. Related work:
+    Bonini et al. (2020) <doi:10.1021/acs.analchem.9b05765>.
 License: GPL-3
 Language: en-US
 URL: https://github.com/spang-lab/FastRet/, https://spang-lab.github.io/FastRet/
 BugReports: https://github.com/spang-lab/FastRet/issues
-biocViews: Retention, Time, Chromotography, LC-MS
+biocViews: Retention, Time, Chromatography, LC-MS
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

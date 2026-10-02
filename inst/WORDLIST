@@ -12,8 +12,11 @@ BCUT
 BCUTc
 BCUTp
 BCUTw
+benchmarking
 Bonini
 bpdata
+BRT
+Bugfix
 Bugfixes
 catf
 Canonicalize
@@ -21,6 +24,7 @@ canonicalize
 canonicalized
 ccccc
 CDFeatures
+CDK
 CDNames
 celsius
 chromatographic
@@ -39,6 +43,7 @@ Dinesh
 Dockerfile
 doi
 DOI
+dropdown
 et
 FastRet
 FastRet's
@@ -56,7 +61,10 @@ github
 Github
 glmnet
 GlobalEnv
+greyed
+Gronwald
 hardcoded
+Heckscher
 HILIC
 Hiroshi
 https
@@ -68,6 +76,7 @@ InChIKey
 initalized
 io
 JavaSoft
+jcim
 JDK
 JDKs
 Kumar
@@ -75,10 +84,12 @@ lapply
 lm
 logdir
 LongestAliphaticChain
+md
 medoid
 Metabolomics
 mL
 molecules
+navbar
 OpenJDK
 openxlsx
 ORCID
@@ -86,6 +97,7 @@ Paolo
 parallelization
 params
 pBelow
+PJ
 pre
 prediction
 preprocess
@@ -94,6 +106,8 @@ preprocessed
 pretrained
 programmatically
 rcdk
+rCDK
+rds
 README
 readxl
 Recommmended
@@ -101,7 +115,9 @@ Regensburg
 reponse
 reproducibility
 reproducible
+reproducibly
 Retip
+Retip's
 rJava
 rowname
 rp
@@ -110,6 +126,9 @@ rpopt
 Rsquared
 RTs
 SDK
+Shiny's
+SMinf
+SMmax
 spang
 sprintf
 subprocesses
@@ -117,14 +136,17 @@ subworkers
 suiteable
 tmp
 tibble
+toscutil
 Tsugawa
 ubuntu
 UI
+uncached
 unclipped
 unadjusted
 unmappable
 unscaled
 Untargeted
+WAL
 whichjdk
 xgboost
 XGBoost
