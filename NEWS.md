@@ -7,6 +7,8 @@ Changes in this version:
 
 - Replaced a `structure(.Names = )` call in the GUI server code with `stats::setNames()`, fixing the R-devel CRAN check NOTE about deprecated special names.
 
+- The xgboost grid search (`tune_grid`) now passes the training objective inside `params`, as xgboost 3.x requires; xgboost had warned that the old form will become an error in a future version.
+
 - Added an `inst/CITATION` file and a reference to the FastRet paper (Fadil et al., 2026, <doi:10.1021/acs.jcim.6c01344>) in the package description and README.
 
 - Fixed the privacy-contact link in the GUI, which pointed to a page of the University of Regensburg that no longer exists.

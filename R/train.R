@@ -1124,12 +1124,11 @@ find_params_best <- function(
         FUN = function(i) {
             logf(sprintf("Evaluating parameter set %d/%d", i, nparams))
             cv_obj <- xgboost::xgb.cv(
-                params = as.list(param_grid[i, ]),
+                params = c(as.list(param_grid[i, ]), objective = "reg:squarederror"),
                 data = xgboost::xgb.DMatrix(X_mat, label = y, nthread = nthread),
                 nrounds = nrounds,
                 folds = foldids,
                 early_stopping_rounds = 20,
-                objective = "reg:squarederror",
                 verbose = if (verbose == 2) TRUE else FALSE
             )
             niter <- cv_obj$niter
