@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 FastRet comes with a GUI for easy and intuitive use. However, sometimes it's preferable to use FastRet programmatically. This vignette will show you how to use FastRet from the R command line.
 
-The four modes that are available via the FastRet GUI are [Train new Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#train-new-model), [Predict Retention Times](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#predict-retention-times), [Selective Measuring](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#selective-measuring) and [Adjust existing Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#adjusting-measurements-using-a-linear-model). Each of these modes has a corresponding function, which can be called from the command line. The mode-function mapping is as follows:
+The four modes that are available via the FastRet GUI are [Train new Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#train-new-model), [Predict Retention Times](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#predict-retention-times), [Selective Measuring](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#selective-measuring) and [Adjust existing Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#adjusting-existing-model). Each of these modes has a corresponding function, which can be called from the command line. The mode-function mapping is as follows:
 
 | Mode                    | Function                                                                                      |
 | ----------------------- | --------------------------------------------------------------------------------------------- |
