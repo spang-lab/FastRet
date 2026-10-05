@@ -1,0 +1,23 @@
+bibentry(
+    bibtype = "Article",
+    key = "Fadil2026",
+    header = "To cite FastRet in publications, please use:",
+    title = "{FastRet}: Fast and Simple Retention Time Prediction in Liquid Chromatography",
+    author = c(
+        person("Fadi", "Fadil"),
+        person("Tobias", "Schmidt"),
+        person("Christian", "Amesoeder"),
+        person("Simon", "Heckscher"),
+        person("Marian", "Schoen"),
+        person("Wolfram", "Gronwald"),
+        person(c("Peter", "J."), "Oefner"),
+        person("Rainer", "Spang"),
+        person("Katja", "Dettmer")
+    ),
+    journal = "Journal of Chemical Information and Modeling",
+    year = "2026",
+    volume = "66",
+    number = "16",
+    pages = "10412--10425",
+    doi = "10.1021/acs.jcim.6c01344"
+)

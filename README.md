@@ -1,5 +1,5 @@
 <!-- badges: start -->
-[![R CMD check](https://github.com/spang-lab/FastRet/workflows/r-cmd-check/badge.svg)](https://github.com/spang-lab/FastRet/actions)
+[![R CMD check](https://github.com/spang-lab/FastRet/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/spang-lab/FastRet/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/spang-lab/FastRet/branch/main/graph/badge.svg)](https://app.codecov.io/gh/spang-lab/FastRet?branch=main)
 [![CRAN Status Badge](https://www.r-pkg.org/badges/version/FastRet)](https://cran.r-project.org/package=FastRet)
 [![CRAN Downloads Badge](https://cranlogs.r-pkg.org/badges/grand-total/FastRet)](https://cranlogs.r-pkg.org/badges/grand-total/FastRet)
@@ -7,18 +7,26 @@
 
 # FastRet
 
-FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI). The package's key features include the ability to
+FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI). The package is described in [Fadil et al. (2026)](https://doi.org/10.1021/acs.jcim.6c01344). The package's key features include the ability to
 
 1. Train new predictive models specific for your own chromatography column
 2. Use pre-trained models to predict retention times of molecules
 3. Adjust pre-trained models to accommodate modifications in chromatography columns
+4. Select a small, representative subset of molecules to re-measure on a modified column (Selective Measuring), so that an adjustment model can be trained cheaply
 
 ## Installation
 
-You can install the development version of FastRet from [GitHub](https://github.com/) by entering the following commands in an R session:
+FastRet requires a Java SDK (for the chemical-descriptor package rcdk).
+Once Java is available, you can install the released version of FastRet from [CRAN](https://cran.r-project.org/package=FastRet) by entering the following commands in an R session:
 
 ```R
 if (Sys.which("java")[1] == "") stop("Please install a Java SDK first.")
+install.packages("FastRet")
+```
+
+To install the development version from [GitHub](https://github.com/spang-lab/FastRet) instead, use:
+
+```R
 install.packages("pak")
 pak::pkg_install("spang-lab/FastRet")
 ```
@@ -27,7 +35,9 @@ For further details see [Installation](https://spang-lab.github.io/FastRet/artic
 
 ## Usage
 
-The easiest way to use FastRet is through its GUI. To start the GUI, [install the package](#installation) and then run the following command in an interactive R terminal:
+The easiest way to use FastRet is through its GUI.
+A hosted version of the GUI is available at <https://fastret.spang-lab.de>, so you can try FastRet without installing anything.
+To start the GUI locally, [install the package](#installation) and then run the following command in an interactive R terminal:
 
 ```R
 FastRet::start_gui()
@@ -56,3 +66,11 @@ FastRet's documentation is available at [spang-lab.github.io/FastRet](https://sp
 - [Package Internals](https://spang-lab.github.io/FastRet/articles/Package-Internals.html)
 - [Contribution Guidelines](https://spang-lab.github.io/FastRet/articles/Contributing.html)
 - [Function Reference](https://spang-lab.github.io/FastRet/reference/index.html)
+
+## Citation
+
+To cite FastRet in publications, please use:
+
+Fadil F, Schmidt T, Amesoeder C, Heckscher S, Schoen M, Gronwald W, Oefner PJ, Spang R, Dettmer K (2026). FastRet: Fast and Simple Retention Time Prediction in Liquid Chromatography. *Journal of Chemical Information and Modeling*, 66(16), 10412-10425. [doi:10.1021/acs.jcim.6c01344](https://doi.org/10.1021/acs.jcim.6c01344)
+
+A BibTeX entry is available via `citation("FastRet")` in R.

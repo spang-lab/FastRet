@@ -59,7 +59,12 @@ Set the controls, then click **Train Model**:
 
 1.  **Data as xlsx file** --- your Excel file (columns `RT`, `NAME`, `SMILES`).
 2.  **Method** --- *XGBoost (recommended)* or *Lasso*.
-3.  **Seed** --- random seed. Keep the default (`42`) for reproducible results.
+3.  **Tune hyperparameters (grid search)** --- applies to XGBoost only. When
+    ticked, the XGBoost hyperparameters are chosen by a small cross-validated
+    grid search (8 combinations) instead of the fast default settings. This can
+    improve accuracy at the cost of some extra training time. It has no effect
+    for Lasso. Off by default.
+4.  **Seed** --- random seed. Keep the default (`42`) for reproducible results.
 
 The **Console Log** shows progress. When training finishes, the main panel shows
 the cross-validation and training plots and a table of predictions. For the
@@ -75,45 +80,6 @@ Two buttons then appear: **Save Model** (an `.rds` file) and **Save Predictor
 Set** (the training data with descriptors). To predict with your model, save it,
 switch to the **Predict** tab, upload it there, enter your SMILES and click
 *Predict* (see [Predict Retention Times](#predict-retention-times)).
-
-# Predict Retention Times
-
-Use a saved model to predict retention times for new molecules. To try it without
-training first, download the example model
-**[RP_lasso_model.rds](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds)**
-(a LASSO model trained on the example `RP.xlsx`).
-
-1.  Upload the model under *Upload a pretrained Model*.
-2.  Enter a SMILES in *Input SMILES*, or upload an Excel file (columns `NAME`,
-    `SMILES`) under *Upload SMILES as xlsx*.
-3.  Click *Predict*.
-
-The predictions appear as a table in the main panel. Click *Save predictions* to
-download them as an Excel file.
-
-<a href="GUI-Usage/predict.png"><img src="GUI-Usage/predict.png" alt="FastRet GUI Predict tab showing model upload, SMILES input and the table of predicted retention times" width="100%" /></a>
-
-# Adjusting existing model
-
-If you re-measured some metabolites on a new column that were also measured on
-the original one, use the **Adjust** tab to adapt an existing model to the new
-column. An example re-measurement file (25 metabolites from `RP.xlsx` measured
-under a steeper gradient) is available as
-**[RP_adj.xlsx](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx)**.
-
-1.  Upload the model under *Upload a pretrained Model*.
-2.  Upload the re-measured metabolites (columns `RT`, `NAME`, `SMILES`) under
-    *Data for prediction adjustment as xlsx file*.
-3.  Choose the **Adjustment method**: *Lasso (recommended)*, *Linear model* or
-    *XGBoost*. Lasso and XGBoost use the base retention time and the molecular
-    descriptors, so they can capture compound-specific shifts; the linear model
-    fits a straight-line correction from the base retention time alone.
-4.  Click *Adjust Model*.
-
-The main panel shows the performance of the adjusted model. Click *Save adjusted
-model* to download it. Use it like any other model on the **Predict** tab.
-
-<a href="GUI-Usage/adjust.png"><img src="GUI-Usage/adjust.png" alt="FastRet GUI Adjust tab showing model and data upload, the adjustment-method selector and the cross-validation and adjusted-model performance plots" width="100%" /></a>
 
 # Selective Measuring
 
@@ -139,3 +105,51 @@ selected molecules on the new column, then use them to
 [adjust your model](#adjusting-existing-model).
 
 <a href="GUI-Usage/select.png"><img src="GUI-Usage/select.png" alt="FastRet GUI Select tab showing the k Cluster, variant and seed inputs next to the table of selected molecules and the full clustering" width="100%" /></a>
+
+# Adjusting existing model
+
+If you re-measured some metabolites on a new column that were also measured on
+the original one, use the **Adjust** tab to adapt an existing model to the new
+column. An example re-measurement file (25 metabolites from `RP.xlsx` measured
+under a steeper gradient) is available as
+**[RP_adj.xlsx](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx)**.
+
+1.  Upload the model under *Upload a pretrained Model*.
+2.  Upload the re-measured metabolites (columns `RT`, `NAME`, `SMILES`) under
+    *Data for prediction adjustment as xlsx file*.
+3.  Choose the **Adjustment method**: *Lasso (recommended)*, *Linear model* or
+    *XGBoost*. Lasso and XGBoost use the base retention time and the molecular
+    descriptors, so they can capture compound-specific shifts; the linear model
+    fits a straight-line correction from the base retention time alone.
+4.  Choose the **Compound matching**, i.e. how each re-measured compound is
+    paired with the same compound in the model's original training data:
+    *Automatic (recommended)* uses the `INCHIKEY` column when it is present and
+    complete in both datasets and falls back to `NAME` + `SMILES` otherwise;
+    *InChIKey* matches on the InChIKey only; *Name* matches on the compound name
+    only (useful when there are no InChIKeys and the SMILES strings differ
+    between datasets); *Name + SMILES* requires both to agree. Every
+    re-measured compound must be found in the training data, otherwise the
+    adjustment stops with an error.
+5.  Click *Adjust Model*.
+
+The main panel shows the performance of the adjusted model. Click *Save adjusted
+model* to download it. Use it like any other model on the **Predict** tab.
+
+<a href="GUI-Usage/adjust.png"><img src="GUI-Usage/adjust.png" alt="FastRet GUI Adjust tab showing model and data upload, the adjustment-method selector and the cross-validation and adjusted-model performance plots" width="100%" /></a>
+
+# Predict Retention Times
+
+Use a saved model to predict retention times for new molecules. To try it without
+training first, download the example model
+**[RP_lasso_model.rds](https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds)**
+(a LASSO model trained on the example `RP.xlsx`).
+
+1.  Upload the model under *Upload a pretrained Model*.
+2.  Enter a SMILES in *Input SMILES*, or upload an Excel file (columns `NAME`,
+    `SMILES`) under *Upload SMILES as xlsx*.
+3.  Click *Predict*.
+
+The predictions appear as a table in the main panel. Click *Save predictions* to
+download them as an Excel file.
+
+<a href="GUI-Usage/predict.png"><img src="GUI-Usage/predict.png" alt="FastRet GUI Predict tab showing model upload, SMILES input and the table of predicted retention times" width="100%" /></a>

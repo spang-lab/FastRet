@@ -145,7 +145,7 @@ init_reactives <- function(SE) {
         if (is.null(smiles) && is.null(df)) return(NULL)
         if (is.null(smiles)) return(df)
         if (is.null(df)) return(smiles)
-        row1 <- structure(rep(NA, ncol(df)), .Names = colnames(df))
+        row1 <- stats::setNames(rep(NA, ncol(df)), colnames(df))
         row1[names(smiles)] <- smiles
         dfCombined <- rbind(row1, df)
         return(dfCombined)
