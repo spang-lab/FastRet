@@ -7,7 +7,7 @@
 
 # FastRet
 
-FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI). The package's key features include the ability to
+FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI). The package is described in [Fadil et al. (2026)](https://doi.org/10.1021/acs.jcim.6c01344). The package's key features include the ability to
 
 1. Train new predictive models specific for your own chromatography column
 2. Use pre-trained models to predict retention times of molecules
