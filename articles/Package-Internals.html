@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,18 +73,27 @@
 <div class="section level2">
 <h2 id="model-training">Model Training<a class="anchor" aria-label="anchor" href="#model-training"></a>
 </h2>
-<p>Model training is implemented in the <code>train_model</code>
-function. It first tries out several different parameter values in cross
-validation, remembers the best parameter value and then uses this value
-to train a final model on the full dataset. For further details see the
-function documentation of <a href="https://spang-lab.github.io/FastRet/reference/train_frm.html">train_model</a>.</p>
+<p>Model training is implemented in the <code>train_frm</code> function.
+It computes chemical descriptors for all molecules, trains a final model
+on the full dataset and estimates its performance by cross-validation.
+Hyperparameters such as the Lasso penalty or the number of XGBoost
+boosting rounds are chosen by internal cross-validation; for XGBoost, a
+grid search over further hyperparameters can be enabled via argument
+<code>tune_grid</code>. To avoid data leakage, descriptor filtering and
+the generation of polynomial and interaction terms are repeated inside
+each cross-validation fold. For further details see the function
+documentation of <a href="https://spang-lab.github.io/FastRet/reference/train_frm.html">train_frm</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="reactive-graph">Reactive Graph<a class="anchor" aria-label="anchor" href="#reactive-graph"></a>
 </h2>
 <p>FastRet is a reactive web app, that means most of its calculations
-are triggered as reaction to user inputs. The reactive graphs for
-FastRet’s four modes are shown below, with</p>
+are triggered as reaction to user inputs.</p>
+<p>Note that the figures below predate the GUI rework of FastRet 1.4.0
+and have not been updated since, so some node names and connections may
+differ from the current implementation.</p>
+<p>The reactive graphs for FastRet’s four modes are shown below,
+with</p>
 <ul>
 <li>Action buttons shown as red rectangles</li>
 <li>Upload buttons shown as orange rectangles</li>
@@ -137,7 +146,7 @@ writes an output value to the second node</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

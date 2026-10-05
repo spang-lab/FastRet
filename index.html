@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Retention Time Prediction in Liquid Chromatography">
-<meta name="description" content="A framework for predicting retention times in liquid chromatography. Users can train custom models for specific chromatography columns, predict retention times using existing models, or adjust existing models to account for altered experimental conditions. The provided functionalities can be accessed either via the R console or via a graphical user interface. Related work: Bonini et al. (2020) &lt;doi:10.1021/acs.analchem.9b05765&gt;.">
-<meta property="og:description" content="A framework for predicting retention times in liquid chromatography. Users can train custom models for specific chromatography columns, predict retention times using existing models, or adjust existing models to account for altered experimental conditions. The provided functionalities can be accessed either via the R console or via a graphical user interface. Related work: Bonini et al. (2020) &lt;doi:10.1021/acs.analchem.9b05765&gt;.">
+<meta name="description" content="A framework for predicting retention times in liquid chromatography. Users can train custom models for specific chromatography columns, predict retention times using existing models, or adjust existing models to account for altered experimental conditions. The provided functionalities can be accessed either via the R console or via a graphical user interface. For details see Fadil et al. (2026) &lt;doi:10.1021/acs.jcim.6c01344&gt;. Related work: Bonini et al. (2020) &lt;doi:10.1021/acs.analchem.9b05765&gt;.">
+<meta property="og:description" content="A framework for predicting retention times in liquid chromatography. Users can train custom models for specific chromatography columns, predict retention times using existing models, or adjust existing models to account for altered experimental conditions. The provided functionalities can be accessed either via the R console or via a graphical user interface. For details see Fadil et al. (2026) &lt;doi:10.1021/acs.jcim.6c01344&gt;. Related work: Bonini et al. (2020) &lt;doi:10.1021/acs.analchem.9b05765&gt;.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,27 +61,31 @@
 <div class="section level1">
 <div class="page-header"><h1 id="fastret">FastRet<a class="anchor" aria-label="anchor" href="#fastret"></a>
 </h1></div>
-<p>FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI). The package’s key features include the ability to</p>
+<p>FastRet is an R package for predicting retention times in liquid chromatography. It can be used through the R console or through a graphical user interface (GUI). The package is described in <a href="https://doi.org/10.1021/acs.jcim.6c01344" class="external-link">Fadil et al. (2026)</a>. The package’s key features include the ability to</p>
 <ol style="list-style-type: decimal">
 <li>Train new predictive models specific for your own chromatography column</li>
 <li>Use pre-trained models to predict retention times of molecules</li>
 <li>Adjust pre-trained models to accommodate modifications in chromatography columns</li>
+<li>Select a small, representative subset of molecules to re-measure on a modified column (Selective Measuring), so that an adjustment model can be trained cheaply</li>
 </ol>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of FastRet from <a href="https://github.com/" class="external-link">GitHub</a> by entering the following commands in an R session:</p>
+<p>FastRet requires a Java SDK (for the chemical-descriptor package rcdk). Once Java is available, you can install the released version of FastRet from <a href="https://cran.r-project.org/package=FastRet" class="external-link">CRAN</a> by entering the following commands in an R session:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.which.html" class="external-link">Sys.which</a></span><span class="op">(</span><span class="st">"java"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"Please install a Java SDK first."</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"FastRet"</span><span class="op">)</span></span></code></pre></div>
+<p>To install the development version from <a href="https://github.com/spang-lab/FastRet" class="external-link">GitHub</a> instead, use:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"spang-lab/FastRet"</span><span class="op">)</span></span></code></pre></div>
 <p>For further details see <a href="https://spang-lab.github.io/FastRet/articles/Installation.html">Installation</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>The easiest way to use FastRet is through its GUI. To start the GUI, <a href="#installation">install the package</a> and then run the following command in an interactive R terminal:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>The easiest way to use FastRet is through its GUI. A hosted version of the GUI is available at <a href="https://fastret.spang-lab.de" class="external-link uri">https://fastret.spang-lab.de</a>, so you can try FastRet without installing anything. To start the GUI locally, <a href="#installation">install the package</a> and then run the following command in an interactive R terminal:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">FastRet</span><span class="fu">::</span><span class="fu"><a href="reference/start_gui.html">start_gui</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>After running the above code, you should see an output like</p>
 <pre><code>Listening on http://localhost:8080</code></pre>
@@ -102,6 +106,13 @@
 <li><a href="https://spang-lab.github.io/FastRet/articles/Contributing.html">Contribution Guidelines</a></li>
 <li><a href="https://spang-lab.github.io/FastRet/reference/index.html">Function Reference</a></li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>To cite FastRet in publications, please use:</p>
+<p>Fadil F, Schmidt T, Amesoeder C, Heckscher S, Schoen M, Gronwald W, Oefner PJ, Spang R, Dettmer K (2026). FastRet: Fast and Simple Retention Time Prediction in Liquid Chromatography. <em>Journal of Chemical Information and Modeling</em>, 66(16), 10412-10425. <a href="https://doi.org/10.1021/acs.jcim.6c01344" class="external-link">doi:10.1021/acs.jcim.6c01344</a></p>
+<p>A BibTeX entry is available via <code>citation("FastRet")</code> in R.</p>
 </div>
 </div>
 
@@ -144,7 +155,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/spang-lab/FastRet/actions" class="external-link"><img src="https://github.com/spang-lab/FastRet/workflows/r-cmd-check/badge.svg" alt="R CMD check"></a></li>
+<li><a href="https://github.com/spang-lab/FastRet/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/spang-lab/FastRet/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R CMD check"></a></li>
 <li><a href="https://app.codecov.io/gh/spang-lab/FastRet?branch=main" class="external-link"><img src="https://codecov.io/gh/spang-lab/FastRet/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://cran.r-project.org/package=FastRet" class="external-link"><img src="https://www.r-pkg.org/badges/version/FastRet" alt="CRAN Status Badge"></a></li>
 <li><a href="https://cranlogs.r-pkg.org/badges/grand-total/FastRet" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/FastRet" alt="CRAN Downloads Badge"></a></li>
@@ -160,7 +171,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

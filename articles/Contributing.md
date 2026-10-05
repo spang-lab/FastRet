@@ -13,21 +13,46 @@ To contribute to this package, you should follow the below steps:
 5.  Create a pull request at
     [github.com/spang-lab/FastRet/pulls](https://github.com/spang-lab/FastRet/pulls)
 
+## Requirements
+
+FastRet computes chemical descriptors with the `rcdk` package, which
+needs a Java Development Kit (JDK) version 11 or higher. See the
+[Installation](https://spang-lab.github.io/FastRet/articles/Installation.html)
+article for how to set it up.
+
+The GUI end-to-end tests in `tests/testthat/test-gui-e2e.R` drive the
+Shiny app through a headless Chrome browser via the suggested packages
+`chromote` and `shinytest2`. They are skipped on CRAN (i.e. unless
+`NOT_CRAN=true`) and whenever no Chrome or Chromium binary is found. To
+run them locally without root permissions, install Chrome for Testing
+with the script
+[misc/scripts/install-chrome-for-testing.sh](https://github.com/spang-lab/FastRet/blob/main/misc/scripts/install-chrome-for-testing.sh),
+point `chromote` at it via the environment variable `CHROMOTE_CHROME`
+and set `NOT_CRAN=true`:
+
+``` bash
+bash misc/scripts/install-chrome-for-testing.sh
+export CHROMOTE_CHROME="$HOME/.local/share/chrome-for-testing/chrome-linux64/chrome"
+export NOT_CRAN=true
+Rscript -e 'devtools::test(filter = "gui-e2e")'
+```
+
 ## Making Edits
 
 Things you can update, are:
 
 1.  Function code in folder
-    [R](https://spang-lab.github.io/FastRet/articles/R)
+    [R](https://github.com/spang-lab/FastRet/tree/main/R)
 2.  Function documentation in folder
-    [R](https://spang-lab.github.io/FastRet/articles/R)
-3.  Package documentation in folder `vignettes`
+    [R](https://github.com/spang-lab/FastRet/tree/main/R)
+3.  Package documentation in folder
+    [vignettes](https://github.com/spang-lab/FastRet/tree/main/vignettes)
 4.  Test cases in folder
-    [tests](https://spang-lab.github.io/FastRet/articles/tests)
+    [tests](https://github.com/spang-lab/FastRet/tree/main/tests)
 5.  Dependencies in file
-    [DESCRIPTION](https://spang-lab.github.io/FastRet/articles/DESCRIPTION)
+    [DESCRIPTION](https://github.com/spang-lab/FastRet/blob/main/DESCRIPTION)
 6.  Authors in file
-    [DESCRIPTION](https://spang-lab.github.io/FastRet/articles/DESCRIPTION)
+    [DESCRIPTION](https://github.com/spang-lab/FastRet/blob/main/DESCRIPTION)
 
 Whenever you update any of those things, you should run the below
 commands to check that everything is still working as expected:
@@ -44,7 +69,13 @@ devtools::install() # Install as required by next command
 pkgdown::build_site() # Build website in docs folder
 ```
 
-After doing these steps, you can push your changes to Github.
+Every pull request to `main` must increase the version number in
+[DESCRIPTION](https://github.com/spang-lab/FastRet/blob/main/DESCRIPTION);
+this is enforced by a CI check. Add a matching entry to
+[NEWS.md](https://github.com/spang-lab/FastRet/blob/main/NEWS.md)
+describing your changes.
+
+After doing these steps, you can push your changes to GitHub.
 
 ## Releasing to CRAN
 
@@ -54,7 +85,9 @@ package to CRAN, they should:
 1.  Check whether the [release
     requirements](https://r-pkgs.org/release.html#sec-release-initial)
     are fulfilled
-2.  Use the following commands to do a final check of the package and
+2.  Make sure the version in `DESCRIPTION` has been bumped and `NEWS.md`
+    has an entry for it
+3.  Use the following commands to do a final check of the package and
     release it to CRAN
 
 ``` r
@@ -92,7 +125,14 @@ devtools::check_mac_release()
 
 # Update cran-comments.md with the results of the above checks.
 
-# Use the following command to submit the package to CRAN of submit via the web
+# Use the following command to submit the package to CRAN or submit via the web
 # interface available at https://cran.r-project.org/submit.html.
 devtools::submit_cran()
 ```
+
+After CRAN has accepted the submission:
+
+1.  Tag the released commit as `vX.Y.Z`
+    (e.g. `git tag v1.5.2 && git push origin v1.5.2`)
+2.  Create a GitHub release for the tag, using the corresponding
+    `NEWS.md` entry as release notes

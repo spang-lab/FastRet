@@ -1,19 +1,22 @@
 # Installation
 
-Installation of FastRet consist of the following three steps, which are
+Installation of FastRet consists of the following two steps, which are
 explained in detail in the following sections.
 
 1.  Install Java Development Kit (JDK) version 11 or higher
-2.  Use `install.packages("pak")` to install the R package manager `pak`
-    from CRAN
-3.  Use `pak::pkg_install("FastRet")` to install `FastRet` from the
-    GitHub repository
+2.  Use `install.packages("FastRet")` to install the released version of
+    FastRet from CRAN (or `pak::pkg_install("spang-lab/FastRet")` to
+    install the development version from GitHub)
+
+If you only want to try FastRet, you can also use the hosted version of
+the GUI at <https://fastret.spang-lab.de>, which requires no
+installation at all.
 
 ## Install Java Development Kit (JDK)
 
 FastRet uses the `rJava` package, which itself requires the Java
 Development Kit (JDK) version 11 or higher. You can test whether you
-java a sufficiently high version of JDK already installed on your system
+have a sufficiently high version of JDK already installed on your system
 by entering the following command in your terminal.
 
 ``` bash
@@ -27,7 +30,7 @@ Group](https://adoptium.net/de/temurin/releases) or
 For a list of vendors providing JDKs, see
 [whichjdk.com](https://whichjdk.com/).
 
-When installing a JDK, there a few things to look out for, e.g.:
+When installing a JDK, there are a few things to look out for, e.g.:
 
 1.  Windows users should activate the update of “JavaSoft registry keys”
     during the installation process. This is necessary for the `rJava`
@@ -37,23 +40,25 @@ When installing a JDK, there a few things to look out for, e.g.:
 3.  Linux users should run `R CMD javareconf` after installing the JDK
     to make sure that R can find the JDK.
 
-## Install the R package manager `pak`
+## Install FastRet
 
-This can be done by entering the following command in an R session:
+To install the released version of FastRet from CRAN, enter the
+following command in an R session:
+
+``` r
+
+install.packages("FastRet")
+```
+
+To install the development version of FastRet from the [GitHub
+repository](https://github.com/spang-lab/FastRet) instead, first install
+the R package manager `pak` from CRAN and then use it to install
+FastRet:
 
 ``` r
 
 install.packages("pak")
-```
-
-## Install FastRet
-
-To install FastRet from the GitHub repository, enter the following
-command in an R session:
-
-``` r
-
-pak::pkg_install("FastRet")
+pak::pkg_install("spang-lab/FastRet")
 ```
 
 ## Troubleshooting
@@ -83,6 +88,6 @@ If the installation of the `rJava` package fails:
 3.  Run [`library("rJava")`](https://www.rforge.net/rJava/) to ensure
     that the package can be loaded.
 
-If this doesn’t solve your problem, have a look the [Troubleshooting
+If this doesn’t solve your problem, have a look at the [Troubleshooting
 Guide of the rJava
 package](https://github.com/s-u/rJava?tab=readme-ov-file#troubleshooting).

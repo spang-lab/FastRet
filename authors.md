@@ -22,16 +22,21 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/spang-lab/FastRet/blob/main/DESCRIPTION)
+[`inst/CITATION`](https://github.com/spang-lab/FastRet/blob/main/inst/CITATION)
 
-Schmidt T, Amesoeder C, Schoen M, Fadil F, Dettmer K (2026). *FastRet:
-Retention Time Prediction in Liquid Chromatography*. R package version
-1.5.1, <https://github.com/spang-lab/FastRet/>.
+Fadil F, Schmidt T, Amesoeder C, Heckscher S, Schoen M, Gronwald W,
+Oefner PJ, Spang R, Dettmer K (2026). “FastRet: Fast and Simple
+Retention Time Prediction in Liquid Chromatography.” *Journal of
+Chemical Information and Modeling*, **66**(16), 10412–10425.
+[doi:10.1021/acs.jcim.6c01344](https://doi.org/10.1021/acs.jcim.6c01344).
 
-    @Manual{,
-      title = {FastRet: Retention Time Prediction in Liquid Chromatography},
-      author = {Tobias Schmidt and Christian Amesoeder and Marian Schoen and Fadi Fadil and Katja Dettmer},
+    @Article{Fadil2026,
+      title = {{FastRet}: Fast and Simple Retention Time Prediction in Liquid Chromatography},
+      author = {Fadi Fadil and Tobias Schmidt and Christian Amesoeder and Simon Heckscher and Marian Schoen and Wolfram Gronwald and Peter J. Oefner and Rainer Spang and Katja Dettmer},
+      journal = {Journal of Chemical Information and Modeling},
       year = {2026},
-      note = {R package version 1.5.1},
-      url = {https://github.com/spang-lab/FastRet/},
+      volume = {66},
+      number = {16},
+      pages = {10412--10425},
+      doi = {10.1021/acs.jcim.6c01344},
     }

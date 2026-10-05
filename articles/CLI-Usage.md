@@ -11,7 +11,7 @@ Times](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#predict-reten
 [Selective
 Measuring](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#selective-measuring)
 and [Adjust existing
-Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#adjusting-measurements-using-a-linear-model).
+Model](https://spang-lab.github.io/FastRet/articles/GUI-Usage.html#adjusting-existing-model).
 Each of these modes has a corresponding function, which can be called
 from the command line. The mode-function mapping is as follows:
 

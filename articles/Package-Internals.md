@@ -2,18 +2,28 @@
 
 ## Model Training
 
-Model training is implemented in the `train_model` function. It first
-tries out several different parameter values in cross validation,
-remembers the best parameter value and then uses this value to train a
-final model on the full dataset. For further details see the function
+Model training is implemented in the `train_frm` function. It computes
+chemical descriptors for all molecules, trains a final model on the full
+dataset and estimates its performance by cross-validation.
+Hyperparameters such as the Lasso penalty or the number of XGBoost
+boosting rounds are chosen by internal cross-validation; for XGBoost, a
+grid search over further hyperparameters can be enabled via argument
+`tune_grid`. To avoid data leakage, descriptor filtering and the
+generation of polynomial and interaction terms are repeated inside each
+cross-validation fold. For further details see the function
 documentation of
-[train_model](https://spang-lab.github.io/FastRet/reference/train_frm.html).
+[train_frm](https://spang-lab.github.io/FastRet/reference/train_frm.html).
 
 ## Reactive Graph
 
 FastRet is a reactive web app, that means most of its calculations are
-triggered as reaction to user inputs. The reactive graphs for FastRet’s
-four modes are shown below, with
+triggered as reaction to user inputs.
+
+Note that the figures below predate the GUI rework of FastRet 1.4.0 and
+have not been updated since, so some node names and connections may
+differ from the current implementation.
+
+The reactive graphs for FastRet’s four modes are shown below, with
 
 - Action buttons shown as red rectangles
 - Upload buttons shown as orange rectangles

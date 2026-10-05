@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,6 +124,12 @@ is available via <code><a href="https://rdrr.io/r/base/system.file.html" class="
 <strong>Method</strong> — <em>XGBoost (recommended)</em> or
 <em>Lasso</em>.</li>
 <li>
+<strong>Tune hyperparameters (grid search)</strong> — applies to
+XGBoost only. When ticked, the XGBoost hyperparameters are chosen by a
+small cross-validated grid search (8 combinations) instead of the fast
+default settings. This can improve accuracy at the cost of some extra
+training time. It has no effect for Lasso. Off by default.</li>
+<li>
 <strong>Seed</strong> — random seed. Keep the default
 (<code>42</code>) for reproducible results.</li>
 </ol>
@@ -138,48 +144,6 @@ article.</p>
 training data with descriptors). To predict with your model, save it,
 switch to the <strong>Predict</strong> tab, upload it there, enter your
 SMILES and click <em>Predict</em> (see <a href="#predict-retention-times">Predict Retention Times</a>).</p>
-</div>
-<div class="section level2">
-<h2 id="predict-retention-times">Predict Retention Times<a class="anchor" aria-label="anchor" href="#predict-retention-times"></a>
-</h2>
-<p>Use a saved model to predict retention times for new molecules. To
-try it without training first, download the example model <strong><a href="https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds" class="external-link">RP_lasso_model.rds</a></strong>
-(a LASSO model trained on the example <code>RP.xlsx</code>).</p>
-<ol style="list-style-type: decimal">
-<li>Upload the model under <em>Upload a pretrained Model</em>.</li>
-<li>Enter a SMILES in <em>Input SMILES</em>, or upload an Excel file
-(columns <code>NAME</code>, <code>SMILES</code>) under <em>Upload SMILES
-as xlsx</em>.</li>
-<li>Click <em>Predict</em>.</li>
-</ol>
-<p>The predictions appear as a table in the main panel. Click <em>Save
-predictions</em> to download them as an Excel file.</p>
-<p><a href="GUI-Usage/predict.png"><img src="GUI-Usage/predict.png" alt="FastRet GUI Predict tab showing model upload, SMILES input and the table of predicted retention times" width="100%"></a></p>
-</div>
-<div class="section level2">
-<h2 id="adjusting-existing-model">Adjusting existing model<a class="anchor" aria-label="anchor" href="#adjusting-existing-model"></a>
-</h2>
-<p>If you re-measured some metabolites on a new column that were also
-measured on the original one, use the <strong>Adjust</strong> tab to
-adapt an existing model to the new column. An example re-measurement
-file (25 metabolites from <code>RP.xlsx</code> measured under a steeper
-gradient) is available as <strong><a href="https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx" class="external-link">RP_adj.xlsx</a></strong>.</p>
-<ol style="list-style-type: decimal">
-<li>Upload the model under <em>Upload a pretrained Model</em>.</li>
-<li>Upload the re-measured metabolites (columns <code>RT</code>,
-<code>NAME</code>, <code>SMILES</code>) under <em>Data for prediction
-adjustment as xlsx file</em>.</li>
-<li>Choose the <strong>Adjustment method</strong>: <em>Lasso
-(recommended)</em>, <em>Linear model</em> or <em>XGBoost</em>. Lasso and
-XGBoost use the base retention time and the molecular descriptors, so
-they can capture compound-specific shifts; the linear model fits a
-straight-line correction from the base retention time alone.</li>
-<li>Click <em>Adjust Model</em>.</li>
-</ol>
-<p>The main panel shows the performance of the adjusted model. Click
-<em>Save adjusted model</em> to download it. Use it like any other model
-on the <strong>Predict</strong> tab.</p>
-<p><a href="GUI-Usage/adjust.png"><img src="GUI-Usage/adjust.png" alt="FastRet GUI Adjust tab showing model and data upload, the adjustment-method selector and the cross-validation and adjusted-model performance plots" width="100%"></a></p>
 </div>
 <div class="section level2">
 <h2 id="selective-measuring">Selective Measuring<a class="anchor" aria-label="anchor" href="#selective-measuring"></a>
@@ -211,6 +175,58 @@ molecules and their clusters.</li>
 Measure the selected molecules on the new column, then use them to <a href="#adjusting-existing-model">adjust your model</a>.</p>
 <p><a href="GUI-Usage/select.png"><img src="GUI-Usage/select.png" alt="FastRet GUI Select tab showing the k Cluster, variant and seed inputs next to the table of selected molecules and the full clustering" width="100%"></a></p>
 </div>
+<div class="section level2">
+<h2 id="adjusting-existing-model">Adjusting existing model<a class="anchor" aria-label="anchor" href="#adjusting-existing-model"></a>
+</h2>
+<p>If you re-measured some metabolites on a new column that were also
+measured on the original one, use the <strong>Adjust</strong> tab to
+adapt an existing model to the new column. An example re-measurement
+file (25 metabolites from <code>RP.xlsx</code> measured under a steeper
+gradient) is available as <strong><a href="https://github.com/spang-lab/FastRet/releases/download/example-data/RP_adj.xlsx" class="external-link">RP_adj.xlsx</a></strong>.</p>
+<ol style="list-style-type: decimal">
+<li>Upload the model under <em>Upload a pretrained Model</em>.</li>
+<li>Upload the re-measured metabolites (columns <code>RT</code>,
+<code>NAME</code>, <code>SMILES</code>) under <em>Data for prediction
+adjustment as xlsx file</em>.</li>
+<li>Choose the <strong>Adjustment method</strong>: <em>Lasso
+(recommended)</em>, <em>Linear model</em> or <em>XGBoost</em>. Lasso and
+XGBoost use the base retention time and the molecular descriptors, so
+they can capture compound-specific shifts; the linear model fits a
+straight-line correction from the base retention time alone.</li>
+<li>Choose the <strong>Compound matching</strong>, i.e. how each
+re-measured compound is paired with the same compound in the model’s
+original training data: <em>Automatic (recommended)</em> uses the
+<code>INCHIKEY</code> column when it is present and complete in both
+datasets and falls back to <code>NAME</code> + <code>SMILES</code>
+otherwise; <em>InChIKey</em> matches on the InChIKey only; <em>Name</em>
+matches on the compound name only (useful when there are no InChIKeys
+and the SMILES strings differ between datasets); <em>Name + SMILES</em>
+requires both to agree. Every re-measured compound must be found in the
+training data, otherwise the adjustment stops with an error.</li>
+<li>Click <em>Adjust Model</em>.</li>
+</ol>
+<p>The main panel shows the performance of the adjusted model. Click
+<em>Save adjusted model</em> to download it. Use it like any other model
+on the <strong>Predict</strong> tab.</p>
+<p><a href="GUI-Usage/adjust.png"><img src="GUI-Usage/adjust.png" alt="FastRet GUI Adjust tab showing model and data upload, the adjustment-method selector and the cross-validation and adjusted-model performance plots" width="100%"></a></p>
+</div>
+<div class="section level2">
+<h2 id="predict-retention-times">Predict Retention Times<a class="anchor" aria-label="anchor" href="#predict-retention-times"></a>
+</h2>
+<p>Use a saved model to predict retention times for new molecules. To
+try it without training first, download the example model <strong><a href="https://github.com/spang-lab/FastRet/releases/download/example-data/RP_lasso_model.rds" class="external-link">RP_lasso_model.rds</a></strong>
+(a LASSO model trained on the example <code>RP.xlsx</code>).</p>
+<ol style="list-style-type: decimal">
+<li>Upload the model under <em>Upload a pretrained Model</em>.</li>
+<li>Enter a SMILES in <em>Input SMILES</em>, or upload an Excel file
+(columns <code>NAME</code>, <code>SMILES</code>) under <em>Upload SMILES
+as xlsx</em>.</li>
+<li>Click <em>Predict</em>.</li>
+</ol>
+<p>The predictions appear as a table in the main panel. Click <em>Save
+predictions</em> to download them as an Excel file.</p>
+<p><a href="GUI-Usage/predict.png"><img src="GUI-Usage/predict.png" alt="FastRet GUI Predict tab showing model upload, SMILES input and the table of predicted retention times" width="100%"></a></p>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
@@ -222,7 +238,7 @@ Measure the selected molecules on the new column, then use them to <a href="#adj
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

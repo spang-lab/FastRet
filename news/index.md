@@ -1,5 +1,44 @@
 # Changelog
 
+## FastRet 1.5.2
+
+This is the first CRAN release since 1.3.0. It includes all changes
+listed below for versions 1.3.1 to 1.5.1, notably the 1.3.7 fix:
+cross-validation in
+[`train_frm()`](https://spang-lab.github.io/FastRet/reference/train_frm.md)
+no longer requires the suggested package `toscutil`, so model training
+no longer fails in a plain CRAN install without Suggests packages.
+
+Changes in this version:
+
+- Replaced a `structure(.Names = )` call in the GUI server code with
+  [`stats::setNames()`](https://rdrr.io/r/stats/setNames.html), fixing
+  the R-devel CRAN check NOTE about deprecated special names.
+
+- The xgboost grid search (`tune_grid`) now passes the training
+  objective inside `params`, as xgboost 3.x requires; xgboost had warned
+  that the old form will become an error in a future version.
+
+- Added an `inst/CITATION` file and a reference to the FastRet paper
+  (Fadil et al., 2026, <doi:10.1021/acs.jcim.6c01344>) in the package
+  description and README.
+
+- Fixed the privacy-contact link in the GUI, which pointed to a page of
+  the University of Regensburg that no longer exists.
+
+- Fixed a typo in the `biocViews` field of `DESCRIPTION`.
+
+- README: installation now leads with the CRAN release, mentions the
+  hosted GUI at <https://fastret.spang-lab.de> and lists Selective
+  Measuring as a feature.
+
+- Vignettes: corrected installation instructions, broken anchors,
+  outdated function names and typos; documented the
+  hyperparameter-tuning checkbox (Train) and the compound-matching
+  option (Adjust) of the GUI; extended the contribution guidelines.
+
+- CI: updated GitHub Actions to their current major versions.
+
 ## FastRet 1.5.1
 
 - The descriptor-cache builder (`updateCachedCDs()`) and the
@@ -11,8 +50,7 @@
 
 ## FastRet 1.5.0
 
-Example datasets & models refresh (see
-`issues/open/03_Update_Datasets.md`):
+Example datasets & models refresh:
 
 1.  The bundled `RP` dataset (and `inst/extdata/RP.xlsx`) was
     regenerated from the published `Measurements_v10P.xlsx` and now

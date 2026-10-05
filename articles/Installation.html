@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,28 +70,32 @@
 
     
     
-<p>Installation of FastRet consist of the following three steps, which
+<p>Installation of FastRet consists of the following two steps, which
 are explained in detail in the following sections.</p>
 <ol style="list-style-type: decimal">
 <li>Install Java Development Kit (JDK) version 11 or higher</li>
-<li>Use <code>install.packages("pak")</code> to install the R package
-manager <code>pak</code> from CRAN</li>
-<li>Use <code>pak::pkg_install("FastRet")</code> to install
-<code>FastRet</code> from the GitHub repository</li>
+<li>Use <code>install.packages("FastRet")</code> to install the released
+version of FastRet from CRAN (or
+<code>pak::pkg_install("spang-lab/FastRet")</code> to install the
+development version from GitHub)</li>
 </ol>
+<p>If you only want to try FastRet, you can also use the hosted version
+of the GUI at <a href="https://fastret.spang-lab.de" class="external-link uri">https://fastret.spang-lab.de</a>, which requires no
+installation at all.</p>
 <div class="section level2">
 <h2 id="install-java-development-kit-jdk">Install Java Development Kit (JDK)<a class="anchor" aria-label="anchor" href="#install-java-development-kit-jdk"></a>
 </h2>
 <p>FastRet uses the <code>rJava</code> package, which itself requires
 the Java Development Kit (JDK) version 11 or higher. You can test
-whether you java a sufficiently high version of JDK already installed on
+whether you have a sufficiently high version of JDK already installed on
 your system by entering the following command in your terminal.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="ex">java</span> <span class="at">-version</span></span></code></pre></div>
 <p>If you do not have a suitable JDK installed, you can download and
 install it from various vendors such as the <a href="https://adoptium.net/de/temurin/releases" class="external-link">Adoptium Working
 Group</a> or <a href="https://www.azul.com/downloads/?package=jdk#download-openjdk" class="external-link">Azul</a>.
 For a list of vendors providing JDKs, see <a href="https://whichjdk.com/" class="external-link">whichjdk.com</a>.</p>
-<p>When installing a JDK, there a few things to look out for, e.g.:</p>
+<p>When installing a JDK, there are a few things to look out for,
+e.g.:</p>
 <ol style="list-style-type: decimal">
 <li>Windows users should activate the update of “JavaSoft registry keys”
 during the installation process. This is necessary for the
@@ -103,20 +107,18 @@ installing the JDK to make sure that R can find the JDK.</li>
 </ol>
 </div>
 <div class="section level2">
-<h2 id="install-the-r-package-manager-pak">Install the R package manager <code>pak</code><a class="anchor" aria-label="anchor" href="#install-the-r-package-manager-pak"></a>
-</h2>
-<p>This can be done by entering the following command in an R
-session:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
 <h2 id="install-fastret">Install FastRet<a class="anchor" aria-label="anchor" href="#install-fastret"></a>
 </h2>
-<p>To install FastRet from the GitHub repository, enter the following
-command in an R session:</p>
+<p>To install the released version of FastRet from CRAN, enter the
+following command in an R session:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"FastRet"</span><span class="op">)</span></span></code></pre></div>
+<p>To install the development version of FastRet from the <a href="https://github.com/spang-lab/FastRet" class="external-link">GitHub repository</a>
+instead, first install the R package manager <code>pak</code> from CRAN
+and then use it to install FastRet:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"FastRet"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"spang-lab/FastRet"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
@@ -146,7 +148,7 @@ command in an R session: <code>install.packages("rJava")</code>.</li>
 <li>Run <code><a href="https://www.rforge.net/rJava/" class="external-link">library("rJava")</a></code> to ensure that the package can be
 loaded.</li>
 </ol>
-<p>If this doesn’t solve your problem, have a look the <a href="https://github.com/s-u/rJava?tab=readme-ov-file#troubleshooting" class="external-link">Troubleshooting
+<p>If this doesn’t solve your problem, have a look at the <a href="https://github.com/s-u/rJava?tab=readme-ov-file#troubleshooting" class="external-link">Troubleshooting
 Guide of the rJava package</a>.</p>
 </div>
 </div>
@@ -161,7 +163,7 @@ Guide of the rJava package</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -6,13 +6,15 @@ software being published; it is on CRAN and has a Shiny web GUI
 (<https://fastret.spang-lab.de>). Docs:
 <https://spang-lab.github.io/FastRet/>.
 
-This repo is one of three in the workspace — see
-[../CLAUDE.md](https://spang-lab.github.io/CLAUDE.md) for how it relates
-to **freda** (which depends on it) and **fastret-overleaf** (the
-manuscript).
+Related repos (not necessarily cloned next to this one): **freda**
+(depends on FastRet), **fastret-overleaf** (the manuscript) and
+**docker-images** (the GUI deployment container). `../CLAUDE.md` only
+describes the `~/repos` folder layout and README index, not these repos.
 
-- **Current branch: `1.3.0-dev`** (newest; ahead of `main`). Version
-  `1.3.5` (DESCRIPTION).
+- Development happens on `main` (feature/release branches merged via
+  PR). Version `1.5.2` (DESCRIPTION; the CRAN version may lag behind).
+  Every PR must bump the version (CI check) and add a `NEWS.md` entry;
+  releases are tagged `vX.Y.Z` after CRAN acceptance.
 - License GPL-3. Maintainer: Tobias Schmidt.
 
 ## What it does (user-facing capabilities)
@@ -45,7 +47,7 @@ the training-time transforms (it does this automatically).
 | File | Role |
 |----|----|
 | `train.R` | Core: `train_frm`, `predict.frm`, `adjust_frm`, fit helpers (glmnet/gbtree/lm), CV, `get_predictors`, `clip_predictions`, xgboost grid search |
-| `getcds.R` | Chemical-descriptor (CD) computation via **rcdk** (`getCDs`); disk+RAM caching; `CDFeatures`/`CDNames` constants; `as_canonical` |
+| `getcds.R` | Chemical-descriptor (CD) computation via **rcdk** (`getCDs`); on-disk SQLite cache (since 1.4.0); `CDFeatures`/`CDNames` constants; `as_canonical` |
 | `prepro.R` | `preprocess_data`: column validation, CD addition, polynomial/interaction/RT terms, NA & near-zero-variance removal (done **per-fold** in CV to avoid leakage) |
 | `sm.R` | `selective_measuring`: ridge weighting + PAM clustering; `rt_coef` tuning (`0`, `"max"`, `"inf"`) |
 | `plot.R` | `plot_frm`: measured-vs-predicted scatter (CV/train/adjust variants, optional log2 axes) |
@@ -70,9 +72,9 @@ ExtendedTask** to run long jobs (training, selective measuring) on
 background
 [`future::multisession`](https://future.futureverse.org/reference/multisession.html)
 workers (`nw` workers, each up to `nsw` sub-workers) so the UI stays
-responsive. Tabs: Train / Predict / Adjust / Selective Measuring. Each
-session is isolated. `app.R` is **excluded from the built package**
-(`.Rbuildignore`) — it’s a dev launcher.
+responsive. Tabs (in order): Train / Select (Selective Measuring) /
+Adjust / Predict. Each session is isolated. `app.R` is **excluded from
+the built package** (`.Rbuildignore`) — it’s a dev launcher.
 
 ## Dev workflow
 
@@ -89,14 +91,14 @@ Tests live in `tests/testthat/`. Some are named to run first
 (descriptor/cache warm-up, e.g. `getCDs`, `train_frm-*`). `misc/` holds
 dev helpers (`scripts/check-version.R` for the CI version check,
 `scripts/patch-shiny.R` for dev-mode GUI reload) and is excluded from
-the build. This package has **no Dockerfiles** — the deployment
-container lives in the workspace’s `docker-images/` repo (see
-[../CLAUDE.md](https://spang-lab.github.io/CLAUDE.md)).
+the build. `misc/` also holds a few old Dockerfiles (`fastret-base`,
+`fastret`, `rcdk-test`); the current deployment container for the hosted
+GUI lives in the separate `docker-images` repo.
 
 **GUI end-to-end tests** (`tests/testthat/test-gui-e2e.R`) drive the
 real Shiny app through a headless browser via `chromote` + `shinytest2`
-(both in `Suggests`). They **skip automatically** unless a
-Chrome/Chromium binary is found, so they don’t run on CRAN/CI. To run
+(both in `Suggests`). They **skip automatically** on CRAN
+(`skip_on_cran()`) and unless a Chrome/Chromium binary is found. To run
 them locally with no root needed, install Chrome for Testing and point
 `chromote` at it:
 
@@ -157,8 +159,9 @@ via `read_retip_hilic_data`.
 - **rcdk/Java** is the most common setup failure. Check
   `Sys.which("java")`.
 - **Descriptor computation is the slow step** (rcdk, ~0.5–2 s per unique
-  SMILES); xgboost training + CV is also slow. Lasso/ridge are fast.
-  Caching (disk `CDs.rds` + RAM option) matters — don’t defeat it.
+  SMILES); xgboost training + CV is also slow. Lasso/ridge are fast. The
+  on-disk SQLite descriptor cache (`CDs.sqlite`, per-user WAL copy,
+  since 1.4.0) matters — don’t defeat it.
 - **CV avoids data leakage** by removing near-zero-var/NA features and
   generating polynomial/interaction terms *inside each fold* (since
   v1.3.0). Preserve this when touching `prepro.R`/`train.R`.
