@@ -25,3 +25,4 @@
 ^(?i)test\.log$
 ^(?i)todos.md$
 ^(?i)vignettes$
+^CRAN-SUBMISSION$
