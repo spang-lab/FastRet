@@ -2,6 +2,8 @@
 
 ## FastRet 1.5.2
 
+CRAN release: 2026-10-24
+
 This is the first CRAN release since 1.3.0. It includes all changes
 listed below for versions 1.3.1 to 1.5.1, notably the 1.3.7 fix:
 cross-validation in

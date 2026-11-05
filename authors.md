@@ -22,7 +22,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/spang-lab/FastRet/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/spang-lab/FastRet/blob/v1.5.2/inst/CITATION)
 
 Fadil F, Schmidt T, Amesoeder C, Heckscher S, Schoen M, Gronwald W,
 Oefner PJ, Spang R, Dettmer K (2026). “FastRet: Fast and Simple
