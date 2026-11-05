@@ -74,3 +74,7 @@ To cite FastRet in publications, please use:
 Fadil F, Schmidt T, Amesoeder C, Heckscher S, Schoen M, Gronwald W, Oefner PJ, Spang R, Dettmer K (2026). FastRet: Fast and Simple Retention Time Prediction in Liquid Chromatography. *Journal of Chemical Information and Modeling*, 66(16), 10412-10425. [doi:10.1021/acs.jcim.6c01344](https://doi.org/10.1021/acs.jcim.6c01344)
 
 A BibTeX entry is available via `citation("FastRet")` in R.
+
+## Reproducing the paper
+
+The code and cached results needed to reproduce all figures, tables and numbers of the paper are attached to the [v1.5.2 release](https://github.com/spang-lab/FastRet/releases/tag/v1.5.2) as `freda.zip`; the README inside explains how to run it.
