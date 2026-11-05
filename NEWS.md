@@ -1,3 +1,8 @@
+# FastRet 1.5.3
+
+- README: added a "Reproducing the paper" section pointing to `freda.zip` on the [v1.5.2 release](https://github.com/spang-lab/FastRet/releases/tag/v1.5.2), which contains the code and cached results to reproduce all figures, tables and numbers of Fadil et al. (2026).
+
+
 # FastRet 1.5.2
 
 This is the first CRAN release since 1.3.0.
