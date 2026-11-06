@@ -1,3 +1,8 @@
+# FastRet 1.5.4
+
+- Docs site: pages are now deployed with `clean: true`, so pages whose source was removed (e.g. an old `TODOS.md`) no longer linger on https://spang-lab.github.io/FastRet/.
+  The AI-assistant notes moved from `CLAUDE.md` to `.claude/CLAUDE.md`, which pkgdown does not render.
+
 # FastRet 1.5.3
 
 - README: added a "Reproducing the paper" section pointing to `freda.zip` on the [v1.5.2 release](https://github.com/spang-lab/FastRet/releases/tag/v1.5.2), which contains the code and cached results to reproduce all figures, tables and numbers of Fadil et al. (2026).

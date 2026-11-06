@@ -162,7 +162,6 @@ Tests can be executed in several ways:
 
 1. **Run all tests**: `devtools::test()`
 2. **Run a specific test file**: `testthat::test_file("tests/testthat/test-getCDs.R")`
-3. **Run a specific test file with full path**: `testthat::test_file("c:/Users/tobi/Repos/github/spang/fastret/FastRet/tests/testthat/test-getCDs.R")`
 
 **Important**: Always run `devtools::load_all()` before executing tests to ensure the latest code changes are loaded.
 

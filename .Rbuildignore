@@ -8,6 +8,7 @@
 ^(?i)app\.r$
 ^(?i)check/$
 ^(?i)claude\.md$
+^\.claude$
 ^(?i)codecov\.yml$
 ^(?i)cran-comments\.md$
 ^(?i)cran-submission$
