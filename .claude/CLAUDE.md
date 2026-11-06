@@ -5,10 +5,6 @@ Structure–Retention Relationship). This is the scientific software being publi
 CRAN and has a Shiny web GUI (https://fastret.spang-lab.de). Docs:
 https://spang-lab.github.io/FastRet/.
 
-Related repos (not necessarily cloned next to this one): **freda** (depends on FastRet),
-**fastret-overleaf** (the manuscript) and **docker-images** (the GUI deployment container).
-`../CLAUDE.md` only describes the `~/repos` folder layout and README index, not these repos.
-
 - Development happens on `main` (feature/release branches merged via PR). Version `1.5.2`
   (DESCRIPTION; the CRAN version may lag behind). Every PR must bump the version (CI check)
   and add a `NEWS.md` entry; releases are tagged `vX.Y.Z` after CRAN acceptance.
@@ -74,7 +70,7 @@ Tests live in `tests/testthat/`. Some are named to run first (descriptor/cache w
 `getCDs`, `train_frm-*`). `misc/` holds dev helpers (`scripts/check-version.R` for the CI
 version check, `scripts/patch-shiny.R` for dev-mode GUI reload) and is excluded from the build.
 `misc/` also holds a few old Dockerfiles (`fastret-base`, `fastret`, `rcdk-test`); the
-current deployment container for the hosted GUI lives in the separate `docker-images` repo.
+hosted GUI is deployed from a separate container definition.
 
 **GUI end-to-end tests** (`tests/testthat/test-gui-e2e.R`) drive the real Shiny app through a
 headless browser via `chromote` + `shinytest2` (both in `Suggests`). They **skip automatically**
@@ -134,6 +130,5 @@ WAL copy at runtime to avoid recomputation. HILIC data is pulled from the Retip 
   `prepro.R`/`train.R`.
 - **Predictions are clipped** by default (`clip=TRUE`) to a log-normal tail range of observed
   RTs; missing descriptors are **mean-imputed** from training data (`impute=TRUE`). Both are
-  user-visible behaviors reviewers asked about (see the manuscript's `mean-imputation-bias`
-  revision item).
+  user-visible behaviors; keep them documented.
 - Reproducibility relies on `frm$seed`; same input + seed ⇒ same model.
