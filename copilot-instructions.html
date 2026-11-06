@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">FastRet</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -285,9 +285,6 @@
 </li>
 <li>
 <strong>Run a specific test file</strong>: <code>testthat::test_file("tests/testthat/test-getCDs.R")</code>
-</li>
-<li>
-<strong>Run a specific test file with full path</strong>: <code>testthat::test_file("c:/Users/tobi/Repos/github/spang/fastret/FastRet/tests/testthat/test-getCDs.R")</code>
 </li>
 </ol><p><strong>Important</strong>: Always run <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> before executing tests to ensure the latest code changes are loaded.</p>
 <p><strong>Critical for Parallel Tests</strong>: Before running tests that involve parallel functionality (multiple workers), the package must be properly installed using <code><a href="https://devtools.r-lib.org/reference/install.html" class="external-link">devtools::install()</a></code>. This is because spawned subprocesses use <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> to access package functions and will load the installed version rather than the development version loaded with <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code>. Failure to install will result in “argument ‘FUN’ is missing” errors when parallel workers cannot find functions that exist in the dev version but not in the installed version.</p>

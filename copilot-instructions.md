@@ -204,8 +204,6 @@ Tests can be executed in several ways:
     [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
 2.  **Run a specific test file**:
     `testthat::test_file("tests/testthat/test-getCDs.R")`
-3.  **Run a specific test file with full path**:
-    `testthat::test_file("c:/Users/tobi/Repos/github/spang/fastret/FastRet/tests/testthat/test-getCDs.R")`
 
 **Important**: Always run
 [`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
